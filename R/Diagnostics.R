@@ -1,6 +1,6 @@
 # Copyright 2018 Observational Health Data Sciences and Informatics
 #
-# This file is part of SkeletonCompartiveEffectStudy
+# This file is part of SkeletonComparativeEffectStudy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #'
 #' @export
 generateDiagnostics <- function(outputFolder) {
-  packageName <- "SkeletonCompartiveEffectStudy"
+  packageName <- "SkeletonComparativeEffectStudy"
   modelType <- "cox" # For MDRR computation
   psStrategy <- "stratification" # For covariate balance labels
   cmOutputFolder <- file.path(outputFolder, "cmOutput")

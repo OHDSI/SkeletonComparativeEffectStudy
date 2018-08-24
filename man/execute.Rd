@@ -55,7 +55,7 @@ in packaged results.}
 Execute the Study
 }
 \details{
-This function executes the SkeletonCompartiveEffectStudy Study.
+This function executes the SkeletonComparativeEffectStudy Study.
 
 The \code{createCohorts}, \code{synthesizePositiveControls}, \code{runAnalyses}, and \code{runDiagnostics} arguments
 are intended to be used to run parts of the full study at a time, but none of the parts are considerd to be optional.

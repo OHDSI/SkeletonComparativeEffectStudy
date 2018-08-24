@@ -4,8 +4,8 @@
 \alias{createFiguresAndTables}
 \title{Generate diagnostics}
 \usage{
-createFiguresAndTables(outputFolder, connectionDetails, cohortDatabaseSchema,
-  cohortTable, oracleTempSchema = oracleTempSchema)
+createFiguresAndTables(outputFolder, connectionDetails,
+  cohortDatabaseSchema, cohortTable, oracleTempSchema = oracleTempSchema)
 }
 \arguments{
 \item{outputFolder}{Name of local folder where the results were generated; make sure to use forward slashes

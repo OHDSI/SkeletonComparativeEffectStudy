@@ -4,7 +4,8 @@
 \alias{launchEvidenceExplorer}
 \title{Launch the SqlRender Developer Shiny app}
 \usage{
-launchEvidenceExplorer(studyFolder, blind = TRUE, launch.browser = TRUE)
+launchEvidenceExplorer(studyFolder, blind = TRUE,
+  launch.browser = TRUE)
 }
 \arguments{
 \item{studyFolder}{The root folder containing the study results. The app expects each database to have a subfolder in this 

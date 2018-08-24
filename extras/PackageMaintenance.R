@@ -1,6 +1,6 @@
 # Copyright 2018 Observational Health Data Sciences and Informatics
 #
-# This file is part of SkeletonCompartiveEffectStudy
+# This file is part of SkeletonComparativeEffectStudy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 # Format and check code ---------------------------------------------------
 OhdsiRTools::formatRFolder()
-OhdsiRTools::checkUsagePackage("SkeletonCompartiveEffectStudy")
+OhdsiRTools::checkUsagePackage("SkeletonComparativeEffectStudy")
 OhdsiRTools::updateCopyrightYearFolder()
 
 # Create manual -----------------------------------------------------------
-shell("rm extras/SkeletonCompartiveEffectStudy.pdf")
-shell("R CMD Rd2pdf ./ --output=extras/SkeletonCompartiveEffectStudy.pdf")
+shell("rm extras/SkeletonComparativeEffectStudy.pdf")
+shell("R CMD Rd2pdf ./ --output=extras/SkeletonComparativeEffectStudy.pdf")
 
 # Create vignette ---------------------------------------------------------
 rmarkdown::render("vignettes/UsingSkeletonPackage.Rmd",
@@ -36,11 +36,11 @@ OhdsiRTools::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv"
                                                 insertTableSql = TRUE,
                                                 insertCohortCreationR = TRUE,
                                                 generateStats = FALSE,
-                                                packageName = "SkeletonCompartiveEffectStudy")
+                                                packageName = "SkeletonComparativeEffectStudy")
 
 # Create analysis details -------------------------------------------------
 source("extras/CreateStudyAnalysisDetails.R")
 createAnalysesDetails("inst/settings/")
 
 # Store environment in which the study was executed -----------------------
-OhdsiRTools::insertEnvironmentSnapshotInPackage("SkeletonCompartiveEffectStudy")
+OhdsiRTools::insertEnvironmentSnapshotInPackage("SkeletonComparativeEffectStudy")

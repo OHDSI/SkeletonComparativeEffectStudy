@@ -1,6 +1,6 @@
 # Copyright 2018 Observational Health Data Sciences and Informatics
 #
-# This file is part of SkeletonCompartiveEffectStudy
+# This file is part of SkeletonComparativeEffectStudy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -140,7 +140,7 @@ createFiguresAndTables <- function(outputFolder,
   print(querySql(conn, sql))
   
   # Simplified null distribution -------------------------------------------
-  negativeControls <- read.csv(system.file("settings", "NegativeControls.csv", package = "SkeletonCompartiveEffectStudy"))
+  negativeControls <- read.csv(system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy"))
   negativeControlOutcomeIds <- negativeControls$outcomeId[negativeControls$type == "Outcome"]
   
   negControlSubset <- analysisSummary[analysisSummary$targetId %in% c(1,3,5) & 
@@ -224,7 +224,7 @@ createFiguresAndTables <- function(outputFolder,
                                            beforeLabel = "Before straticiation",
                                            afterLabel = "After stratification",
                                            fileName = fileName)
-  fileName <- system.file("settings", "Table1Specs.csv", package = "SkeletonCompartiveEffectStudy")
+  fileName <- system.file("settings", "Table1Specs.csv", package = "SkeletonComparativeEffectStudy")
   table1Specs <- read.csv(fileName)
   table1 <- CohortMethod::createCmTable1(balance = balPc, 
                                          specifications = table1Specs, 

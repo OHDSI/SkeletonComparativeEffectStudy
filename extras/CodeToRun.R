@@ -1,4 +1,4 @@
-library(SkeletonCompartiveEffectStudy)
+library(SkeletonComparativeEffectStudy)
 
 # Optional: specify where the temporary files (used by the ff package) will be created:
 options(fftempdir = "s:/FFtemp")
@@ -7,7 +7,7 @@ options(fftempdir = "s:/FFtemp")
 maxCores <- 32
 
 # The folder where the study intermediate and result files will be written:
-outputFolder <- "s:/SkeletonCompartiveEffectStudy"
+outputFolder <- "s:/SkeletonComparativeEffectStudy"
 
 # Details for connecting to the server:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "pdw",

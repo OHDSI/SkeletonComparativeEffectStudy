@@ -1,6 +1,6 @@
 # Copyright 2018 Observational Health Data Sciences and Informatics
 #
-# This file is part of SkeletonCompartiveEffectStudy
+# This file is part of SkeletonComparativeEffectStudy
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ prepareForEvidenceExplorer <- function(studyFolder) {
 #' @export
 launchEvidenceExplorer <- function(studyFolder, blind = TRUE, launch.browser = TRUE) {
   ensure_installed("DT")
-  appDir <- system.file("shiny", "EvidenceExplorer", package = "SkeletonCompartiveEffectStudy")
+  appDir <- system.file("shiny", "EvidenceExplorer", package = "SkeletonComparativeEffectStudy")
   .GlobalEnv$shinySettings <- list(studyFolder = studyFolder, blind = blind)
   on.exit(rm(shinySettings, envir=.GlobalEnv))
   shiny::runApp(appDir) 

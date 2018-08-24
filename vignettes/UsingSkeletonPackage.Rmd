@@ -37,7 +37,7 @@ This vignette describes how one can use the package skeleton for comparative eff
 The package skeleton currently implements an examplar study, examining the effect of celecoxib versus diclofenac on gastrointestinal (GI) bleeding. If desired (as a test), one can run the package as is. To run the study, simply run the `execute` function in the package. See the R help system for details:
 
 ```{r eval=FALSE}
-library(SkeletonCompartiveEffectStudy)
+library(SkeletonComparativeEffectStudy)
 ?execute
 ```
 
@@ -51,7 +51,7 @@ Below is the list of steps needed to adapt the package skeleton to implement ano
 
 # Copy and rename the package
 
-Please copy the `SkeletonCompartiveEffectStudy` folder. Choose a name for your study package, and change all references from 'SkeletonCompartiveEffectStudy' to your name of choice in the package code. You could use Notepad++'s 'Find in files' option to do this automatically.
+Please copy the `SkeletonComparativeEffectStudy` folder. Choose a name for your study package, and change all references from 'SkeletonComparativeEffectStudy' to your name of choice in the package code. You could use Notepad++'s 'Find in files' option to do this automatically.
 
 Also, the DESCRIPTION file contains general information about the package, including its authors and a description, so don't forget to update that.
 
@@ -74,7 +74,7 @@ OhdsiRTools::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv"
                                                 insertTableSql = TRUE,
                                                 insertCohortCreationR = TRUE,
                                                 generateStats = FALSE,
-                                                packageName = "SkeletonCompartiveEffectStudy")
+                                                packageName = "SkeletonComparativeEffectStudy")
 ```
 
 This code will fetch the cohort definitions from the WebAPI instance, and will insert them as json files in the `inst/cohorts` folder. It will also create corresponding sql files in the `inst/sql` folder.

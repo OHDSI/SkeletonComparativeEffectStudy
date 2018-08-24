@@ -1,6 +1,6 @@
 # Copyright 2018 Observational Health Data Sciences and Informatics
 #
-# This file is part of SkeletonCompartiveEffectStudy
+# This file is part of SkeletonComparativeEffectStudy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #' Execute the Study
 #'
 #' @details
-#' This function executes the SkeletonCompartiveEffectStudy Study.
+#' This function executes the SkeletonComparativeEffectStudy Study.
 #' 
 #' The \code{createCohorts}, \code{synthesizePositiveControls}, \code{runAnalyses}, and \code{runDiagnostics} arguments
 #' are intended to be used to run parts of the full study at a time, but none of the parts are considerd to be optional.
@@ -112,7 +112,7 @@ execute <- function(connectionDetails,
       dir.create(cmOutputFolder)
     cmAnalysisListFile <- system.file("settings",
                                       "cmAnalysisList.json",
-                                      package = "SkeletonCompartiveEffectStudy")
+                                      package = "SkeletonComparativeEffectStudy")
     cmAnalysisList <- CohortMethod::loadCmAnalysisList(cmAnalysisListFile)
     dcosList <- createTcos(outputFolder = outputFolder)
     results <- CohortMethod::runCmAnalyses(connectionDetails = connectionDetails,

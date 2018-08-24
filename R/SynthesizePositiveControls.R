@@ -1,6 +1,6 @@
 # Copyright 2018 Observational Health Data Sciences and Informatics
 #
-# This file is part of SkeletonCompartiveEffectStudy
+# This file is part of SkeletonComparativeEffectStudy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ synthesizePositiveControls <- function(connectionDetails,
     
     synthesisSummaryFile <- file.path(outputFolder, "SynthesisSummary.csv")
     if (!file.exists(synthesisSummaryFile)) {
-      pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonCompartiveEffectStudy")
+      pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
       negativeControls <- read.csv(pathToCsv)
       exposureOutcomePairs <- data.frame(exposureId = negativeControls$targetId,
                                          outcomeId = negativeControls$outcomeId)
@@ -116,7 +116,7 @@ synthesizePositiveControls <- function(connectionDetails,
       write.csv(result, synthesisSummaryFile, row.names = FALSE)
     } 
     OhdsiRTools::logTrace("Merging positive with negative controls ")
-    pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonCompartiveEffectStudy")
+    pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
     negativeControls <- read.csv(pathToCsv)
     
     synthesisSummary <- read.csv(synthesisSummaryFile)
@@ -127,7 +127,7 @@ synthesizePositiveControls <- function(connectionDetails,
     synthesisSummary$oldOutcomeId <- synthesisSummary$outcomeId
     synthesisSummary$outcomeId <- synthesisSummary$newOutcomeId
   }
-  pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonCompartiveEffectStudy")
+  pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
   negativeControls <- read.csv(pathToCsv)
   negativeControls$targetEffectSize <- 1
   negativeControls$trueEffectSize <- 1
