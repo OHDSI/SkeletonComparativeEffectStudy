@@ -134,16 +134,7 @@ addAnalysisDescription <- function(data, IdColumnName = "analysisId", nameColumn
 createTcos <- function(outputFolder) {
   pathToCsv <- system.file("settings", "TcosOfInterest.csv", package = "SkeletonComparativeEffectStudy")
   tcosOfInterest <- read.csv(pathToCsv, stringsAsFactors = FALSE)
-  allControlsFile <- file.path(outputFolder, "AllControls.csv")
-  if (file.exists(allControlsFile)) {
-    # Positive controls must have been synthesized. Include both positive and negative controls.
-    allControls <- read.csv(allControlsFile)
-  } else {
-    # Include only negative controls
-    pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
-    allControls <- read.csv(pathToCsv)
-  }
-  tcosList <- list()
+  allControls <- getAllControls(outputFolder)
   tcs <- unique(rbind(tcosOfInterest[, c("targetId", "comparatorId")],
                       allControls[, c("targetId", "comparatorId")]))
   createTco <- function(i) {
@@ -171,4 +162,19 @@ getOutcomesOfInterest <- function() {
   outcomeIds <- do.call("c", (strsplit(outcomeIds, split = ";")))
   outcomeIds <- unique(as.numeric(outcomeIds))
   return(outcomeIds)
+}
+
+getAllControls <- function(outputFolder) {
+  allControlsFile <- file.path(outputFolder, "AllControls.csv")
+  if (file.exists(allControlsFile)) {
+    # Positive controls must have been synthesized. Include both positive and negative controls.
+    allControls <- read.csv(allControlsFile)
+  } else {
+    # Include only negative controls
+    pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
+    allControls <- read.csv(pathToCsv)
+    allControls$oldOutcomeId <- allControls$outcomeId
+    allControls$targetEffectSize <- rep(1, nrow(allControls))
+  }
+  return(allControls)
 }

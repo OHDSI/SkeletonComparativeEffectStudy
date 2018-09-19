@@ -39,6 +39,11 @@
 #' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
 #'                             (/). Do not use a folder on a network drive since this greatly impacts
 #'                             performance.
+#' @param databaseId           A short string for identifying the database (e.g.
+#'                             'Synpuf').
+#' @param databaseName         The full name of the database (e.g. 'Medicare Claims
+#'                             Synthetic Public Use Files (SynPUFs)').
+#' @param databaseDescription  A short description (several sentences) of the database.
 #' @param createCohorts        Create the cohortTable table with the exposure and outcome cohorts?
 #' @param synthesizePositiveControls  Should positive controls be synthesized?
 #' @param runAnalyses          Perform the cohort method analyses?
@@ -72,6 +77,9 @@ execute <- function(connectionDetails,
                     cohortTable = "cohort",
                     oracleTempSchema = cohortDatabaseSchema,
                     outputFolder,
+                    databaseId = "Unknown",
+                    databaseName = "Unknown",
+                    databaseDescription = "Unknown",
                     createCohorts = TRUE,
                     synthesizePositiveControls = TRUE,
                     runAnalyses = TRUE,
@@ -129,10 +137,12 @@ execute <- function(connectionDetails,
   
   if (packageResults) {
     OhdsiRTools::logInfo("Packaging results")
-    packageResults(connectionDetails = connectionDetails,
-                   cdmDatabaseSchema = cdmDatabaseSchema,
-                   outputFolder = outputFolder,
-                   minCellCount = minCellCount)
+    exportResults(outputFolder = outputFolder,
+                  databaseId = databaseId,
+                  databaseName = databaseName,
+                  databaseDescription = databaseDescription,
+                  minCellCount = minCellCount,
+                  maxCores = maxCores)
   }
   
   invisible(NULL)

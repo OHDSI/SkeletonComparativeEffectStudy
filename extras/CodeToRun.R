@@ -23,6 +23,12 @@ cdmDatabaseSchema <- "cdm_truven_mdcd_v699.dbo"
 cohortDatabaseSchema <- "scratch.dbo"
 cohortTable <- "mschuemi_skeleton"
 
+# Some meta-information that will be used by the export function:
+databaseId = "MDCD"
+databaseName <- "Truven Health MarketScan® Multi-State Medicaid Database"
+databaseDescription <- "Truven Health MarketScan® Multi-State Medicaid Database (MDCD) adjudicated US health insurance claims for Medicaid enrollees from multiple states and includes hospital discharge diagnoses, outpatient diagnoses and procedures, and outpatient pharmacy claims as well as ethnicity and Medicare eligibility. Members maintain their same identifier even if they leave the system for a brief period however the dataset lacks lab data. [For further information link to RWE site for Truven MDCD."
+
+
 # For Oracle: define a schema that can be used to emulate temp tables:
 oracleTempSchema <- NULL
 
@@ -32,11 +38,14 @@ execute(connectionDetails = connectionDetails,
         cohortTable = cohortTable,
         oracleTempSchema = oracleTempSchema,
         outputFolder = outputFolder,
+        databaseId = databaseId,
+        databaseName = databaseName,
+        databaseDescription = databaseDescription,
         createCohorts = FALSE,
         synthesizePositiveControls = FALSE,
         runAnalyses = FALSE,
-        runDiagnostics = TRUE,
-        packageResults = FALSE,
+        runDiagnostics = FALSE,
+        packageResults = TRUE,
         maxCores = maxCores)
 
 prepareForEvidenceExplorer(studyFolder = "S:/SkeletonStudy")

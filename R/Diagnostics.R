@@ -30,28 +30,14 @@ generateDiagnostics <- function(outputFolder) {
   if (!file.exists(diagnosticsFolder)) {
     dir.create(diagnosticsFolder)
   }
-  
   reference <- readRDS(file.path(cmOutputFolder, "outcomeModelReference.rds"))
   reference <- addCohortNames(reference, "targetId", "targetName")
   reference <- addCohortNames(reference, "comparatorId", "comparatorName")
   reference <- addCohortNames(reference, "outcomeId", "outcomeName")
   reference <- addAnalysisDescription(reference, "analysisId", "analysisDescription")
-  
   analysisSummary <- read.csv(file.path(outputFolder, "analysisSummary.csv"))
   reference <- merge(reference, analysisSummary[, c("targetId", "comparatorId", "outcomeId", "analysisId", "logRr", "seLogRr")])
-  
-  allControlsFile <- file.path(outputFolder, "AllControls.csv")
-  if (file.exists(allControlsFile)) {
-    # Positive controls must have been synthesized. Include both positive and negative controls.
-    allControls <- read.csv(allControlsFile)
-  } else {
-    # Include only negative controls
-    pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
-    allControls <- read.csv(pathToCsv)
-    allControls$oldOutcomeId <- allControls$outcomeId
-    allControls$targetEffectSize <- rep(1, nrow(allControls))
-  }
-  
+  allControls <- getAllControls(outputFolder)
   subsets <- split(reference, list(reference$targetId, reference$comparatorId, reference$analysisId))
   # subset <- subsets[[1]]
   cluster <- ParallelLogger::makeCluster(min(4, maxCores))
