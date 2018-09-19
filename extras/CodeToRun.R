@@ -17,7 +17,7 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "pdw",
                                                                 port = Sys.getenv("PDW_PORT"))
 
 # The name of the database schema where the CDM data can be found:
-cdmDatabaseSchema <- "cdm_truven_mdcd_v635.dbo"
+cdmDatabaseSchema <- "cdm_truven_mdcd_v699.dbo"
 
 # The name of the database schema and table where the study-specific cohorts will be instantiated:
 cohortDatabaseSchema <- "scratch.dbo"
@@ -35,8 +35,8 @@ execute(connectionDetails = connectionDetails,
         createCohorts = FALSE,
         synthesizePositiveControls = FALSE,
         runAnalyses = FALSE,
-        runDiagnostics = FALSE,
-        packageResults = TRUE,
+        runDiagnostics = TRUE,
+        packageResults = FALSE,
         maxCores = maxCores)
 
 prepareForEvidenceExplorer(studyFolder = "S:/SkeletonStudy")

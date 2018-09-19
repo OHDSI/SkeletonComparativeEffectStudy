@@ -94,13 +94,9 @@ addCohortNames <- function(data, IdColumnName = "cohortDefinitionId", nameColumn
   pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
   negativeControls <- read.csv(pathToCsv)
   
-  idToName <- data.frame(cohortId = c(cohortsToCreate$cohortId, 
-                                      negativeControls$targetId,
-                                      negativeControls$comparatorId,
+  idToName <- data.frame(cohortId = c(cohortsToCreate$cohortId,
                                       negativeControls$outcomeId),
-                         cohortName = c(as.character(cohortsToCreate$name), 
-                                        as.character(negativeControls$targetName),
-                                        as.character(negativeControls$comparatorName),
+                         cohortName = c(as.character(cohortsToCreate$atlasName),
                                         as.character(negativeControls$outcomeName)))
   idToName <- idToName[order(idToName$cohortId), ]
   idToName <- idToName[!duplicated(idToName$cohortId), ]

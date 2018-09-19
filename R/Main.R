@@ -81,9 +81,9 @@ execute <- function(connectionDetails,
                     minCellCount= 5) {
   if (!file.exists(outputFolder))
     dir.create(outputFolder, recursive = TRUE)
-
-  OhdsiRTools::addDefaultFileLogger(file.path(outputFolder, "log.txt"))
-
+  
+  ParallelLogger::addDefaultFileLogger(file.path(outputFolder, "log.txt"))
+  
   if (createCohorts) {
     OhdsiRTools::logInfo("Creating exposure and outcome cohorts")
     createCohorts(connectionDetails = connectionDetails,
@@ -94,51 +94,39 @@ execute <- function(connectionDetails,
                   outputFolder = outputFolder)
   }
   
-  if (synthesizePositiveControls) {
-    OhdsiRTools::logInfo("Synthesizing positive controls")
-    synthesizePositiveControls(connectionDetails = connectionDetails,
-                               cdmDatabaseSchema = cdmDatabaseSchema,
-                               cohortDatabaseSchema = cohortDatabaseSchema,
-                               cohortTable = cohortTable,
-                               oracleTempSchema = oracleTempSchema,
-                               outputFolder = outputFolder,
-                               maxCores = maxCores)
+  # Set doPositiveControlSynthesis to FALSE if you don't want to use synthetic positive controls:
+  # Start doPositiveControlSynthesis
+  doPositiveControlSynthesis <- FALSE
+  # End doPositiveControlSynthesis
+  if (doPositiveControlSynthesis) {
+    if (synthesizePositiveControls) {
+      OhdsiRTools::logInfo("Synthesizing positive controls")
+      synthesizePositiveControls(connectionDetails = connectionDetails,
+                                 cdmDatabaseSchema = cdmDatabaseSchema,
+                                 cohortDatabaseSchema = cohortDatabaseSchema,
+                                 cohortTable = cohortTable,
+                                 oracleTempSchema = oracleTempSchema,
+                                 outputFolder = outputFolder,
+                                 maxCores = maxCores)
+    }
   }
   
   if (runAnalyses) {
-    OhdsiRTools::logInfo("Running analyses")
-    cmOutputFolder <- file.path(outputFolder, "cmOutput")
-    if (!file.exists(cmOutputFolder))
-      dir.create(cmOutputFolder)
-    cmAnalysisListFile <- system.file("settings",
-                                      "cmAnalysisList.json",
-                                      package = "SkeletonComparativeEffectStudy")
-    cmAnalysisList <- CohortMethod::loadCmAnalysisList(cmAnalysisListFile)
-    dcosList <- createTcos(outputFolder = outputFolder)
-    results <- CohortMethod::runCmAnalyses(connectionDetails = connectionDetails,
-                                           cdmDatabaseSchema = cdmDatabaseSchema,
-                                           exposureDatabaseSchema = cohortDatabaseSchema,
-                                           exposureTable = cohortTable,
-                                           outcomeDatabaseSchema = cohortDatabaseSchema,
-                                           outcomeTable = cohortTable,
-                                           outputFolder = cmOutputFolder,
-                                           oracleTempSchema = oracleTempSchema,
-                                           cmAnalysisList = cmAnalysisList,
-                                           drugComparatorOutcomesList = dcosList,
-                                           getDbCohortMethodDataThreads = min(3, maxCores),
-                                           createStudyPopThreads = min(3, maxCores),
-                                           createPsThreads = max(1, round(maxCores/10)),
-                                           psCvThreads = min(10, maxCores),
-                                           computeCovarBalThreads = min(3, maxCores),
-                                           trimMatchStratifyThreads = min(10, maxCores),
-                                           fitOutcomeModelThreads = max(1, round(maxCores/4)),
-                                           outcomeCvThreads = min(4, maxCores),
-                                           refitPsForEveryOutcome = FALSE)
+    OhdsiRTools::logInfo("Running CohortMethod analyses")
+    runCohortMethod(connectionDetails = connectionDetails,
+                    cdmDatabaseSchema = cdmDatabaseSchema,
+                    cohortDatabaseSchema = cohortDatabaseSchema,
+                    cohortTable = cohortTable,
+                    oracleTempSchema = oracleTempSchema,
+                    outputFolder = outputFolder,
+                    maxCores = maxCores)
   }
+  
   if (runDiagnostics) {
     OhdsiRTools::logInfo("Running diagnostics")
     generateDiagnostics(outputFolder = outputFolder)
   }
+  
   if (packageResults) {
     OhdsiRTools::logInfo("Packaging results")
     packageResults(connectionDetails = connectionDetails,
@@ -146,7 +134,6 @@ execute <- function(connectionDetails,
                    outputFolder = outputFolder,
                    minCellCount = minCellCount)
   }
-  
   
   invisible(NULL)
 }

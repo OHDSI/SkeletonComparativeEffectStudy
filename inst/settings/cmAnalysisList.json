@@ -73,13 +73,12 @@
     "matchOnPsAndCovariates": false,
     "stratifyByPs": false,
     "stratifyByPsAndCovariates": false,
-    "computeCovariateBalance": false,
     "fitOutcomeModel": true,
     "fitOutcomeModelArgs": {
       "modelType": "cox",
       "stratified": false,
       "useCovariates": false,
-      "inversePsWeighting": false,
+      "inversePtWeighting": false,
       "prior": {
         "priorType": "laplace",
         "variance": 1,
@@ -238,13 +237,12 @@
     "matchOnPsAndCovariates": false,
     "stratifyByPs": false,
     "stratifyByPsAndCovariates": false,
-    "computeCovariateBalance": false,
     "fitOutcomeModel": true,
     "fitOutcomeModelArgs": {
       "modelType": "cox",
       "stratified": true,
       "useCovariates": false,
-      "inversePsWeighting": false,
+      "inversePtWeighting": false,
       "prior": {
         "priorType": "laplace",
         "variance": 1,
@@ -403,13 +401,12 @@
     "matchOnPsAndCovariates": false,
     "stratifyByPs": false,
     "stratifyByPsAndCovariates": false,
-    "computeCovariateBalance": false,
     "fitOutcomeModel": true,
     "fitOutcomeModelArgs": {
       "modelType": "cox",
       "stratified": true,
       "useCovariates": false,
-      "inversePsWeighting": false,
+      "inversePtWeighting": false,
       "prior": {
         "priorType": "laplace",
         "variance": 1,
@@ -567,13 +564,12 @@
       "attr_class": "args"
     },
     "stratifyByPsAndCovariates": false,
-    "computeCovariateBalance": false,
     "fitOutcomeModel": true,
     "fitOutcomeModelArgs": {
       "modelType": "cox",
       "stratified": true,
       "useCovariates": false,
-      "inversePsWeighting": false,
+      "inversePtWeighting": false,
       "prior": {
         "priorType": "laplace",
         "variance": 1,
