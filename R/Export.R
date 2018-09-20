@@ -923,7 +923,7 @@ prepareKaplanMeier <- function(population) {
     idx <- summary(sv, censored = T)$strata == "treatment=0"
     survComparator <- data.frame(time = sv$time[idx],
                                  comparatorSurvival = sv$surv[idx],
-                                 comparatortSurvivalLb = sv$lower[idx],
+                                 comparatorSurvivalLb = sv$lower[idx],
                                  comparatorSurvivalUb = sv$upper[idx])
     data <- merge(survTarget, survComparator, all = TRUE)
   } else {
@@ -977,6 +977,7 @@ prepareKaplanMeier <- function(population) {
     survComparator$var <- NULL
     data <- merge(survTarget, survComparator, all = TRUE)
   }
+  data <- data[, c("time", "targetSurvival", "targetSurvivalLb", "targetSurvivalUb", "comparatorSurvival", "comparatorSurvivalLb", "comparatorSurvivalUb")]
   cutoff <- quantile(population$survivalTime, dataCutoff)
   data <- data[data$time <= cutoff, ]
   if (cutoff <= 300) {
