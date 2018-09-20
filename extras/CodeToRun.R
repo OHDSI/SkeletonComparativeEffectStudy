@@ -4,7 +4,7 @@ library(SkeletonComparativeEffectStudy)
 options(fftempdir = "s:/FFtemp")
 
 # Maximum number of cores to be used:
-maxCores <- 32
+maxCores <- parallel::detectCores()
 
 # The folder where the study intermediate and result files will be written:
 outputFolder <- "s:/SkeletonComparativeEffectStudy"
@@ -27,7 +27,6 @@ cohortTable <- "mschuemi_skeleton"
 databaseId = "MDCD"
 databaseName <- "Truven Health MarketScan® Multi-State Medicaid Database"
 databaseDescription <- "Truven Health MarketScan® Multi-State Medicaid Database (MDCD) adjudicated US health insurance claims for Medicaid enrollees from multiple states and includes hospital discharge diagnoses, outpatient diagnoses and procedures, and outpatient pharmacy claims as well as ethnicity and Medicare eligibility. Members maintain their same identifier even if they leave the system for a brief period however the dataset lacks lab data. [For further information link to RWE site for Truven MDCD."
-
 
 # For Oracle: define a schema that can be used to emulate temp tables:
 oracleTempSchema <- NULL

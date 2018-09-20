@@ -82,14 +82,6 @@ createDiagnosticsForSubset <- function(subset, allControls, outputFolder, cmOutp
   }
   
   # Positive and negative controls
-  if (sum(!is.na(controlSubset$seLogRr)) >= 5) {
-    fileName <-  file.path(diagnosticsFolder, paste0("trueAndObs_a", analysisId, "_t", targetId, "_c", comparatorId, ".png"))
-    EmpiricalCalibration::plotTrueAndObserved(logRr = controlSubset$logRr, 
-                                              seLogRr = controlSubset$seLogRr, 
-                                              trueLogRr = log(controlSubset$targetEffectSize),
-                                              title = title,
-                                              fileName = fileName)
-  }
   validPcs <- sum(!is.na(controlSubset$seLogRr[controlSubset$targetEffectSize != 1]))
   ParallelLogger::logDebug("Subset has ", validPcs, " valid positive control estimates")
   if (validPcs >= 10) {
@@ -97,6 +89,15 @@ createDiagnosticsForSubset <- function(subset, allControls, outputFolder, cmOutp
                                                            seLogRr = controlSubset$seLogRr, 
                                                            trueLogRr = log(controlSubset$targetEffectSize), 
                                                            estimateCovarianceMatrix = FALSE)
+    
+    fileName <-  file.path(diagnosticsFolder, paste0("controls_a", analysisId, "_t", targetId, "_c", comparatorId, ".png"))
+    EmpiricalCalibration::plotCiCalibrationEffect(logRr = controlSubset$logRr, 
+                                                  seLogRr = controlSubset$seLogRr, 
+                                                  trueLogRr = log(controlSubset$targetEffectSize),
+                                                  model = model,
+                                                  title = title,
+                                                  fileName = fileName)
+    
     fileName <-  file.path(diagnosticsFolder, paste0("ciCoverage_a", analysisId, "_t", targetId, "_c", comparatorId, ".png"))
     evaluation <- EmpiricalCalibration::evaluateCiCalibration(logRr = controlSubset$logRr, 
                                                               seLogRr = controlSubset$seLogRr, 

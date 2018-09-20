@@ -93,7 +93,25 @@ createAnalysesDetails <- function(workFolder) {
                                                 fitOutcomeModel = TRUE,
                                                 fitOutcomeModelArgs = fitOutcomeModelArgs2)
   
-  cmAnalysisList <- list(cmAnalysis1, cmAnalysis2, cmAnalysis3, cmAnalysis4)
+  interactionCovariateIds <- c(8532001, 201826210, 21600960413) # Female, T2DM, concurent use of antithrombotic agents
+  
+  fitOutcomeModelArgs3 <- CohortMethod::createFitOutcomeModelArgs(modelType = "cox",
+                                                                  stratified = TRUE,
+                                                                  useCovariates = FALSE,
+                                                                  interactionCovariateIds = interactionCovariateIds)
+  
+  cmAnalysis5 <- CohortMethod::createCmAnalysis(analysisId = 5,
+                                                description = "Stratification with interaction terms",
+                                                getDbCohortMethodDataArgs = getDbCmDataArgs,
+                                                createStudyPopArgs = createStudyPopArgs,
+                                                createPs = TRUE,
+                                                createPsArgs = createPsArgs,
+                                                stratifyByPs = TRUE,
+                                                stratifyByPsArgs = stratifyByPsArgs,
+                                                fitOutcomeModel = TRUE,
+                                                fitOutcomeModelArgs = fitOutcomeModelArgs3)
+  
+  cmAnalysisList <- list(cmAnalysis1, cmAnalysis2, cmAnalysis3, cmAnalysis4, cmAnalysis5)
   
   CohortMethod::saveCmAnalysisList(cmAnalysisList, file.path(workFolder, "cmAnalysisList.json"))
 }

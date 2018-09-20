@@ -60,7 +60,7 @@ createCohorts <- function(connectionDetails,
   negativeControls <- read.csv(pathToCsv)
   
   OhdsiRTools::logInfo("Creating negative control outcome cohorts")
-  negativeControlOutcomes <- negativeControls[negativeControls$type == "Outcome", ]
+  negativeControlOutcomes <- negativeControls[tolower(negativeControls$type) == "outcome", ]
   sql <- SqlRender::loadRenderTranslateSql("NegativeControlOutcomes.sql",
                                            "SkeletonComparativeEffectStudy",
                                            dbms = connectionDetails$dbms,

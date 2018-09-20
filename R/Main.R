@@ -104,7 +104,7 @@ execute <- function(connectionDetails,
   
   # Set doPositiveControlSynthesis to FALSE if you don't want to use synthetic positive controls:
   # Start doPositiveControlSynthesis
-  doPositiveControlSynthesis <- FALSE
+  doPositiveControlSynthesis <- TRUE
   # End doPositiveControlSynthesis
   if (doPositiveControlSynthesis) {
     if (synthesizePositiveControls) {
