@@ -93,8 +93,6 @@ synthesizePositiveControls <- function(connectionDetails,
                                               maxSubjectsForModel = 250000,
                                               minOutcomeCountForModel = 50,
                                               minOutcomeCountForInjection = 25,
-                                              modelThreads = max(1, round(maxCores/8)),
-                                              generationThreads = min(6, maxCores),
                                               covariateSettings = FeatureExtraction::createCovariateSettings(useDemographicsAgeGroup = TRUE,
                                                                                                              useDemographicsGender = TRUE,
                                                                                                              useDemographicsIndexYear = TRUE,
@@ -108,8 +106,10 @@ synthesizePositiveControls <- function(connectionDetails,
                                                                                                              useDcsi = TRUE,
                                                                                                              useChads2Vasc = TRUE,
                                                                                                              longTermStartDays = 365,
-                                                                                                             endDays = 0)
+                                                                                                             endDays = 0),
                                               # End positiveControlSynthesisArgs
+                                              modelThreads = max(1, round(maxCores/8)),
+                                              generationThreads = min(6, maxCores)
     )
     write.csv(result, synthesisSummaryFile, row.names = FALSE)
   } else {
