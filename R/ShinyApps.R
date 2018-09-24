@@ -33,8 +33,8 @@
 #'
 #' @export
 prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder) {
-  # resultsZipFile <- "s:/SkeletonComparativeEffectStudy/export/ResultsMDCD.zip"
-  # dataFolder <- "s:/SkeletonComparativeEffectStudy/shinyData"
+  # resultsZipFile <- "c:/temp/ResultsMDCD.zip"
+  # dataFolder <- "c:/temp/shinyData"
   if (!file.exists(dataFolder)) {
     dir.create(dataFolder, recursive = TRUE)
   }
@@ -52,7 +52,7 @@ prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder) {
     targetId <- subset$target_id[1]
     comparatorId <- subset$comparator_id[1]
     fileName <- sprintf("%s_t%s_c%s_%s.rds", tableName, targetId, comparatorId, databaseId)
-    saveRDS(table, file.path(dataFolder, fileName))
+    saveRDS(subset, file.path(dataFolder, fileName))
   }
   
   processFile <- function(file) {
