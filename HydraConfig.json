@@ -47,9 +47,18 @@
 		"payload": "expression",
 		"output": "inst/sql/sql_server"
 	},{
+		"type": "jsonToSql",
+		"input": "negativeControlCohortDefinition",
+		"expressionType": "outcome",
+		"output": "inst/sql/sql_server/NegativeControlOutcomes.sql"
+	},{
 		"type": "jsonToJson",
-		"input": "estimationAnalysisSettings.analysisSpecification",
+		"input": "estimationAnalysisSettings.analysisSpecification.cohortMethodAnalysisList",
 		"output": "inst/settings/cmAnalysisList.json"
+	},{
+		"type": "jsonToJson",
+		"input": "",
+		"output": "inst/settings/StudySpecification.json"
 	},{
 		"type": "jsonToRargs",
 		"input": "doPositiveControlSynthesis",
