@@ -41,7 +41,8 @@ shinyUI(
                                                   ),
                                                   tabPanel("Attrition",
                                                            plotOutput("attritionPlot", width = 600, height = 600),
-                                                           uiOutput("attritionPlotCaption")
+                                                           uiOutput("attritionPlotCaption"),
+                                                           downloadButton("downloadAttritionPlot", label = "Download diagram")
                                                   ),
                                                   tabPanel("Population characteristics",
                                                            uiOutput("table1Caption"),
@@ -50,21 +51,25 @@ shinyUI(
                                                            plotOutput("psDistPlot"),
                                                            div(strong("Figure 2."),"Preference score distribution. The preference score is a transformation of the propensity score
                                                                                                          that adjusts for differences in the sizes of the two treatment groups. A higher overlap indicates subjects in the
-                                                                                                         two groups were more similar in terms of their predicted probability of receiving one treatment over the other.")),
+                                                                                                         two groups were more similar in terms of their predicted probability of receiving one treatment over the other."),
+                                                           downloadButton("downloadPsDistPlot", label = "Download plot")),
                                                   tabPanel("Covariate balance",
                                                            uiOutput("hoverInfoBalanceScatter"),
                                                            plotOutput("balancePlot",
                                                                       hover = hoverOpts("plotHoverBalanceScatter", delay = 100, delayType = "debounce")),
-                                                           uiOutput("balancePlotCaption")),
+                                                           uiOutput("balancePlotCaption"),
+                                                           downloadButton("downloadBalancePlot", label = "Download plot")),
                                                   tabPanel("Systematic error",
                                                            plotOutput("systematicErrorPlot"),
                                                            div(strong("Figure 4."),"Systematic error. Effect size estimates for the negative controls (true hazard ratio = 1)
                                                                                     and positive controls (true hazard ratio > 1), before and after calibration. Estimates below the diagonal dashed
                                                                                     lines are statistically significant (alpha = 0.05) different from the true effect size. A well-calibrated
-                                                                                    estimator should have the true effect size within the 95 percent confidence interval 95 percent of times.")),
+                                                                                    estimator should have the true effect size within the 95 percent confidence interval 95 percent of times."),
+                                                           downloadButton("downloadSystematicErrorPlot", label = "Download plot")),
                                                   tabPanel("Kaplan-Meier",
                                                            plotOutput("kaplanMeierPlot", height = 550),
-                                                           uiOutput("kaplanMeierPlotPlotCaption")),
+                                                           uiOutput("kaplanMeierPlotPlotCaption"),
+                                                           downloadButton("downloadKaplanMeierPlot", label = "Download plot")),
                                                   tabPanel("Subgroups",
                                                            uiOutput("subgroupTableCaption"),
                                                            dataTableOutput("subgroupTable")) 

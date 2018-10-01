@@ -189,7 +189,7 @@ shinyServer(function(input, output, session) {
     }
   })
 
-  output$attritionPlot <- renderPlot({
+  attritionPlot <- reactive({
     row <- selectedRow()
     if (is.null(row)) {
       return(NULL)
@@ -206,6 +206,15 @@ shinyServer(function(input, output, session) {
       plot <- drawAttritionDiagram(attrition)
       return(plot)
     }
+  })
+  
+  output$attritionPlot <- renderPlot({
+    return(attritionPlot())
+  })
+  
+  output$downloadAttritionPlot <- downloadHandler(filename = "Attrition.png", contentType = "image/png", content = function(file) {
+    device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
+    ggplot2::ggsave(file, plot = attritionPlot(), width = 6, height = 7, dpi = 400, device = device)
   })
 
   output$attritionPlotCaption <- renderUI({
@@ -275,7 +284,7 @@ shinyServer(function(input, output, session) {
     }
   })
 
-  output$psDistPlot <- renderPlot({
+  psDistPlot <- reactive({
     row <- selectedRow()
     if (is.null(row)) {
       return(NULL)
@@ -291,8 +300,17 @@ shinyServer(function(input, output, session) {
       return(plot)
     }
   })
+  
+  output$psDistPlot <- renderPlot({
+    return(psDistPlot())
+  })
+  
+  output$downloadPsDistPlot <- downloadHandler(filename = "Ps.png", contentType = "image/png", content = function(file) {
+    device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
+    ggplot2::ggsave(file, plot = psDistPlot(), width = 5, height = 3.5, dpi = 400, device = device)
+  })
 
-  output$balancePlot <- renderPlot({
+  balancePlot <- reactive({
     bal <- balance()
     if (is.null(bal) || nrow(bal) == 0) {
       return(NULL)
@@ -300,10 +318,19 @@ shinyServer(function(input, output, session) {
       row <- selectedRow()
       writeLines("Plotting covariate balance")
       plot <- plotCovariateBalanceScatterPlot(balance = bal,
-                                              beforeLabel = paste("Before", row$psStrategy),
-                                              afterLabel = paste("Before", row$psStrategy))
+                                              beforeLabel = "Before propensity score adjustment",
+                                              afterLabel = "After propensity score adjustment")
       return(plot)
     }
+  })
+  
+  output$balancePlot <- renderPlot({
+    return(balancePlot())
+  })
+  
+  output$downloadBalancePlot <- downloadHandler(filename = "Balance.png", contentType = "image/png", content = function(file) {
+    device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
+    ggplot2::ggsave(file, plot = balancePlot(), width = 4, height = 4, dpi = 400, device = device)
   })
 
   output$balancePlotCaption <- renderUI({
@@ -354,7 +381,7 @@ shinyServer(function(input, output, session) {
     }
   })
 
-  output$systematicErrorPlot <- renderPlot({
+  systematicErrorPlot <- reactive({
     row <- selectedRow()
     if (is.null(row)) {
       return(NULL)
@@ -371,8 +398,17 @@ shinyServer(function(input, output, session) {
       return(plot)
     }
   })
+  
+  output$systematicErrorPlot <- renderPlot({
+    return(systematicErrorPlot())
+  })
+  
+  output$downloadSystematicErrorPlot <- downloadHandler(filename = "SystematicError.png", contentType = "image/png", content = function(file) {
+    device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
+    ggplot2::ggsave(file, plot = systematicErrorPlot(), width = 12, height = 5.5, dpi = 400, device = device)
+  })
 
-  output$kaplanMeierPlot <- renderPlot({
+  kaplanMeierPlot <- reactive({
     row <- selectedRow()
     if (is.null(row)) {
       return(NULL)
@@ -391,7 +427,16 @@ shinyServer(function(input, output, session) {
                               comparatorName = input$comparator)
       return(plot)
     }
+  })
+  
+  output$kaplanMeierPlot <- renderPlot({
+    return(kaplanMeierPlot())
   }, res = 100)
+  
+  output$downloadKaplanMeierPlot <- downloadHandler(filename = "KaplanMeier.png", contentType = "image/png", content = function(file) {
+    device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
+    ggplot2::ggsave(file, plot = kaplanMeierPlot(), width = 7, height = 5, dpi = 400, device = device)
+  })
 
   output$kaplanMeierPlotPlotCaption <- renderUI({
     row <- selectedRow()

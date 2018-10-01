@@ -352,7 +352,7 @@ plotPs <- function(ps, targetName, comparatorName) {
   ps <- rbind(data.frame(x = ps$preferenceScore, y = ps$targetDensity, group = targetName),
               data.frame(x = ps$preferenceScore, y = ps$comparatorDensity, group = comparatorName))
   ps$group <- factor(ps$group, levels = c(as.character(targetName), as.character(comparatorName)))
-  theme <- ggplot2::element_text(colour = "#000000", size = 12)
+  theme <- ggplot2::element_text(colour = "#000000", size = 12, margin = ggplot2::margin(0, 0.5, 0, 0.1, "cm"))
   plot <- ggplot2::ggplot(ps,
                           ggplot2::aes(x = x, y = y, color = group, group = group, fill = group)) +
           ggplot2::geom_density(stat = "identity") +
