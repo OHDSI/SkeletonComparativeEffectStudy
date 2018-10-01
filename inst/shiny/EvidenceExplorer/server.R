@@ -4,8 +4,8 @@ library(DT)
 mainColumns <- c("description", 
                  "databaseId", 
                  "rr", 
-                 "ci95lb",
-                 "ci95ub",
+                 "ci95Lb",
+                 "ci95Ub",
                  "p",
                  "calibratedRr", 
                  "calibratedCi95Lb",
@@ -56,8 +56,8 @@ shinyServer(function(input, output, session) {
                               analysisIds = analysisIds)
     if (blind) {
       results$rr <- rep(NA, nrow(results))
-      results$ci95ub <- rep(NA, nrow(results))
-      results$ci95lb <- rep(NA, nrow(results))
+      results$ci95Ub <- rep(NA, nrow(results))
+      results$ci95Lb <- rep(NA, nrow(results))
       results$logRr <- rep(NA, nrow(results))
       results$seLogRr <- rep(NA, nrow(results))
       results$p <- rep(NA, nrow(results))
@@ -116,8 +116,8 @@ shinyServer(function(input, output, session) {
     table <- merge(table, cohortMethodAnalysis)
     table <- table[, mainColumns]
     table$rr <- prettyHr(table$rr)
-    table$ci95lb <- prettyHr(table$ci95lb)
-    table$ci95ub <- prettyHr(table$ci95ub)
+    table$ci95Lb <- prettyHr(table$ci95Lb)
+    table$ci95Ub <- prettyHr(table$ci95Ub)
     table$p <- prettyHr(table$p)
     table$calibratedRr <- prettyHr(table$calibratedRr)
     table$calibratedCi95Lb <- prettyHr(table$calibratedCi95Lb)
@@ -485,8 +485,8 @@ shinyServer(function(input, output, session) {
       } else {
         if (blind) {
           subgroupResults$rrr <- rep(NA, nrow(subgroupResults))
-          subgroupResults$ci95lb <- rep(NA, nrow(subgroupResults))
-          subgroupResults$ci95ub <- rep(NA, nrow(subgroupResults))
+          subgroupResults$ci95Lb <- rep(NA, nrow(subgroupResults))
+          subgroupResults$ci95Ub <- rep(NA, nrow(subgroupResults))
           subgroupResults$logRrr <- rep(NA, nrow(subgroupResults))
           subgroupResults$seLogRrr <- rep(NA, nrow(subgroupResults))
           subgroupResults$p <- rep(NA, nrow(subgroupResults))

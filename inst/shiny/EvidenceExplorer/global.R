@@ -1,10 +1,11 @@
 source("DataPulls.R")
 source("PlotsAndTables.R")
 
-# shinySettings <- list(dataFolder = "c:/temp/shinyData", blind = FALSE)
+shinySettings <- list(dataFolder = "c:/temp/shinyDataNoPcs", blind = FALSE)
 dataFolder <- shinySettings$dataFolder
 blind <- shinySettings$blind
 connection <- NULL
+positiveControlOutcome <- NULL
 
 splittableTables <- c("covariate_balance", "preference_score_dist", "kaplan_meier_dist")
 

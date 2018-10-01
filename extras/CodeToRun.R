@@ -47,6 +47,6 @@ execute(connectionDetails = connectionDetails,
         packageResults = TRUE,
         maxCores = maxCores)
 
-prepareForEvidenceExplorer(studyFolder = "S:/SkeletonStudy")
+prepareForEvidenceExplorer(resultsZipFile = "c:/temp/ResultsMDCDNoPcs.zip", dataFolder = "c:/temp/shinyDataNoPcs")
 
-launchEvidenceExplorer(studyFolder = "S:/SkeletonStudy", blind = FALSE, launch.browser = FALSE)
+launchEvidenceExplorer(dataFolder = "c:/temp/shinyDataNoPcs", blind = FALSE, launch.browser = FALSE)

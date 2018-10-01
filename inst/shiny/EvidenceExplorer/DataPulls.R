@@ -247,9 +247,11 @@ getControlResults <- function(connection, targetId, comparatorId, analysisId, da
   results$effectSize <- NA
   idx <- results$outcomeId %in% negativeControlOutcome$outcomeId
   results$effectSize[idx] <- 1
-  idx <- results$outcomeId %in% positiveControlOutcome$outcomeId
-  results$effectSize[idx] <- positiveControlOutcome$effectSize[match(results$outcomeId[idx],
-                                                                         positiveControlOutcome$outcomeId)]
+  if (!is.null(positiveControlOutcome)) {
+    idx <- results$outcomeId %in% positiveControlOutcome$outcomeId
+    results$effectSize[idx] <- positiveControlOutcome$effectSize[match(results$outcomeId[idx],
+                                                                       positiveControlOutcome$outcomeId)]
+  }
   results <- results[!is.na(results$effectSize), ]
   return(results)
 }
