@@ -54,6 +54,20 @@ shinyServer(function(input, output, session) {
                               outcomeIds = outcomeId,
                               databaseIds = databaseIds,
                               analysisIds = analysisIds)
+    if (blind) {
+      results$rr <- rep(NA, nrow(results))
+      results$ci95ub <- rep(NA, nrow(results))
+      results$ci95lb <- rep(NA, nrow(results))
+      results$logRr <- rep(NA, nrow(results))
+      results$seLogRr <- rep(NA, nrow(results))
+      results$p <- rep(NA, nrow(results))
+      results$calibratedRr <- rep(NA, nrow(results))
+      results$calibratedCi95Ub <- rep(NA, nrow(results))
+      results$calibratedCi95Lb <- rep(NA, nrow(results))
+      results$calibratedLogRr <- rep(NA, nrow(results))
+      results$calibratedSeLogRr <- rep(NA, nrow(results))
+      results$calibratedP <- rep(NA, nrow(results))
+    }
    return(results)
   })
 
@@ -410,7 +424,7 @@ shinyServer(function(input, output, session) {
 
   kaplanMeierPlot <- reactive({
     row <- selectedRow()
-    if (is.null(row)) {
+    if (blind || is.null(row)) {
       return(NULL)
     } else {
       targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
@@ -469,6 +483,15 @@ shinyServer(function(input, output, session) {
       if (nrow(subgroupResults) == 0) {
         return(NULL)
       } else {
+        if (blind) {
+          subgroupResults$rrr <- rep(NA, nrow(subgroupResults))
+          subgroupResults$ci95lb <- rep(NA, nrow(subgroupResults))
+          subgroupResults$ci95ub <- rep(NA, nrow(subgroupResults))
+          subgroupResults$logRrr <- rep(NA, nrow(subgroupResults))
+          subgroupResults$seLogRrr <- rep(NA, nrow(subgroupResults))
+          subgroupResults$p <- rep(NA, nrow(subgroupResults))
+          subgroupResults$calibratedP <- rep(NA, nrow(subgroupResults))
+        }
         return(subgroupResults)
       }
     }

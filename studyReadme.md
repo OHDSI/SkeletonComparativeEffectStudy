@@ -110,10 +110,10 @@ How to run
 
 	```r
 	prepareForEvidenceExplorer("Result<databaseId>.zip", "/shinyData")
-	launchEvidenceExplorer("/shinyData")
+	launchEvidenceExplorer("/shinyData", blind = TRUE)
 	```
   
-  Note that you can save plots from within the Shiny app. It is possible to view results from more than one database by applying `prepareForEvidenceExplorer` to the Results file from each database, and using the same data folder.
+  Note that you can save plots from within the Shiny app. It is possible to view results from more than one database by applying `prepareForEvidenceExplorer` to the Results file from each database, and using the same data folder. Set `blind = FALSE` if you wish to be unblinded to the final results.
 
 
 License
