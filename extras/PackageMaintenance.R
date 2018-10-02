@@ -47,6 +47,7 @@ OhdsiRTools::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv"
 # Create analysis details -------------------------------------------------
 source("extras/CreateStudyAnalysisDetails.R")
 createAnalysesDetails("inst/settings/")
+createPositiveControlSynthesisArgs("inst/settings/")
 
 # Store environment in which the study was executed -----------------------
 OhdsiRTools::insertEnvironmentSnapshotInPackage("SkeletonComparativeEffectStudy")

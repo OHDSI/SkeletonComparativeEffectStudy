@@ -32,7 +32,8 @@
 		"mapping": [{"source": "targetId", "target": "targetId"},
 					{"source": "comparatorId", "target": "comparatorId"},
 					{"source": "outcomeId", "target": "outcomeId"},
-					{"source": "outcomeName", "target": "outcomeName"}],
+					{"source": "outcomeName", "target": "outcomeName"},
+					{"source": "type", "target": "type"}],
 		"output": "inst/settings/NegativeControls.csv"
 	},{
 		"type": "jsonArrayToJson",
@@ -48,7 +49,7 @@
 		"output": "inst/sql/sql_server"
 	},{
 		"type": "jsonToSql",
-		"input": "negativeControlCohortDefinition",
+		"input": "negativeControlOutcomeCohortDefinition",
 		"expressionType": "outcome",
 		"output": "inst/sql/sql_server/NegativeControlOutcomes.sql"
 	},{
@@ -66,14 +67,9 @@
 		"startTag": "# Start doPositiveControlSynthesis",
 		"endTag": "# End doPositiveControlSynthesis"
 	},{
-		"type": "jsonToRargs",
+		"type": "jsonToJson",
 		"input": "positiveControlSynthesisArgs",
 		"condition": "doPositiveControlSynthesis",
-		"file": "R/SynthesizePositiveControls.R",
-		"startTag": "# Start positiveControlSynthesisArgs",
-		"endTag": "# End positiveControlSynthesisArgs",
-		"argumentFunctions": [{"source": "covariateSettings", "function": "FeatureExtraction::createCovariateSettings"},
-							  {"source": "prior", "function": "Cyclops::createPrior"},
-							  {"source": "control", "function": "Cyclops::createControl"}]
+		"output": "inst/settings/positiveControlSynthArgs.json"
 	}]
 }

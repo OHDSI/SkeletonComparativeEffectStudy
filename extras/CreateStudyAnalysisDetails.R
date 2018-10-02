@@ -116,3 +116,43 @@ createAnalysesDetails <- function(workFolder) {
   CohortMethod::saveCmAnalysisList(cmAnalysisList, file.path(workFolder, "cmAnalysisList.json"))
 }
 
+createPositiveControlSynthesisArgs <- function(workFolder) {
+  settings <- list(
+    outputIdOffset = 10000,
+    firstExposureOnly = TRUE,
+    firstOutcomeOnly = TRUE,
+    removePeopleWithPriorOutcomes = TRUE,
+    modelType = "survival",
+    washoutPeriod = 183,
+    riskWindowStart = 0,
+    riskWindowEnd = 30,
+    addExposureDaysToEnd = TRUE,
+    effectSizes = c(1.5, 2, 4),
+    precision = 0.01,
+    prior = Cyclops::createPrior("laplace", exclude = 0, useCrossValidation = TRUE),
+    control = Cyclops::createControl(cvType = "auto",
+                                     startingVariance = 0.01,
+                                     noiseLevel = "quiet",
+                                     cvRepetitions = 1,
+                                     threads = 1),
+    maxSubjectsForModel = 250000,
+    minOutcomeCountForModel = 50,
+    minOutcomeCountForInjection = 25,
+    covariateSettings = FeatureExtraction::createCovariateSettings(useDemographicsAgeGroup = TRUE,
+                                                                   useDemographicsGender = TRUE,
+                                                                   useDemographicsIndexYear = TRUE,
+                                                                   useDemographicsIndexMonth = TRUE,
+                                                                   useConditionGroupEraLongTerm = TRUE,
+                                                                   useDrugGroupEraLongTerm = TRUE,
+                                                                   useProcedureOccurrenceLongTerm = TRUE,
+                                                                   useMeasurementLongTerm = TRUE,
+                                                                   useObservationLongTerm = TRUE,
+                                                                   useCharlsonIndex = TRUE,
+                                                                   useDcsi = TRUE,
+                                                                   useChads2Vasc = TRUE,
+                                                                   longTermStartDays = 365,
+                                                                   endDays = 0) 
+  )
+  ParallelLogger::saveSettingsToJson(settings, file.path(workFolder, "positiveControlSynthArgs.json"))
+}
+

@@ -60,7 +60,11 @@ synthesizePositiveControls <- function(connectionDetails,
     exposureOutcomePairs <- data.frame(exposureId = negativeControls$targetId,
                                        outcomeId = negativeControls$outcomeId)
     exposureOutcomePairs <- unique(exposureOutcomePairs)
-    result <- MethodEvaluation::injectSignals(connectionDetails,
+    pathToJson <- system.file("settings", "positiveControlSynthArgs.json", package = "SkeletonComparativeEffectStudy")
+    args <- ParallelLogger::loadSettingsFromJson(pathToJson)
+    args$control$threads <- min(c(10, maxCores))
+    
+    result <- MethodEvaluation::injectSignals(connectionDetails = connectionDetails,
                                               cdmDatabaseSchema = cdmDatabaseSchema,
                                               oracleTempSchema = oracleTempSchema,
                                               exposureDatabaseSchema = cohortDatabaseSchema,
@@ -74,42 +78,25 @@ synthesizePositiveControls <- function(connectionDetails,
                                               workFolder = synthesisFolder,
                                               modelThreads = max(1, round(maxCores/8)),
                                               generationThreads = min(6, maxCores),
-                                              # Start positiveControlSynthesisArgs
-                                              outputIdOffset = 10000,
-                                              firstExposureOnly = TRUE,
-                                              firstOutcomeOnly = TRUE,
-                                              removePeopleWithPriorOutcomes = TRUE,
-                                              modelType = "survival",
-                                              washoutPeriod = 183,
-                                              riskWindowStart = 0,
-                                              riskWindowEnd = 30,
-                                              addExposureDaysToEnd = TRUE,
-                                              effectSizes = c(1.5, 2, 4),
-                                              precision = 0.01,
-                                              prior = Cyclops::createPrior("laplace", exclude = 0, useCrossValidation = TRUE),
-                                              control = Cyclops::createControl(cvType = "auto",
-                                                                               startingVariance = 0.01,
-                                                                               noiseLevel = "quiet",
-                                                                               cvRepetitions = 1,
-                                                                               threads = min(c(10, maxCores))),
-                                              maxSubjectsForModel = 250000,
-                                              minOutcomeCountForModel = 50,
-                                              minOutcomeCountForInjection = 25,
-                                              covariateSettings = FeatureExtraction::createCovariateSettings(useDemographicsAgeGroup = TRUE,
-                                                                                                             useDemographicsGender = TRUE,
-                                                                                                             useDemographicsIndexYear = TRUE,
-                                                                                                             useDemographicsIndexMonth = TRUE,
-                                                                                                             useConditionGroupEraLongTerm = TRUE,
-                                                                                                             useDrugGroupEraLongTerm = TRUE,
-                                                                                                             useProcedureOccurrenceLongTerm = TRUE,
-                                                                                                             useMeasurementLongTerm = TRUE,
-                                                                                                             useObservationLongTerm = TRUE,
-                                                                                                             useCharlsonIndex = TRUE,
-                                                                                                             useDcsi = TRUE,
-                                                                                                             useChads2Vasc = TRUE,
-                                                                                                             longTermStartDays = 365,
-                                                                                                             endDays = 0)
-                                              # End positiveControlSynthesisArgs
+                                              # External args start here
+                                              outputIdOffset = args$outputIdOffset,
+                                              firstExposureOnly = args$firstExposureOnly,
+                                              firstOutcomeOnly = args$firstOutcomeOnly,
+                                              removePeopleWithPriorOutcomes = args$removePeopleWithPriorOutcomes,
+                                              modelType = args$modelType,
+                                              washoutPeriod = args$washoutPeriod,
+                                              riskWindowStart = args$riskWindowStart,
+                                              riskWindowEnd = args$riskWindowEnd,
+                                              addExposureDaysToEnd = args$addExposureDaysToEnd,
+                                              effectSizes = args$effectSizes,
+                                              precision = args$precision,
+                                              prior = args$prior,
+                                              control = args$control,
+                                              maxSubjectsForModel = args$maxSubjectsForModel,
+                                              minOutcomeCountForModel = args$minOutcomeCountForModel,
+                                              minOutcomeCountForInjection = args$minOutcomeCountForInjection,
+                                              covariateSettings = args$covariateSettings
+                                              # External args stop here
     )
     write.csv(result, synthesisSummaryFile, row.names = FALSE)
   } else {
