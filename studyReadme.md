@@ -26,7 +26,7 @@ How to run
 	install_github("ohdsi/FeatureExtraction", ref = "v2.1.5")
 	install_github("ohdsi/CohortMethod", ref = "v3.0.0")
 	install_github("ohdsi/EmpiricalCalibration", ref = "v1.3.6")
-	install_github("ohdsi/MethodEvaluation" = v0.2.1")
+	install_github("ohdsi/MethodEvaluation", ref = "v0.3.0")
 	```
 
 	If you experience problems on Windows where rJava can't find Java, one solution may be to add `args = "--no-multiarch"` to each `install_github` call, for example:

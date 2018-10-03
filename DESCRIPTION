@@ -17,14 +17,16 @@ Imports:
     ff,
     ffbase,
     MethodEvaluation,
-    EvidenceSynthesis,
     OhdsiSharing,
-	  ParallelLogger
+	  ParallelLogger,
+	  survival,
+	  plyr
 Suggests:
     knitr,
     rmarkdown,
     DT,
-    shiny
+    shiny,
+    OhdsiRTools
 License: Apache License 2.0
 VignetteBuilder: knitr
 LazyData: TRUE

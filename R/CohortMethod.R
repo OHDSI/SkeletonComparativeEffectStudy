@@ -95,7 +95,7 @@ runCohortMethod <- function(connectionDetails,
   subset <- subset[subset$strataFile != "", ]
   subset <- split(subset, seq(nrow(subset)))
   cluster <- ParallelLogger::makeCluster(min(3, maxCores))
-  ParallelLogger::clusterApply(cluster, subset, SkeletonComparativeEffectStudy:::computeCovariateBalance, cmOutputFolder = cmOutputFolder, balanceFolder = balanceFolder)
+  ParallelLogger::clusterApply(cluster, subset, computeCovariateBalance, cmOutputFolder = cmOutputFolder, balanceFolder = balanceFolder)
   ParallelLogger::stopCluster(cluster)
 }
 

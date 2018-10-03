@@ -22,9 +22,11 @@
 #' @param outputFolder         Name of local folder where the results were generated; make sure to use forward slashes
 #'                             (/). Do not use a folder on a network drive since this greatly impacts
 #'                             performance.
+#' @param maxCores              How many parallel cores should be used? If more cores are made
+#'                              available this can speed up the analyses.
 #'
 #' @export
-generateDiagnostics <- function(outputFolder) {
+generateDiagnostics <- function(outputFolder, maxCores) {
   cmOutputFolder <- file.path(outputFolder, "cmOutput")
   diagnosticsFolder <- file.path(outputFolder, "diagnostics")
   if (!file.exists(diagnosticsFolder)) {
@@ -43,7 +45,7 @@ generateDiagnostics <- function(outputFolder) {
   cluster <- ParallelLogger::makeCluster(min(4, maxCores))
   ParallelLogger::clusterApply(cluster = cluster, 
                                x = subsets, 
-                               fun = SkeletonComparativeEffectStudy:::createDiagnosticsForSubset, 
+                               fun = createDiagnosticsForSubset, 
                                allControls = allControls, 
                                outputFolder = outputFolder, 
                                cmOutputFolder = cmOutputFolder, 

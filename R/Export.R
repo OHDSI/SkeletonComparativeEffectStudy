@@ -318,7 +318,7 @@ exportMetadata <- function(outputFolder,
                 append = !first)
     first <- FALSE
     if (i%%100 == 10) {
-      setTxtProgressBar(pb, i/nrow(outcomeModelReference))
+      setTxtProgressBar(pb, i/nrow(reference))
     }
   }
   setTxtProgressBar(pb, 1)
@@ -430,7 +430,7 @@ exportMainResults <- function(outputFolder,
   rm(analysesSum)  # Free up memory
   results <- ParallelLogger::clusterApply(cluster,
                                           subsets,
-                                          SkeletonComparativeEffectStudy:::calibrate,
+                                          calibrate,
                                           allControls = allControls)
   ParallelLogger::stopCluster(cluster)
   rm(subsets)  # Free up memory

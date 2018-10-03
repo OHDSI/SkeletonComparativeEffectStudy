@@ -102,7 +102,7 @@ synthesizePositiveControls <- function(connectionDetails,
   } else {
     result <- read.csv(synthesisSummaryFile)
   }
-  OhdsiRTools::logTrace("Merging positive with negative controls ")
+  ParallelLogger::logTrace("Merging positive with negative controls ")
   pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
   negativeControls <- read.csv(pathToCsv)
   

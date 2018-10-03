@@ -110,7 +110,7 @@ In a single study it is possible to examine multiple target-compartor-outcome tr
 
 The `CohortMethod` package allows multiple analyses settings to be specified, as described in the `Multiple analyses using CohortMethod` vignette. For example, we can define a primary analysis (e.g. using propensity score matching and an on-treatment time-at-risk definition), and we can additionally define sensitivity analyses (e.g. using propensity score stratification and an intent-to-treat time=at=risk definition). Note that `CohortMethod` will  execute all analyses on all target-comparator-outcomes of interest.
 
-We can create these settings and store them in our package. You can modify the file `extras/CreateStudyAnalysisDetails.R` to create the desired study design settings, and use the code below to execute this code, which can also be found in `PackageMaintenance.R`.
+We can create these settings and store them in our package. You can modify the `createAnalysesDetails` function in the file `extras/CreateStudyAnalysisDetails.R` to create the desired study design settings, and use the code below to execute this code, which can also be found in `PackageMaintenance.R`.
 
 ```{r eval=FALSE}
 source("extras/CreateStudyAnalysisDetails.R")
@@ -121,7 +121,13 @@ createAnalysesDetails("inst/settings/")
 
 In addition to negative controls, where the true effect size is believed to be a relative risk of 1, we can also include positive controls, where the true effect has a known magnitude unequal to 1. These positive controls can be used together with the negative controls to perform confidence inteval calibration. We can automatically synthesize positive controls by taking negative controls and adding simulated outcomes during the time at risk. To preserve (measured) confounding, these simulated outcomes should be sampled from the baseline probabilities based on the patients' characteristics. 
 
-Positive control synthesis is implemented in the `MethodEvaluation` package, and is called from the skeleton package. However, it is necessary to configure it correctly, in the file called `SynthesizePositiveControls.R` file. Most importantly, the `washoutPeriod`, `riskWindowStart`, `riskWindowEnd`, `addExposureDaysToEnd`, and `removePeopleWithPriorOutcomes` arguments need to be specified to match those in the primary analysis. It is also possible to disable positive control sysnthesis altogether by setting the `doPositiveControlSynthesis` variable to `FALSE` in the `R/Main.R` file.
+Positive control synthesis must be configured correctly for it to work. Most importantly, the `washoutPeriod`, `riskWindowStart`, `riskWindowEnd`, `addExposureDaysToEnd`, and `removePeopleWithPriorOutcomes` arguments need to be specified to match those in the primary analysis. We can create these settings and store them in our package. You can modify the `createPositiveControlSynthesisArgs` function in the file `extras/CreateStudyAnalysisDetails.R` to create the desired study design settings, and use the code below to execute this code, which can also be found in `PackageMaintenance.R`.
+
+```{r eval=FALSE}
+source("extras/CreateStudyAnalysisDetails.R")
+createPositiveControlSynthesisArgs("inst/settings/")
+```
+It is also possible to disable positive control sysnthesis altogether by setting the `doPositiveControlSynthesis` variable to `FALSE` in the `R/Main.R` file.
 
 
 

@@ -20,7 +20,7 @@
 #'
 #' @docType package
 #' @name SkeletonComparativeEffectStudy
-#' @importFrom stats aggregate
-#' @importFrom utils read.csv write.csv
+#' @importFrom stats aggregate density pnorm qnorm quantile
+#' @importFrom utils read.csv write.csv install.packages menu setTxtProgressBar txtProgressBar write.table
 #' @import DatabaseConnector
 NULL

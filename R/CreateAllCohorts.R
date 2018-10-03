@@ -59,7 +59,7 @@ createCohorts <- function(connectionDetails,
   pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
   negativeControls <- read.csv(pathToCsv)
   
-  OhdsiRTools::logInfo("Creating negative control outcome cohorts")
+  ParallelLogger::logInfo("Creating negative control outcome cohorts")
   # Currently assuming all negative controls are outcome controls
   negativeControlOutcomes <- negativeControls
   sql <- SqlRender::loadRenderTranslateSql("NegativeControlOutcomes.sql",
@@ -73,7 +73,7 @@ createCohorts <- function(connectionDetails,
   DatabaseConnector::executeSql(conn, sql)
   
   # Check number of subjects per cohort:
-  OhdsiRTools::logInfo("Counting cohorts")
+  ParallelLogger::logInfo("Counting cohorts")
   sql <- SqlRender::loadRenderTranslateSql("GetCounts.sql",
                                            "SkeletonComparativeEffectStudy",
                                            dbms = connectionDetails$dbms,

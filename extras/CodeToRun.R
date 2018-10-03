@@ -24,9 +24,9 @@ cohortDatabaseSchema <- "scratch.dbo"
 cohortTable <- "mschuemi_skeleton"
 
 # Some meta-information that will be used by the export function:
-databaseId = "MDCD"
-databaseName <- "Truven Health MarketScan® Multi-State Medicaid Database"
-databaseDescription <- "Truven Health MarketScan® Multi-State Medicaid Database (MDCD) adjudicated US health insurance claims for Medicaid enrollees from multiple states and includes hospital discharge diagnoses, outpatient diagnoses and procedures, and outpatient pharmacy claims as well as ethnicity and Medicare eligibility. Members maintain their same identifier even if they leave the system for a brief period however the dataset lacks lab data. [For further information link to RWE site for Truven MDCD."
+databaseId <- "Synpuf"
+databaseName <- "Medicare Claims Synthetic Public Use Files (SynPUFs)"
+databaseDescription <- "Medicare Claims Synthetic Public Use Files (SynPUFs) were created to allow interested parties to gain familiarity using Medicare claims data while protecting beneficiary privacy. These files are intended to promote development of software and applications that utilize files in this format, train researchers on the use and complexities of Centers for Medicare and Medicaid Services (CMS) claims, and support safe data mining innovations. The SynPUFs were created by combining randomized information from multiple unique beneficiaries and changing variable values. This randomization and combining of beneficiary information ensures privacy of health information."
 
 # For Oracle: define a schema that can be used to emulate temp tables:
 oracleTempSchema <- NULL
@@ -40,13 +40,16 @@ execute(connectionDetails = connectionDetails,
         databaseId = databaseId,
         databaseName = databaseName,
         databaseDescription = databaseDescription,
-        createCohorts = FALSE,
-        synthesizePositiveControls = FALSE,
-        runAnalyses = FALSE,
-        runDiagnostics = FALSE,
+        createCohorts = TRUE,
+        synthesizePositiveControls = TRUE,
+        runAnalyses = TRUE,
+        runDiagnostics = TRUE,
         packageResults = TRUE,
         maxCores = maxCores)
 
-prepareForEvidenceExplorer(resultsZipFile = "c:/temp/ResultsMDCDNoPcs.zip", dataFolder = "c:/temp/shinyDataNoPcs")
+resultsZipFile <- file.path(outputFolder, "export", paste0("Results", databaseId, ".zip"))
+dataFolder <- file.path(outputFolder, "shinyData")
 
-launchEvidenceExplorer(dataFolder = "c:/temp/shinyDataNoPcs", blind = FALSE, launch.browser = FALSE)
+prepareForEvidenceExplorer(resultsZipFile = resultsZipFile, dataFolder = dataFolder)
+
+launchEvidenceExplorer(dataFolder = dataFolder, blind = TRUE, launch.browser = FALSE)

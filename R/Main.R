@@ -97,7 +97,7 @@ execute <- function(connectionDetails,
   ParallelLogger::addDefaultFileLogger(file.path(outputFolder, "log.txt"))
   
   if (createCohorts) {
-    OhdsiRTools::logInfo("Creating exposure and outcome cohorts")
+    ParallelLogger::logInfo("Creating exposure and outcome cohorts")
     createCohorts(connectionDetails = connectionDetails,
                   cdmDatabaseSchema = cdmDatabaseSchema,
                   cohortDatabaseSchema = cohortDatabaseSchema,
@@ -112,7 +112,7 @@ execute <- function(connectionDetails,
   # End doPositiveControlSynthesis
   if (doPositiveControlSynthesis) {
     if (synthesizePositiveControls) {
-      OhdsiRTools::logInfo("Synthesizing positive controls")
+      ParallelLogger::logInfo("Synthesizing positive controls")
       synthesizePositiveControls(connectionDetails = connectionDetails,
                                  cdmDatabaseSchema = cdmDatabaseSchema,
                                  cohortDatabaseSchema = cohortDatabaseSchema,
@@ -124,7 +124,7 @@ execute <- function(connectionDetails,
   }
   
   if (runAnalyses) {
-    OhdsiRTools::logInfo("Running CohortMethod analyses")
+    ParallelLogger::logInfo("Running CohortMethod analyses")
     runCohortMethod(connectionDetails = connectionDetails,
                     cdmDatabaseSchema = cdmDatabaseSchema,
                     cohortDatabaseSchema = cohortDatabaseSchema,
@@ -135,12 +135,13 @@ execute <- function(connectionDetails,
   }
   
   if (runDiagnostics) {
-    OhdsiRTools::logInfo("Running diagnostics")
-    generateDiagnostics(outputFolder = outputFolder)
+    ParallelLogger::logInfo("Running diagnostics")
+    generateDiagnostics(outputFolder = outputFolder,
+                        maxCores = maxCores)
   }
   
   if (packageResults) {
-    OhdsiRTools::logInfo("Packaging results")
+    ParallelLogger::logInfo("Packaging results")
     exportResults(outputFolder = outputFolder,
                   databaseId = databaseId,
                   databaseName = databaseName,
