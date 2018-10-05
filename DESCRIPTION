@@ -12,7 +12,7 @@ Imports:
     EmpiricalCalibration,
     Cyclops,
     FeatureExtraction,
-    CohortMethod (>= 3.0.0),
+    CohortMethod (>= 3.0.1),
     ggplot2,
     ff,
     ffbase,
