@@ -93,10 +93,12 @@ runCohortMethod <- function(connectionDetails,
   }
   subset <- results[results$outcomeId %in% outcomesOfInterest,]
   subset <- subset[subset$strataFile != "", ]
-  subset <- split(subset, seq(nrow(subset)))
-  cluster <- ParallelLogger::makeCluster(min(3, maxCores))
-  ParallelLogger::clusterApply(cluster, subset, computeCovariateBalance, cmOutputFolder = cmOutputFolder, balanceFolder = balanceFolder)
-  ParallelLogger::stopCluster(cluster)
+  if (nrow(subset) > 0) {
+    subset <- split(subset, seq(nrow(subset)))
+    cluster <- ParallelLogger::makeCluster(min(3, maxCores))
+    ParallelLogger::clusterApply(cluster, subset, computeCovariateBalance, cmOutputFolder = cmOutputFolder, balanceFolder = balanceFolder)
+    ParallelLogger::stopCluster(cluster)
+  }
 }
 
 computeCovariateBalance <- function(row, cmOutputFolder, balanceFolder) {

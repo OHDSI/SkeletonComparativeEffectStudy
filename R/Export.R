@@ -857,8 +857,9 @@ exportDiagnostics <- function(outputFolder,
   outputFile <- file.path(exportFolder, "kaplan_meier_dist.csv")
   files <- list.files(tempFolder, "km_.*.rds", full.names = TRUE)
   saveKmToCsv(files[1], first = TRUE, outputFile = outputFile)
-  plyr::l_ply(files[2:length(files)], saveKmToCsv, first = FALSE, outputFile = outputFile, .progress = "text")
-  
+  if (length(files) > 1) {
+    plyr::l_ply(files[2:length(files)], saveKmToCsv, first = FALSE, outputFile = outputFile, .progress = "text")
+  }  
   unlink(tempFolder, recursive = TRUE)
 }
 
