@@ -41,10 +41,34 @@ CreatePleProtocol <- function(outputLocation = getwd()){
   nComparatorIds <- nrow(comparatorIds)
   comparatorIdsList <- paste(comparatorCohortDescriptions$ID,'-',comparatorCohortDescriptions$Name, collapse = ', ')
   
-  nOutcomeIds <- "XXX"
+  tcos <- json$estimationAnalysisSettings$analysisSpecification$targetComparatorOutcomes
+  outcomeIds <- lapply(tcos, function(tco) {return(as.numeric(split(tco$outcomeIds, ",")[[1]]))})
+  outcomeIds <- do.call("c", outcomeIds)  
+  outcomeIds <- unique(outcomeIds)
+  nOutcomeIds <- length(outcomeIds)
+  outcomeCohortDescriptions <- cohortDescriptions[cohortDescriptions$ID %in% outcomeIds,]
+  outcomeIdsList <- paste(outcomeCohortDescriptions$ID,'-',outcomeCohortDescriptions$Name, collapse = ', ')
   
+  analysis <- lapply(json$estimationAnalysisSettings$analysisSpecification$cohortMethodAnalysisList, function(x) paste0(x$analysisId,'-',x$description,'-',x$fitOutcomeModelArgs$modelType))
+  analysisList <- paste(df, collapse=',')
   nAnalysis <- length(json$estimationAnalysisSettings$analysisSpecification$cohortMethodAnalysisList)
-  nCompare <- nTargetIds * nComparatorIds * nAnalysis
+  
+  nCompare <- nTargetIds * nComparatorIds * nAnalysis * nOutcomeIds
+  
+  comparisons <- function(x){
+    t <- cohortDescriptions[cohortDescriptions$ID %in% x$targetId,]
+    tList <- as.data.frame(paste(t$ID,'-',t$Name,collapse = ', '))
+    names(tList) <- c("Target Cohorts")
+    c <- cohortDescriptions[cohortDescriptions$ID %in% x$comparatorId,]
+    cList <- as.data.frame(paste(c$ID,'-',c$Name,collapse = ', '))
+    names(cList) <- c("Comparator Cohorts")
+    o <- cohortDescriptions[cohortDescriptions$ID %in% x$outcomeIds,]
+    oList <- as.data.frame(paste(o$ID,'-',o$Name,collapse = ', '))
+    names(oList) <- c("Outcome Cohorts")
+    comparison <- cbind(tList,cList,oList)
+  }
+  
+  comparisonsDf <- do.call("rbind",lapply(tcos, FUN = function(x2) comparisons(x2)))
   
   #CONCEPTS ----
   concepts <- formatConcepts(json)
@@ -138,10 +162,12 @@ CreatePleProtocol <- function(outputLocation = getwd()){
                              ") to ",nComparatorIds,
                              " comparator cohorts (",comparatorIdsList,
                              ") to evaluate their risk of developing ", nOutcomeIds, 
-                             " outcomes (list).")
+                             " outcomes (",outcomeIdsList,
+                             ").")
   
   executeiveSummary2 <- paste0("The comparisons will use ",nAnalysis,
-                               " analysis variants (LIST).")
+                               " analysis variants (",analysisList,
+                               ").")
   
   doc <- doc %>%
     officer::body_add_par("Executive Summary", style = "heading 1") %>%
@@ -169,7 +195,11 @@ CreatePleProtocol <- function(outputLocation = getwd()){
   #============ Executive Summary ==============================================
   doc <- doc %>%
     officer::body_add_par("Objective", style = "heading 1") %>%
-    officer::body_add_par("") 
+    officer::body_add_par("") %>%
+    officer::body_add_par("The objective of this study is to make the following comparisons:", style="Normal") %>%
+    officer::body_add_par("") %>%
+    officer::body_add_table(comparisonsDf, header = TRUE, style = "Table Professional") %>%
+    officer::body_add_par("")
   #----------------------------------------------------------------------------- 
   
   #============ METHODS ========================================================
@@ -231,6 +261,8 @@ CreatePleProtocol <- function(outputLocation = getwd()){
       officer::fpar(
         officer::ftext("<< Currently cohort definitions need to be grabbed from ATLAS, in a Cohort Definition, Export Tab, from Text View. >>", prop = style_helper_text)
       )) %>%
+    officer::body_add_par("") %>%
+    officer::body_add_table(outcomeCohortDescriptions, header = TRUE, style = "Table Professional") %>%
     officer::body_add_par("") %>%
     officer::body_add_par("Negative Control Cohort(s) [NC]", style = "heading 3") %>%
     officer::body_add_par("")
