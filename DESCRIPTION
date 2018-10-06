@@ -16,7 +16,7 @@ Imports:
     ggplot2,
     ff,
     ffbase,
-    MethodEvaluation,
+    MethodEvaluation (>= 0.3.1),
     OhdsiSharing,
 	  ParallelLogger,
 	  survival,
