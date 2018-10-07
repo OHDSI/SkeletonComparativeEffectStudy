@@ -50,10 +50,10 @@ CreatePleProtocol <- function(outputLocation = getwd()){
   outcomeIdsList <- paste(outcomeCohortDescriptions$ID,'-',outcomeCohortDescriptions$Name, collapse = ', ')
   
   analysis <- lapply(json$estimationAnalysisSettings$analysisSpecification$cohortMethodAnalysisList, function(x) paste0(x$analysisId,'-',x$description,'-',x$fitOutcomeModelArgs$modelType))
-  analysisList <- paste(df, collapse=',')
+  analysisList <- paste(analysis, collapse=', ')
   nAnalysis <- length(json$estimationAnalysisSettings$analysisSpecification$cohortMethodAnalysisList)
   
-  nCompare <- nTargetIds * nComparatorIds * nAnalysis * nOutcomeIds
+  nCompare <- length(json$estimationAnalysisSettings$analysisSpecification$targetComparatorOutcomes) * nAnalysis
   
   comparisons <- function(x){
     t <- cohortDescriptions[cohortDescriptions$ID %in% x$targetId,]
@@ -67,8 +67,12 @@ CreatePleProtocol <- function(outputLocation = getwd()){
     names(oList) <- c("Outcome Cohorts")
     comparison <- cbind(tList,cList,oList)
   }
-  
+
   comparisonsDf <- do.call("rbind",lapply(tcos, FUN = function(x2) comparisons(x2)))
+  
+  negativeControls <- lapply(json$negativeControls, as.data.frame)
+  negativeControls <- do.call("rbind", negativeControls)
+  negativeControls <- negativeControls[order(negativeControls$comparatorId,negativeControls$outcomeName,negativeControls$targetId),]
   
   #CONCEPTS ----
   concepts <- formatConcepts(json)
@@ -203,6 +207,36 @@ CreatePleProtocol <- function(outputLocation = getwd()){
   #----------------------------------------------------------------------------- 
   
   #============ METHODS ========================================================
+  targetCohortTable <- cbind(targetCohortDescriptions,rep("TBD",nrow(targetCohortDescriptions)))
+  names(targetCohortTable) <- c("ID","Name","Description")
+  
+  comparatorCohortTable <- cbind(comparatorCohortDescriptions,rep("TBD",nrow(comparatorCohortDescriptions)))
+  names(comparatorCohortTable) <- c("ID","Name","Description")
+  
+  outcomeCohortTable <- cbind(outcomeCohortDescriptions,rep("TBD",nrow(outcomeCohortDescriptions)))
+  names(outcomeCohortTable) <- c("ID","Name","Description")
+  
+  negativeControlOutcomeCohortDef <- lapply(json$negativeControlOutcomeCohortDefinition, as.data.frame)
+  negativeControlOutcomeCohortDef <- do.call("rbind",negativeControlOutcomeCohortDef)
+  rn <- as.data.frame(rownames(negativeControlOutcomeCohortDef))
+  names(negativeControlOutcomeCohortDef) <- c("Settings")
+  names(rn) <- c("Covariates")
+  negativeControlOutcomeCohortDef <- cbind(rn,negativeControlOutcomeCohortDef)
+  
+  df <- lapply(json$positiveControlSynthesisArgs$control, as.data.frame)
+  df <- do.call("rbind",df)
+  rn <- as.data.frame(rownames(df))
+  names(df) <- c("Settings")
+  names(rn) <- c("Covariates")
+  positiveControlControlSettings <- cbind(rn,df)
+  
+  df <- lapply(json$positiveControlSynthesisArgs$prior, as.data.frame)
+  df <- do.call("rbind",df)
+  rn <- as.data.frame(rownames(df))
+  names(df) <- c("Settings")
+  names(rn) <- c("Covariates")
+  positiveControlPriorSettings <- cbind(rn,df)
+  
   doc <- doc %>%
     officer::body_add_par("Methods", style = "heading 1") %>%
     officer::body_add_par("") %>%
@@ -244,7 +278,7 @@ CreatePleProtocol <- function(outputLocation = getwd()){
         officer::ftext("<< Currently cohort definitions need to be grabbed from ATLAS, in a Cohort Definition, Export Tab, from Text View. >>", prop = style_helper_text)
       )) %>%
     officer::body_add_par("") %>%
-    officer::body_add_table(targetCohortDescriptions, header = TRUE, style = "Table Professional") %>%
+    officer::body_add_table(targetCohortTable, header = TRUE, style = "Table Professional") %>%
     officer::body_add_par("") %>%
     officer::body_add_par("Comparator Cohort(s) [C]", style = "heading 3") %>%
     officer::body_add_par("") %>%
@@ -253,7 +287,7 @@ CreatePleProtocol <- function(outputLocation = getwd()){
         officer::ftext("<< Currently cohort definitions need to be grabbed from ATLAS, in a Cohort Definition, Export Tab, from Text View. >>", prop = style_helper_text)
       )) %>%
     officer::body_add_par("") %>%
-    officer::body_add_table(comparatorCohortDescriptions, header = TRUE, style = "Table Professional") %>%
+    officer::body_add_table(comparatorCohortTable, header = TRUE, style = "Table Professional") %>%
     officer::body_add_par("") %>%
     officer::body_add_par("Outcome Cohort(s) [O]", style = "heading 3") %>%
     officer::body_add_par("") %>%
@@ -262,9 +296,13 @@ CreatePleProtocol <- function(outputLocation = getwd()){
         officer::ftext("<< Currently cohort definitions need to be grabbed from ATLAS, in a Cohort Definition, Export Tab, from Text View. >>", prop = style_helper_text)
       )) %>%
     officer::body_add_par("") %>%
-    officer::body_add_table(outcomeCohortDescriptions, header = TRUE, style = "Table Professional") %>%
+    officer::body_add_table(outcomeCohortTable, header = TRUE, style = "Table Professional") %>%
     officer::body_add_par("") %>%
     officer::body_add_par("Negative Control Cohort(s) [NC]", style = "heading 3") %>%
+    officer::body_add_par("") %>%
+    officer::body_add_par("Negative controls are defined where there is no evidence that either the target or comparator causes the outcome.  See a full list in the 'Negative Control List' section of the appendix.", style="Normal") %>%
+    officer::body_add_par("") %>%
+    officer::body_add_table(negativeControlOutcomeCohortDef, header = TRUE, style = "Table Professional") %>%
     officer::body_add_par("")
   
   if(json$doPositiveControlSynthesis){
@@ -275,8 +313,25 @@ CreatePleProtocol <- function(outputLocation = getwd()){
       officer::body_add_par("") %>%
       officer::body_add_fpar(
         officer::fpar(
+          officer::ftext("Control Settings", prop = style_table_title)
+        )) %>%
+      officer::body_add_table(positiveControlControlSettings, header = TRUE, style = "Table Professional") %>%
+      officer::body_add_par("") %>%
+      officer::body_add_fpar(
+        officer::fpar(
+          officer::ftext("Prior Settings", prop = style_table_title)
+        )) %>%
+      officer::body_add_table(positiveControlPriorSettings, header = TRUE, style = "Table Professional") %>%
+      officer::body_add_par("") %>%
+      officer::body_add_fpar(
+        officer::fpar(
           officer::ftext(empiricalCICitation, prop = style_citation)
-        )) 
+        ))  %>%
+      officer::body_add_par("") %>%
+      officer::body_add_fpar(
+        officer::fpar(
+          officer::ftext("<< Please grab additional information about positive controls from ATLAS.  >>", prop = style_helper_text)
+        ))
       
   } else {
     doc <- doc %>%
@@ -328,19 +383,24 @@ CreatePleProtocol <- function(outputLocation = getwd()){
     officer::body_add_par("") %>%
     officer::body_add_par(dataAnalysisPlan, style = "Normal") %>%
     officer::body_add_par("") %>%
+    officer::body_add_fpar(
+      officer::fpar(
+        officer::ftext("<< Please grab analysis information from ATLAS. >>", prop = style_helper_text)
+      ))
     #```````````````````````````````````````````````````````````````````````````
-    officer::body_add_par("Analysis 1", style = "heading 2") %>%
-    officer::body_add_par("") %>%
-    officer::body_add_par("Study Population Settings", style = "heading 3") %>%
-    officer::body_add_par("") %>%
-    officer::body_add_par("Covariate Settings", style = "heading 3") %>%
-    officer::body_add_par("") %>%
-    officer::body_add_par("Time-at-Risk Settings", style = "heading 3") %>%
-    officer::body_add_par("") %>%
-    officer::body_add_par("Propensity Score Adjustment", style = "heading 3") %>%
-    officer::body_add_par("") %>%
-    officer::body_add_par("Outcome Model", style = "heading 3") %>%
-    officer::body_add_par("")
+  # doc <- doc %>%  
+  #   officer::body_add_par("Analysis 1", style = "heading 2") %>%
+  #   officer::body_add_par("") %>%
+  #   officer::body_add_par("Study Population Settings", style = "heading 3") %>%
+  #   officer::body_add_par("") %>%
+  #   officer::body_add_par("Covariate Settings", style = "heading 3") %>%
+  #   officer::body_add_par("") %>%
+  #   officer::body_add_par("Time-at-Risk Settings", style = "heading 3") %>%
+  #   officer::body_add_par("") %>%
+  #   officer::body_add_par("Propensity Score Adjustment", style = "heading 3") %>%
+  #   officer::body_add_par("") %>%
+  #   officer::body_add_par("Outcome Model", style = "heading 3") %>%
+  #   officer::body_add_par("")
   #----------------------------------------------------------------------------- 
   
   #============ DIAGNOSTICS ====================================================
@@ -376,7 +436,18 @@ CreatePleProtocol <- function(outputLocation = getwd()){
     officer::body_add_par("") %>%
     officer::body_add_par("Negative Controls", style = "heading 3") %>%
     officer::body_add_par("") %>%
-    officer::body_add_par("Positive Controls", style = "heading 3") 
+    officer::body_add_fpar(
+      officer::fpar(
+        officer::ftext("<< Produce negative control plots used in empirical calibration and insert here. >>", prop = style_helper_text)
+      )) %>%
+    officer::body_add_par("") %>%
+    officer::body_add_par("Positive Controls", style = "heading 3") %>%
+    officer::body_add_par("") %>%
+    officer::body_add_fpar(
+      officer::fpar(
+        officer::ftext("<< Produce positive control plots used in empirical calibration and insert here. >>", prop = style_helper_text)
+      )) %>%
+    officer::body_add_par("") 
   #----------------------------------------------------------------------------- 
 
   #============ STRENGTHS & LIMITATIONS ========================================
@@ -452,7 +523,7 @@ CreatePleProtocol <- function(outputLocation = getwd()){
     
     id <- as.data.frame(concepts$conceptTableSummary[which(concepts$conceptTableSummary$newConceptId == i),]$cohortDefinitionId)
     names(id) <- c("ID")
-    #outcomeCohortsForConceptSet <- outcomeCohorts[outcomeCohorts$`Cohort ID` %in% id$ID,]
+    cohortsForConceptSet <- cohortDescriptions[cohortDescriptions$ID %in% id$ID,]
     #targetCohortsForConceptSet <- targetCohorts[targetCohorts$`Cohort ID` %in% id$ID,]
     
     #cohortsForConceptSet <- rbind(outcomeCohortsForConceptSet,targetCohortsForConceptSet)
@@ -464,8 +535,8 @@ CreatePleProtocol <- function(outputLocation = getwd()){
           officer::ftext(conceptSetId, prop = style_table_title)
         )) %>%
       officer::body_add_table(conceptSetTable[,c(1,2,4,6,7,8,9,10,11,12)], header = TRUE, style = "Table Professional") %>% 
-      officer::body_add_par("") %>%
-      officer::body_add_par("Cohorts that use this Concept Set:", style = "Normal") %>%
+      #officer::body_add_par("") %>%
+      #officer::body_add_par("Cohorts that use this Concept Set:", style = "Normal") %>%
       #officer::body_add_par("") %>%
       #officer::body_add_table(cohortsForConceptSet, header = TRUE, style = "Table Professional") %>%
       officer::body_add_par("")
@@ -477,8 +548,15 @@ CreatePleProtocol <- function(outputLocation = getwd()){
     officer::body_end_section_landscape() %>%
     officer::body_add_par("Negative Control List", style = "heading 2") %>%
     officer::body_add_par("") %>%
+    officer::body_add_table(negativeControls, header = TRUE, style = "Table Professional") %>%
+    officer::body_add_par("") %>%
     #```````````````````````````````````````````````````````````````````````````
     officer::body_add_par("Complete Analysis List", style = "heading 2") %>%
+    officer::body_add_par("") %>%
+    officer::body_add_fpar(
+      officer::fpar(
+        officer::ftext("<< To be completed outside of ATLAS. >>", prop = style_helper_text)
+      )) %>%
     officer::body_add_par("") %>%
     officer::body_add_break()
   #-----------------------------------------------------------------------------
