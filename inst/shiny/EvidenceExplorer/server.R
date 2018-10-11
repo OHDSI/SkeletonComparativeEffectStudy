@@ -226,11 +226,18 @@ shinyServer(function(input, output, session) {
     return(attritionPlot())
   })
   
-  output$downloadAttritionPlot <- downloadHandler(filename = "Attrition.png", contentType = "image/png", content = function(file) {
-    device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
-    ggplot2::ggsave(file, plot = attritionPlot(), width = 6, height = 7, dpi = 400, device = device)
+  output$downloadAttritionPlotPng <- downloadHandler(filename = "Attrition.png", 
+                                                     contentType = "image/png", 
+                                                     content = function(file) {
+    ggplot2::ggsave(file, plot = attritionPlot(), width = 6, height = 7, dpi = 400)
   })
 
+  output$downloadAttritionPlotPdf <- downloadHandler(filename = "Attrition.pdf", 
+                                                     contentType = "application/pdf", 
+                                                     content = function(file) {
+    ggplot2::ggsave(file = file, plot = attritionPlot(), width = 6, height = 7)
+  })
+  
   output$attritionPlotCaption <- renderUI({
     row <- selectedRow()
     if (is.null(row)) {
@@ -319,10 +326,17 @@ shinyServer(function(input, output, session) {
     return(psDistPlot())
   })
   
-  output$downloadPsDistPlot <- downloadHandler(filename = "Ps.png", contentType = "image/png", content = function(file) {
-    device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
-    ggplot2::ggsave(file, plot = psDistPlot(), width = 5, height = 3.5, dpi = 400, device = device)
-  })
+  output$downloadPsDistPlotPng <- downloadHandler(filename = "Ps.png", 
+                                                  contentType = "image/png", 
+                                                  content = function(file) {
+                                                    ggplot2::ggsave(file, plot = psDistPlot(), width = 5, height = 3.5, dpi = 400)
+                                                  })
+  
+  output$downloadPsDistPlotPdf <- downloadHandler(filename = "Ps.pdf", 
+                                                  contentType = "application/pdf", 
+                                                  content = function(file) {
+                                                    ggplot2::ggsave(file = file, plot = psDistPlot(), width = 5, height = 3.5)
+                                                  })
 
   balancePlot <- reactive({
     bal <- balance()
@@ -342,11 +356,18 @@ shinyServer(function(input, output, session) {
     return(balancePlot())
   })
   
-  output$downloadBalancePlot <- downloadHandler(filename = "Balance.png", contentType = "image/png", content = function(file) {
-    device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
-    ggplot2::ggsave(file, plot = balancePlot(), width = 4, height = 4, dpi = 400, device = device)
-  })
-
+  output$downloadBalancePlotPng <- downloadHandler(filename = "Balance.png", 
+                                                  contentType = "image/png", 
+                                                  content = function(file) {
+                                                    ggplot2::ggsave(file, plot = balancePlot(), width = 4, height = 4, dpi = 400)
+                                                  })
+  
+  output$downloadBalancePlotPdf <- downloadHandler(filename = "Balance.pdf", 
+                                                  contentType = "application/pdf", 
+                                                  content = function(file) {
+                                                    ggplot2::ggsave(file = file, plot = balancePlot(), width = 4, height = 4)
+                                                  })
+  
   output$balancePlotCaption <- renderUI({
     bal <- balance()
     if (is.null(bal) || nrow(bal) == 0) {
@@ -417,10 +438,17 @@ shinyServer(function(input, output, session) {
     return(systematicErrorPlot())
   })
   
-  output$downloadSystematicErrorPlot <- downloadHandler(filename = "SystematicError.png", contentType = "image/png", content = function(file) {
-    device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
-    ggplot2::ggsave(file, plot = systematicErrorPlot(), width = 12, height = 5.5, dpi = 400, device = device)
-  })
+  output$downloadSystematicErrorPlotPng <- downloadHandler(filename = "SystematicError.png", 
+                                                   contentType = "image/png", 
+                                                   content = function(file) {
+                                                     ggplot2::ggsave(file, plot = systematicErrorPlot(), width = 12, height = 5.5, dpi = 400)
+                                                   })
+  
+  output$downloadSystematicErrorPlotPdf <- downloadHandler(filename = "SystematicError.pdf", 
+                                                   contentType = "application/pdf", 
+                                                   content = function(file) {
+                                                     ggplot2::ggsave(file = file, plot = systematicErrorPlot(), width = 12, height = 5.5)
+                                                   })
 
   kaplanMeierPlot <- reactive({
     row <- selectedRow()
@@ -447,11 +475,18 @@ shinyServer(function(input, output, session) {
     return(kaplanMeierPlot())
   }, res = 100)
   
-  output$downloadKaplanMeierPlot <- downloadHandler(filename = "KaplanMeier.png", contentType = "image/png", content = function(file) {
-    device <- function(..., width, height) grDevices::png(..., width = width, height = height, res = 300, units = "in")
-    ggplot2::ggsave(file, plot = kaplanMeierPlot(), width = 7, height = 5, dpi = 400, device = device)
-  })
-
+  output$downloadKaplanMeierPlotPng <- downloadHandler(filename = "KaplanMeier.png", 
+                                                   contentType = "image/png", 
+                                                   content = function(file) {
+                                                     ggplot2::ggsave(file, plot = kaplanMeierPlot(), width = 7, height = 5, dpi = 400)
+                                                   })
+  
+  output$downloadKaplanMeierPlotPdf <- downloadHandler(filename = "KaplanMeier.pdf", 
+                                                   contentType = "application/pdf", 
+                                                   content = function(file) {
+                                                     ggplot2::ggsave(file = file, plot = kaplanMeierPlot(), width = 7, height = 5)
+                                                   })
+  
   output$kaplanMeierPlotPlotCaption <- renderUI({
     row <- selectedRow()
     if (is.null(row)) {
