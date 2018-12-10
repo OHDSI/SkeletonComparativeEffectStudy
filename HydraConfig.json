@@ -24,7 +24,7 @@
 		"mapping": [{"source": "targetId", "target": "targetId"},
 					{"source": "comparatorId", "target": "comparatorId"},
 					{"source": "outcomeIds", "target": "outcomeIds", "separator": ";"},
-					{"source": "excludedCovariateConceptIds", "target": "excludedCovariateConceptIds", "separator": ";"}],
+					{"source": "excludedCovariateConceptIds", "target": "excludedCovariateConceptIds", "separator": ";"},
 					{"source": "includedCovariateConceptIds", "target": "includedCovariateConceptIds", "separator": ";"}],
 		"output": "inst/settings/TcosOfInterest.csv"
 	},{
