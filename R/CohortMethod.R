@@ -146,11 +146,22 @@ createTcos <- function(outputFolder) {
     outcomeIds <- as.numeric(strsplit(outcomeIds, split = ";")[[1]])
     outcomeIds <- c(outcomeIds, allControls$outcomeId[allControls$targetId == targetId & allControls$comparatorId == comparatorId])
     excludeConceptIds <- as.character(tcosOfInterest$excludedCovariateConceptIds[tcosOfInterest$targetId == targetId & tcosOfInterest$comparatorId == comparatorId])
-    excludeConceptIds <- as.numeric(strsplit(excludeConceptIds, split = ";")[[1]])
+    if (length(excludeConceptIds) == 1 && is.na(excludeConceptIds)) {
+      excludeConceptIds <- c()
+    } else if (length(excludeConceptIds) > 0) {
+      excludeConceptIds <- as.numeric(strsplit(excludeConceptIds, split = ";")[[1]])
+    }
+    includeConceptIds <- as.character(tcosOfInterest$includedCovariateConceptIds[tcosOfInterest$targetId == targetId & tcosOfInterest$comparatorId == comparatorId])
+    if (length(includeConceptIds) == 1 && is.na(includeConceptIds)) {
+      includeConceptIds <- c()
+    } else if (length(includeConceptIds) > 0) {
+      includeConceptIds <- as.numeric(strsplit(excludeConceptIds, split = ";")[[1]])
+    }
     tco <- CohortMethod::createTargetComparatorOutcomes(targetId = targetId,
                                                         comparatorId = comparatorId,
                                                         outcomeIds = outcomeIds,
-                                                        excludedCovariateConceptIds =  excludeConceptIds)
+                                                        excludedCovariateConceptIds = excludeConceptIds,
+                                                        includedCovariateConceptIds = includeConceptIds)
     return(tco)
   }
   tcosList <- lapply(1:nrow(tcs), createTco)
