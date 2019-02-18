@@ -150,7 +150,7 @@ createPositiveControlSynthesisArgs <- function(workFolder) {
                                                                    useCharlsonIndex = TRUE,
                                                                    useDcsi = TRUE,
                                                                    useChads2Vasc = TRUE,
-                                                                   longTermStartDays = 365,
+                                                                   longTermStartDays = -365,
                                                                    endDays = 0) 
   )
   ParallelLogger::saveSettingsToJson(settings, file.path(workFolder, "positiveControlSynthArgs.json"))

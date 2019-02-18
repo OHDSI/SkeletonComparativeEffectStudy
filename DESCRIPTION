@@ -30,4 +30,4 @@ Suggests:
 License: Apache License 2.0
 VignetteBuilder: knitr
 LazyData: TRUE
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1

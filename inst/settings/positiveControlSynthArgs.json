@@ -61,7 +61,7 @@
     "CharlsonIndex": true,
     "Dcsi": true,
     "Chads2Vasc": true,
-    "longTermStartDays": 365,
+    "longTermStartDays": -365,
     "mediumTermStartDays": -180,
     "shortTermStartDays": -30,
     "endDays": 0,
