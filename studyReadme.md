@@ -20,13 +20,13 @@ How to run
 	```r
 	install.packages("devtools")
 	library(devtools)
-	install_github("ohdsi/SqlRender", ref = "v1.5.2")
-	install_github("ohdsi/DatabaseConnector", ref = "v2.2.0")
+	install_github("ohdsi/SqlRender", ref = "v1.6.0")
+	install_github("ohdsi/DatabaseConnector", ref = "v2.2.1")
 	install_github("ohdsi/OhdsiSharing", ref = "v0.1.3")
-	install_github("ohdsi/FeatureExtraction", ref = "v2.1.5")
-	install_github("ohdsi/CohortMethod", ref = "v3.0.1")
+	install_github("ohdsi/FeatureExtraction", ref = "v2.2.1")
+	install_github("ohdsi/CohortMethod", ref = "v3.0.2")
 	install_github("ohdsi/EmpiricalCalibration", ref = "v1.3.6")
-	install_github("ohdsi/MethodEvaluation", ref = "v0.3.1")
+	install_github("ohdsi/MethodEvaluation", ref = "v1.0.1")
 	```
 
 	If you experience problems on Windows where rJava can't find Java, one solution may be to add `args = "--no-multiarch"` to each `install_github` call, for example:
