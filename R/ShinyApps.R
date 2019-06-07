@@ -38,7 +38,7 @@ prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder) {
   if (!file.exists(dataFolder)) {
     dir.create(dataFolder, recursive = TRUE)
   }
-  tempFolder <- tempdir()
+  tempFolder <- paste(tempdir(), "unzip")
   on.exit(unlink(tempFolder, recursive = TRUE))
   utils::unzip(resultsZipFile, exdir = tempFolder)
   databaseFileName <- file.path(tempFolder, "database.csv")

@@ -40,7 +40,7 @@ generateDiagnostics <- function(outputFolder, maxCores) {
   analysisSummary <- read.csv(file.path(outputFolder, "analysisSummary.csv"))
   reference <- merge(reference, analysisSummary[, c("targetId", "comparatorId", "outcomeId", "analysisId", "logRr", "seLogRr")])
   allControls <- getAllControls(outputFolder)
-  subsets <- split(reference, list(reference$targetId, reference$comparatorId, reference$analysisId))
+  subsets <- split(reference, paste(reference$targetId, reference$comparatorId, reference$analysisId))
   # subset <- subsets[[1]]
   cluster <- ParallelLogger::makeCluster(min(4, maxCores))
   ParallelLogger::clusterApply(cluster = cluster, 
