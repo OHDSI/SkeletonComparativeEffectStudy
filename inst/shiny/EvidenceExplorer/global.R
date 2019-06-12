@@ -9,10 +9,12 @@ positiveControlOutcome <- NULL
 
 splittableTables <- c("covariate_balance", "preference_score_dist", "kaplan_meier_dist")
 
-files <- list.files(dataFolder, pattern = ".rds")
+# Find part to remove from all file names (usually databaseId):
+databaseFileName <- files[grepl("^database", files)]
+removePart <- paste0(gsub("database", "", databaseFileName), "$")
 
 # Remove data already in global environment:
-tableNames <- gsub("(_t[0-9]+_c[0-9]+)|(_)[^_]*\\.rds", "", files) 
+tableNames <- gsub("_t[0-9]+_c[0-9]+$", "", gsub(removePart, "", files)) 
 camelCaseNames <- SqlRender::snakeCaseToCamelCase(tableNames)
 camelCaseNames <- unique(camelCaseNames)
 camelCaseNames <- camelCaseNames[!(camelCaseNames %in% SqlRender::snakeCaseToCamelCase(splittableTables))]
@@ -21,7 +23,7 @@ rm(list = camelCaseNames)
 # Load data from data folder:
 loadFile <- function(file) {
   # file = files[13]
-  tableName <- gsub("(_t[0-9]+_c[0-9]+)|(_)[^_]*\\.rds", "", file) 
+  tableName <- gsub("_t[0-9]+_c[0-9]+$", "", gsub(removePart, "", file)) 
   camelCaseName <- SqlRender::snakeCaseToCamelCase(tableName)
   if (!(tableName %in% splittableTables)) {
     newData <- readRDS(file.path(dataFolder, file))
