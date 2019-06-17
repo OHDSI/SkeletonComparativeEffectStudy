@@ -18,11 +18,11 @@ tableNames <- gsub("_t[0-9]+_c[0-9]+$", "", gsub(removePart, "", files))
 camelCaseNames <- SqlRender::snakeCaseToCamelCase(tableNames)
 camelCaseNames <- unique(camelCaseNames)
 camelCaseNames <- camelCaseNames[!(camelCaseNames %in% SqlRender::snakeCaseToCamelCase(splittableTables))]
-rm(list = camelCaseNames)
-
-# Load data from data folder:
+suppressWarnings(
+  rm(list = camelCaseNames)
+)
+# Load data from data folder. R data objects will get names derived from the filename:
 loadFile <- function(file) {
-  # file = files[13]
   tableName <- gsub("_t[0-9]+_c[0-9]+$", "", gsub(removePart, "", file)) 
   camelCaseName <- SqlRender::snakeCaseToCamelCase(tableName)
   if (!(tableName %in% splittableTables)) {

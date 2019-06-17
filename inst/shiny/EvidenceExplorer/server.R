@@ -91,6 +91,11 @@ shinyServer(function(input, output, session) {
   })
   outputOptions(output, "rowIsSelected", suspendWhenHidden = FALSE)
   
+  output$hasSubgroups <- reactive({
+    return(exists("cmInteractionResult"))
+  })
+  outputOptions(output, "hasSubgroups", suspendWhenHidden = FALSE)
+  
   balance <- reactive({
      row <- selectedRow()
      if (is.null(row)) {

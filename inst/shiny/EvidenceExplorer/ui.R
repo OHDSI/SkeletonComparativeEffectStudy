@@ -85,9 +85,11 @@ shinyUI(
                                                                downloadButton("downloadKaplanMeierPlotPng", label = "Download plot as PNG"),
                                                                downloadButton("downloadKaplanMeierPlotPdf", label = "Download plot as PDF")
                                                            )),
-                                                  tabPanel("Subgroups",
-                                                           uiOutput("subgroupTableCaption"),
-                                                           dataTableOutput("subgroupTable")) 
+                                                  conditionalPanel("output.hasSubgroups == true", 
+                                                                   tabPanel("Subgroups",
+                                                                            uiOutput("subgroupTableCaption"),
+                                                                            dataTableOutput("subgroupTable"))
+                                                  )
                                       )
                      )
               )
