@@ -9,6 +9,8 @@ positiveControlOutcome <- NULL
 
 splittableTables <- c("covariate_balance", "preference_score_dist", "kaplan_meier_dist")
 
+files <- list.files(dataFolder, pattern = ".rds")
+
 # Find part to remove from all file names (usually databaseId):
 databaseFileName <- files[grepl("^database", files)]
 removePart <- paste0(gsub("database", "", databaseFileName), "$")
