@@ -95,7 +95,13 @@ shinyServer(function(input, output, session) {
     return(exists("cmInteractionResult"))
   })
   outputOptions(output, "hasSubgroups", suspendWhenHidden = FALSE)
+
+  output$blind <- reactive({
+    return(blind)
+  })
+  outputOptions(output, "blind", suspendWhenHidden = FALSE)
   
+    
   balance <- reactive({
      row <- selectedRow()
      if (is.null(row)) {
@@ -320,8 +326,8 @@ shinyServer(function(input, output, session) {
       comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
       outcomeId <- outcomeOfInterest$outcomeId[outcomeOfInterest$outcomeName == input$outcome]
       ps <- getPs(connection = connection,
-                  targetId = targetId,
-                  comparatorId = comparatorId,
+                  targetIds = targetId,
+                  comparatorIds = comparatorId,
                   databaseId = row$databaseId)
       plot <- plotPs(ps, input$target, input$comparator)
       return(plot)
@@ -458,7 +464,7 @@ shinyServer(function(input, output, session) {
 
   kaplanMeierPlot <- reactive({
     row <- selectedRow()
-    if (blind || is.null(row)) {
+    if (is.null(row)) {
       return(NULL)
     } else {
       targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]

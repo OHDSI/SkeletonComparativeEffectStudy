@@ -78,13 +78,15 @@ shinyUI(
                                                                downloadButton("downloadSystematicErrorPlotPng", label = "Download plot as PNG"),
                                                                downloadButton("downloadSystematicErrorPlotPdf", label = "Download plot as PDF")
                                                            )),
-                                                  tabPanel("Kaplan-Meier",
-                                                           plotOutput("kaplanMeierPlot", height = 550),
-                                                           uiOutput("kaplanMeierPlotPlotCaption"),
-                                                           div(style = "display: inline-block;vertical-align:top;",
-                                                               downloadButton("downloadKaplanMeierPlotPng", label = "Download plot as PNG"),
-                                                               downloadButton("downloadKaplanMeierPlotPdf", label = "Download plot as PDF")
-                                                           )),
+                                                  conditionalPanel("output.blind == false", 
+                                                                   tabPanel("Kaplan-Meier",
+                                                                            plotOutput("kaplanMeierPlot", height = 550),
+                                                                            uiOutput("kaplanMeierPlotPlotCaption"),
+                                                                            div(style = "display: inline-block;vertical-align:top;",
+                                                                                downloadButton("downloadKaplanMeierPlotPng", label = "Download plot as PNG"),
+                                                                                downloadButton("downloadKaplanMeierPlotPdf", label = "Download plot as PDF")
+                                                                            ))
+                                                  ),
                                                   conditionalPanel("output.hasSubgroups == true", 
                                                                    tabPanel("Subgroups",
                                                                             uiOutput("subgroupTableCaption"),
