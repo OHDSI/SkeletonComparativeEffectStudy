@@ -37,11 +37,10 @@ How to run
 	
 	Alternatively, ensure that you have installed both 32-bit and 64-bit JDK versions, as mentioned in the [video tutorial](https://youtu.be/K9_0s2Rchbo).
 	
-2. In `R`, use the following `devtools` commands to install the SkeletonComparativeEffectStudy package:
+2. In `R`, use the following `devtools` command to install the SkeletonComparativeEffectStudy package:
 
 	```r
-	build() # Choose to continue when asked 
-	install()
+	install() # Note: it is ok to delete inst/doc
 	```
 	
 3. Once installed, you can execute the study by modifying and using the code below. For your convenience, this code is also provided under `extras/CodeToRun.R`:
