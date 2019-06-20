@@ -316,6 +316,38 @@ shinyServer(function(input, output, session) {
       return(table1)
     }
   })
+  
+  output$propensityModelTable <- renderDataTable({
+    row <- selectedRow()
+    if (is.null(row)) {
+      return(NULL)
+    } else {
+      targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
+      comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
+      model <- getPropensityModel(connection = connection,
+                                  targetId = targetId,
+                                  comparatorId = comparatorId,
+                                  databaseId = row$databaseId,
+                                  analysisId = row$analysisId)
+      
+      table <- preparePropensityModelTable(model)
+      print(nrow(table))
+      options = list(columnDefs = list(list(className = 'dt-right',  targets = 0)),
+                     pageLength = 15,
+                     searching = FALSE,
+                     lengthChange = TRUE,
+                     ordering = TRUE,
+                     paging = TRUE)
+      selection = list(mode = "single", target = "row")
+      table <- datatable(table,
+                         options = options,
+                         selection = selection,
+                         rownames = FALSE,
+                         escape = FALSE,
+                         class = "stripe nowrap compact")
+      return(table)
+    }
+  })
 
   psDistPlot <- reactive({
     row <- selectedRow()
@@ -328,6 +360,7 @@ shinyServer(function(input, output, session) {
       ps <- getPs(connection = connection,
                   targetIds = targetId,
                   comparatorIds = comparatorId,
+                  analysisId = row$analysisId,
                   databaseId = row$databaseId)
       plot <- plotPs(ps, input$target, input$comparator)
       return(plot)

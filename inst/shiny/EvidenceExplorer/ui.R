@@ -50,6 +50,9 @@ shinyUI(
                                                   tabPanel("Population characteristics",
                                                            uiOutput("table1Caption"),
                                                            dataTableOutput("table1Table")),
+                                                  tabPanel("Propensity model",
+                                                           div(strong("Table 3."),"Fitted propensity model, listing all coviates with non-zero coefficients. Positive coefficients indicate predictive of the target exposure."),
+                                                           dataTableOutput("propensityModelTable")),
                                                   tabPanel("Propensity scores",
                                                            plotOutput("psDistPlot"),
                                                            div(strong("Figure 2."),"Preference score distribution. The preference score is a transformation of the propensity score

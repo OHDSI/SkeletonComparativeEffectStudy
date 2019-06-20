@@ -165,7 +165,6 @@ preparePowerTable <- function(mainResults, analyses) {
   return(table)
 }
 
-
 prepareSubgroupTable <- function(subgroupResults, output = "latex") {
   rnd <- function(x) {
     ifelse(x > 10, sprintf("%.1f", x), sprintf("%.2f", x))
@@ -960,5 +959,15 @@ createDocument <- function(targetId,
   }
   
   invisible(outputFile)
+}
+
+preparePropensityModelTable <- function(model) {
+  rnd <- function(x) {
+    ifelse(x > 10, sprintf("%.1f", x), sprintf("%.2f", x))
+  }
+  table <- model[order(-abs(model$coefficient)), c("coefficient", "covariateName")]
+  table$coefficient <- sprintf("%.2f", table$coefficient)
+  colnames(table) <- c("Beta", "Covariate")
+  return(table)
 }
 

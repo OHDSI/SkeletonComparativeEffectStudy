@@ -107,16 +107,17 @@ exportAnalyses <- function(outputFolder, exportFolder) {
   
   ParallelLogger::logInfo("- covariate_analysis table")
   reference <- readRDS(file.path(outputFolder, "cmOutput", "outcomeModelReference.rds"))
-  getCovariateAnalyses <- function(cmDataFolder) {
+  getCovariateAnalyses <- function(cmAnalysis) {
+    cmDataFolder <- reference$cohortMethodDataFolder[reference$analysisId == cmAnalysis$analysisId][1]
     cmData <- CohortMethod::loadCohortMethodData(file.path(outputFolder, "cmOutput", cmDataFolder), readOnly = TRUE)
     covariateAnalysis <- ff::as.ram(cmData$analysisRef)
     covariateAnalysis <- covariateAnalysis[, c("analysisId", "analysisName")]
+    colnames(covariateAnalysis) <- c("covariate_analysis_id", "covariate_analysis_name")
+    covariateAnalysis$analysis_id <- cmAnalysis$analysisId    
     return(covariateAnalysis)
   }
-  covariateAnalysis <- lapply(unique(reference$cohortMethodDataFolder), getCovariateAnalyses)
+  covariateAnalysis <- lapply(cmAnalysisList, getCovariateAnalyses)
   covariateAnalysis <- do.call("rbind", covariateAnalysis)
-  covariateAnalysis <- unique(covariateAnalysis)
-  colnames(covariateAnalysis) <- c("covariate_analysis_id", "covariate_analysis_name")
   fileName <- file.path(exportFolder, "covariate_analysis.csv")
   write.csv(covariateAnalysis, fileName, row.names = FALSE)
 }
@@ -317,7 +318,7 @@ exportMetadata <- function(outputFolder,
                 qmethod = "double",
                 append = !first)
     first <- FALSE
-    if (i%%100 == 10) {
+    if (i %% 100 == 10) {
       setTxtProgressBar(pb, i/nrow(reference))
     }
   }
@@ -327,16 +328,17 @@ exportMetadata <- function(outputFolder,
   
   ParallelLogger::logInfo("- covariate table")
   reference <- readRDS(file.path(outputFolder, "cmOutput", "outcomeModelReference.rds"))
-  getCovariates <- function(cmDataFolder) {
+  getCovariates <- function(analysisId) {
+    cmDataFolder <- reference$cohortMethodDataFolder[analysisId][1]
     cmData <- CohortMethod::loadCohortMethodData(file.path(outputFolder, "cmOutput", cmDataFolder), readOnly = TRUE)
     covariateRef <- ff::as.ram(cmData$covariateRef)
     covariateRef <- covariateRef[, c("covariateId", "covariateName", "analysisId")]
     colnames(covariateRef) <- c("covariateId", "covariateName", "covariateAnalysisId")
+    covariateRef$analysisId <- analysisId
     return(covariateRef)
   }
-  covariates <- lapply(unique(reference$cohortMethodDataFolder), getCovariates)
+  covariates <- lapply(unique(reference$analysisId), getCovariates)
   covariates <- do.call("rbind", covariates)
-  covariates <- unique(covariates)
   covariates$databaseId <- databaseId
   colnames(covariates) <- SqlRender::camelCaseToSnakeCase(colnames(covariates))
   fileName <- file.path(exportFolder, "covariate.csv")
@@ -738,10 +740,14 @@ exportDiagnostics <- function(outputFolder,
   close(pb)
   
   ParallelLogger::logInfo("- preference_score_dist table")
-  preparePlot <- function(i, reference) {
+  reference <- readRDS(file.path(outputFolder, "cmOutput", "outcomeModelReference.rds"))
+  preparePlot <- function(row, reference) {
+    idx <- reference$analysisId == row$analysisId &
+      reference$targetId == row$targetId &
+      reference$comparatorId == row$comparatorId
     psFileName <- file.path(outputFolder,
                             "cmOutput",
-                            reference$sharedPsFile[i])
+                            reference$sharedPsFile[idx][1])
     if (file.exists(psFileName)) {
       ps <- readRDS(psFileName)
       if (min(ps$propensityScore) < max(ps$propensityScore)) {
@@ -751,8 +757,9 @@ exportDiagnostics <- function(outputFolder,
         d0 <- density(ps$preferenceScore[ps$treatment == 0], from = 0, to = 1, n = 100)
         
         result <- data.frame(databaseId = databaseId,
-                             targetId = reference$targetId[i],
-                             comparatorId = reference$comparatorId[i],
+                             targetId = row$targetId,
+                             comparatorId = row$comparatorId,
+                             analysisId = row$analysisId,
                              preferenceScore = d1$x,
                              targetDensity = d1$y,
                              comparatorDensity = d0$y)
@@ -761,11 +768,9 @@ exportDiagnostics <- function(outputFolder,
     }
     return(NULL)
   }
-  reference <- readRDS(file.path(outputFolder, "cmOutput", "outcomeModelReference.rds"))
-  reference <- reference[order(reference$sharedPsFile), ]
-  reference <- reference[!duplicated(reference$sharedPsFile), ]
-  reference <- reference[reference$sharedPsFile != "", ]
-  data <- plyr::llply(1:nrow(reference),
+  subset <- unique(reference[reference$sharedPsFile != "", 
+                             c("targetId", "comparatorId", "analysisId")])
+  data <- plyr::llply(split(subset, 1:nrow(subset)),
                       preparePlot,
                       reference = reference,
                       .progress = "text")
@@ -776,17 +781,20 @@ exportDiagnostics <- function(outputFolder,
   
   
   ParallelLogger::logInfo("- propensity_model table")
-  getPsModel <- function(i, reference) {
+  getPsModel <- function(row, reference) {
+    idx <- reference$analysisId == row$analysisId &
+      reference$targetId == row$targetId &
+      reference$comparatorId == row$comparatorId
     psFileName <- file.path(outputFolder,
                             "cmOutput",
-                            reference$sharedPsFile[i])
+                            reference$sharedPsFile[idx][1])
     if (file.exists(psFileName)) {
       ps <- readRDS(psFileName)
       metaData <- attr(ps, "metaData")
       if (is.null(metaData$psError)) {
         cmDataFile <- file.path(outputFolder,
                                 "cmOutput",
-                                reference$cohortMethodDataFolder[i])
+                                reference$cohortMethodDataFolder[idx][1])
         cmData <- CohortMethod::loadCohortMethodData(cmDataFile)
         model <- CohortMethod::getPsModel(ps, cmData)
         model$covariateId[is.na(model$covariateId)] <- 0
@@ -794,19 +802,18 @@ exportDiagnostics <- function(outputFolder,
         ff::close.ffdf(cmData$covariateRef)
         ff::close.ffdf(cmData$analysisRef)
         model$databaseId <- databaseId
-        model$targetId <- reference$targetId[i]
-        model$comparatorId <- reference$comparatorId[i]
-        model <- model[, c("databaseId", "targetId", "comparatorId", "covariateId", "coefficient")]
+        model$targetId <- row$targetId
+        model$comparatorId <- row$comparatorId
+        model$analysisId <- row$analysisId
+        model <- model[, c("databaseId", "targetId", "comparatorId", "analysisId", "covariateId", "coefficient")]
         return(model)
       }
     }
     return(NULL)
   }
-  reference <- readRDS(file.path(outputFolder, "cmOutput", "outcomeModelReference.rds"))
-  reference <- reference[order(reference$sharedPsFile), ]
-  reference <- reference[!duplicated(reference$sharedPsFile), ]
-  reference <- reference[reference$sharedPsFile != "", ]
-  data <- plyr::llply(1:nrow(reference),
+  subset <- unique(reference[reference$sharedPsFile != "", 
+                             c("targetId", "comparatorId", "analysisId")])
+  data <- plyr::llply(split(subset, 1:nrow(subset)),
                       getPsModel,
                       reference = reference,
                       .progress = "text")

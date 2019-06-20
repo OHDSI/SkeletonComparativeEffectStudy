@@ -64,7 +64,8 @@ For example, the age group analysis creates binary covariates for each
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| [covariate_analysis_id]{.underline} | integer |  A unique identifier for a covariate analysis. |
+| analysis_id  | integer | A foreign key referencing the cohort_method_analysis table. |
+| covariate_analysis_id | integer |  A unique identifier for a covariate analysis. |
 | covariate_analysis_name             | varchar |  A name for a covariate analysis, e.g. 'Demographics: age group'. |
 
 
@@ -199,6 +200,7 @@ Lists the covariates constructed in a database.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | database_id           | varchar | Foreign key referencing the database. |
+| analysis_id           | integer | A foreign key referencing the cohort_method_analysis table. |
 | covariate_id          | integer | A unique identified for a covariate. |
 | comparator_name       | varchar | A name for a covariate, e.g. 'Age group: 20-25 years'. |
 | covariate_analysis_id | integer | A foreign key referencing the covariate_analysis table. |
@@ -337,6 +339,7 @@ Provides the preference score distribution for each comparison.
 | database_id        | varchar | Foreign key referencing the database. |
 | target_id          | integer | A foreign key referencing the exposure_of_interest table. |
 | comparator_id      | integer | A foreign key referencing the exposure_of_interest table. |
+| analysis_id        | integer | A foreign key referencing the cohort_method_analysis table. |
 | preference_score   | float   | A preference score value. |
 | target_density     | float   | The distribution density for the target cohort at the given preference score. |
 | comparator_density | float   | The distribution density for the comparator cohort at the given preference score. |
@@ -373,5 +376,6 @@ Contains the propensity models.
 | database_id   | varchar | Foreign key referencing the database. |
 | target_id     | integer | A foreign key referencing the exposure_of_interest table. |
 | comparator_id | integer | A foreign key referencing the exposure_of_interest table. |
+| analysis_id   | integer | A foreign key referencing the cohort_method_analysis table. |
 | covariate_id  | integer | A foreign key referencing the covariate table. |
 | coefficient   | float   | The coefficient (beta) for the covariate in the propensity model. |
