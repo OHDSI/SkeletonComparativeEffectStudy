@@ -5,13 +5,13 @@ SkeletonComparativeEffectStudy
 Requirements
 ============
 
-- A database in [Common Data Model version 5](https://github.com/OHDSI/CommonDataModel) in one of these platforms: SQL Server, Oracle, PostgreSQL, IBM Netezza, Apache Impala, Amazon RedShift, or Microsoft APS.
+- A database in [Common Data Model version 5](https://github.com/OHDSI/CommonDataModel) in one of these platforms: SQL Server, Oracle, PostgreSQL, IBM Netezza, Apache Impala, Amazon RedShift, Google BigQuery, or Microsoft APS.
 - R version 3.5.0 or newer
 - On Windows: [RTools](http://cran.r-project.org/bin/windows/Rtools/)
 - [Java](http://java.com)
 - 25 GB of free disk space
 
-See [this video](https://youtu.be/K9_0s2Rchbo) for instructions on how to set up the R environment on Windows.
+See [these instructions](https://ohdsi.github.io/MethodsLibrary/rSetup.html) on how to set up the R environment on Windows.
 
 How to run
 ==========
@@ -21,12 +21,12 @@ How to run
 	install.packages("devtools")
 	library(devtools)
 	install_github("ohdsi/SqlRender", ref = "v1.6.0")
-	install_github("ohdsi/DatabaseConnector", ref = "v2.2.1")
+	install_github("ohdsi/DatabaseConnector", ref = "v2.3.0")
 	install_github("ohdsi/OhdsiSharing", ref = "v0.1.3")
-	install_github("ohdsi/FeatureExtraction", ref = "v2.2.1")
+	install_github("ohdsi/FeatureExtraction", ref = "v2.2.3")
 	install_github("ohdsi/CohortMethod", ref = "v3.0.2")
-	install_github("ohdsi/EmpiricalCalibration", ref = "v1.4.0")
-	install_github("ohdsi/MethodEvaluation", ref = "v1.0.1")
+	install_github("ohdsi/EmpiricalCalibration", ref = "v2.0.0")
+	install_github("ohdsi/MethodEvaluation", ref = "v1.0.2")
 	```
 
 	If you experience problems on Windows where rJava can't find Java, one solution may be to add `args = "--no-multiarch"` to each `install_github` call, for example:
@@ -37,12 +37,14 @@ How to run
 	
 	Alternatively, ensure that you have installed both 32-bit and 64-bit JDK versions, as mentioned in the [video tutorial](https://youtu.be/K9_0s2Rchbo).
 	
-2. In 'R', use the following code to install the SkeletonComparativeEffectStudy package:
+2. In `R`, use the following `devtools` command to install the SkeletonComparativeEffectStudy package:
 
-  To do: Need to provide some instructions for installing the study package itself.
+	```r
+	install() # Note: it is ok to delete inst/doc
+	```
 	
-3. Once installed, you can execute the study by modifying and using the following code:
-	
+3. Once installed, you can execute the study by modifying and using the code below. For your convenience, this code is also provided under `extras/CodeToRun.R`:
+
 	```r
 	library(SkeletonComparativeEffectStudy)
 	
@@ -81,21 +83,20 @@ How to run
 	oracleTempSchema <- NULL
 	
 	execute(connectionDetails = connectionDetails,
-		cdmDatabaseSchema = cdmDatabaseSchema,
-		cohortDatabaseSchema = cohortDatabaseSchema,
-		cohortTable = cohortTable,
-		oracleTempSchema = oracleTempSchema,
-		outputFolder = outputFolder,
-		databaseId = databaseId
-		databaseName = databaseName,
-		databaseDescription = databaseDescription,
-		createCohorts = TRUE,
-		synthesizePositiveControls = TRUE,
-		runAnalyses = TRUE,
-		runDiagnostics = TRUE,
-		packageResults = TRUE
-		maxCores = maxCores,
-		minCellCount = minCellCount)
+            cdmDatabaseSchema = cdmDatabaseSchema,
+            cohortDatabaseSchema = cohortDatabaseSchema,
+            cohortTable = cohortTable,
+            oracleTempSchema = oracleTempSchema,
+            outputFolder = outputFolder,
+            databaseId = databaseId,
+            databaseName = databaseName,
+            databaseDescription = databaseDescription,
+            createCohorts = TRUE,
+            synthesizePositiveControls = TRUE,
+            runAnalyses = TRUE,
+            runDiagnostics = TRUE,
+            packageResults = TRUE,
+            maxCores = maxCores)
 	```
 
 4. Upload the file ```export/Results<DatabaseId>.zip``` in the output folder to the study coordinator:
@@ -115,11 +116,9 @@ How to run
   
   Note that you can save plots from within the Shiny app. It is possible to view results from more than one database by applying `prepareForEvidenceExplorer` to the Results file from each database, and using the same data folder. Set `blind = FALSE` if you wish to be unblinded to the final results.
 
-
 License
 =======
 The SkeletonComparativeEffectStudy package is licensed under Apache License 2.0
-
 
 Development
 ===========

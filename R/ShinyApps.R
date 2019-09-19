@@ -1,4 +1,4 @@
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2019 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 # 
@@ -38,7 +38,7 @@ prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder) {
   if (!file.exists(dataFolder)) {
     dir.create(dataFolder, recursive = TRUE)
   }
-  tempFolder <- tempdir()
+  tempFolder <- paste(tempdir(), "unzip")
   on.exit(unlink(tempFolder, recursive = TRUE))
   utils::unzip(resultsZipFile, exdir = tempFolder)
   databaseFileName <- file.path(tempFolder, "database.csv")

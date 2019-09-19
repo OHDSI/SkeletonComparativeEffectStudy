@@ -54,6 +54,7 @@ shinyServer(function(input, output, session) {
                               outcomeIds = outcomeId,
                               databaseIds = databaseIds,
                               analysisIds = analysisIds)
+    results <- results[order(results$analysisId), ]
     if (blind) {
       results$rr <- rep(NA, nrow(results))
       results$ci95Ub <- rep(NA, nrow(results))
@@ -90,6 +91,17 @@ shinyServer(function(input, output, session) {
   })
   outputOptions(output, "rowIsSelected", suspendWhenHidden = FALSE)
   
+  output$hasSubgroups <- reactive({
+    return(exists("cmInteractionResult"))
+  })
+  outputOptions(output, "hasSubgroups", suspendWhenHidden = FALSE)
+
+  output$blind <- reactive({
+    return(blind)
+  })
+  outputOptions(output, "blind", suspendWhenHidden = FALSE)
+  
+    
   balance <- reactive({
      row <- selectedRow()
      if (is.null(row)) {
@@ -113,7 +125,7 @@ shinyServer(function(input, output, session) {
     if (is.null(table) || nrow(table) == 0) {
       return(NULL)
     }
-    table <- merge(table, cohortMethodAnalysis)
+    table$description <- cohortMethodAnalysis$description[match(table$analysisId, cohortMethodAnalysis$analysisId)]
     table <- table[, mainColumns]
     table$rr <- prettyHr(table$rr)
     table$ci95Lb <- prettyHr(table$ci95Lb)
@@ -304,6 +316,38 @@ shinyServer(function(input, output, session) {
       return(table1)
     }
   })
+  
+  output$propensityModelTable <- renderDataTable({
+    row <- selectedRow()
+    if (is.null(row)) {
+      return(NULL)
+    } else {
+      targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
+      comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
+      model <- getPropensityModel(connection = connection,
+                                  targetId = targetId,
+                                  comparatorId = comparatorId,
+                                  databaseId = row$databaseId,
+                                  analysisId = row$analysisId)
+      
+      table <- preparePropensityModelTable(model)
+      print(nrow(table))
+      options = list(columnDefs = list(list(className = 'dt-right',  targets = 0)),
+                     pageLength = 15,
+                     searching = FALSE,
+                     lengthChange = TRUE,
+                     ordering = TRUE,
+                     paging = TRUE)
+      selection = list(mode = "single", target = "row")
+      table <- datatable(table,
+                         options = options,
+                         selection = selection,
+                         rownames = FALSE,
+                         escape = FALSE,
+                         class = "stripe nowrap compact")
+      return(table)
+    }
+  })
 
   psDistPlot <- reactive({
     row <- selectedRow()
@@ -314,8 +358,9 @@ shinyServer(function(input, output, session) {
       comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
       outcomeId <- outcomeOfInterest$outcomeId[outcomeOfInterest$outcomeName == input$outcome]
       ps <- getPs(connection = connection,
-                  targetId = targetId,
-                  comparatorId = comparatorId,
+                  targetIds = targetId,
+                  comparatorIds = comparatorId,
+                  analysisId = row$analysisId,
                   databaseId = row$databaseId)
       plot <- plotPs(ps, input$target, input$comparator)
       return(plot)
@@ -452,7 +497,7 @@ shinyServer(function(input, output, session) {
 
   kaplanMeierPlot <- reactive({
     row <- selectedRow()
-    if (blind || is.null(row)) {
+    if (is.null(row)) {
       return(NULL)
     } else {
       targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]

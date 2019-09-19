@@ -50,6 +50,9 @@ shinyUI(
                                                   tabPanel("Population characteristics",
                                                            uiOutput("table1Caption"),
                                                            dataTableOutput("table1Table")),
+                                                  tabPanel("Propensity model",
+                                                           div(strong("Table 3."),"Fitted propensity model, listing all coviates with non-zero coefficients. Positive coefficients indicate predictive of the target exposure."),
+                                                           dataTableOutput("propensityModelTable")),
                                                   tabPanel("Propensity scores",
                                                            plotOutput("psDistPlot"),
                                                            div(strong("Figure 2."),"Preference score distribution. The preference score is a transformation of the propensity score
@@ -78,16 +81,20 @@ shinyUI(
                                                                downloadButton("downloadSystematicErrorPlotPng", label = "Download plot as PNG"),
                                                                downloadButton("downloadSystematicErrorPlotPdf", label = "Download plot as PDF")
                                                            )),
-                                                  tabPanel("Kaplan-Meier",
-                                                           plotOutput("kaplanMeierPlot", height = 550),
-                                                           uiOutput("kaplanMeierPlotPlotCaption"),
-                                                           div(style = "display: inline-block;vertical-align:top;",
-                                                               downloadButton("downloadKaplanMeierPlotPng", label = "Download plot as PNG"),
-                                                               downloadButton("downloadKaplanMeierPlotPdf", label = "Download plot as PDF")
-                                                           )),
-                                                  tabPanel("Subgroups",
-                                                           uiOutput("subgroupTableCaption"),
-                                                           dataTableOutput("subgroupTable")) 
+                                                  conditionalPanel("output.blind == false", 
+                                                                   tabPanel("Kaplan-Meier",
+                                                                            plotOutput("kaplanMeierPlot", height = 550),
+                                                                            uiOutput("kaplanMeierPlotPlotCaption"),
+                                                                            div(style = "display: inline-block;vertical-align:top;",
+                                                                                downloadButton("downloadKaplanMeierPlotPng", label = "Download plot as PNG"),
+                                                                                downloadButton("downloadKaplanMeierPlotPdf", label = "Download plot as PDF")
+                                                                            ))
+                                                  ),
+                                                  conditionalPanel("output.hasSubgroups == true", 
+                                                                   tabPanel("Subgroups",
+                                                                            uiOutput("subgroupTableCaption"),
+                                                                            dataTableOutput("subgroupTable"))
+                                                  )
                                       )
                      )
               )

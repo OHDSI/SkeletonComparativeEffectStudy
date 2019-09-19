@@ -1,4 +1,4 @@
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2019 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 #
@@ -40,7 +40,7 @@ generateDiagnostics <- function(outputFolder, maxCores) {
   analysisSummary <- read.csv(file.path(outputFolder, "analysisSummary.csv"))
   reference <- merge(reference, analysisSummary[, c("targetId", "comparatorId", "outcomeId", "analysisId", "logRr", "seLogRr")])
   allControls <- getAllControls(outputFolder)
-  subsets <- split(reference, list(reference$targetId, reference$comparatorId, reference$analysisId))
+  subsets <- split(reference, paste(reference$targetId, reference$comparatorId, reference$analysisId))
   #remove empty row in subsets
   subsets<-subsets[lapply(subsets,nrow)>0]
   # subset <- subsets[[1]]

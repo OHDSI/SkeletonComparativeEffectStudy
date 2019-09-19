@@ -1,4 +1,4 @@
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2019 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 #
@@ -53,10 +53,10 @@
   
   # Fetch cohort counts:
   sql <- "SELECT cohort_definition_id, COUNT(*) AS count FROM @cohort_database_schema.@cohort_table GROUP BY cohort_definition_id"
-  sql <- SqlRender::renderSql(sql,
+  sql <- SqlRender::render(sql,
                               cohort_database_schema = cohortDatabaseSchema,
                               cohort_table = cohortTable)$sql
-  sql <- SqlRender::translateSql(sql, targetDialect = attr(connection, "dbms"))$sql
+  sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"))$sql
   counts <- DatabaseConnector::querySql(connection, sql)
   names(counts) <- SqlRender::snakeCaseToCamelCase(names(counts))
   counts <- merge(counts, data.frame(cohortDefinitionId = cohortsToCreate$cohortId,
