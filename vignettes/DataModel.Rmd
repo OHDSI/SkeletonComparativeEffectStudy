@@ -159,7 +159,7 @@ other exposure cohorts.
 | database_id | varchar | Foreign key referencing the database. |
 | exposure_id | integer | A foreign key referencing the exposure_of_interest table. |
 | min_date    | date    | The earliest date when the exposure was observed in the database. |
-| max_date    | date    | The earliest date when the exposure was observed in the database. |
+| max_date    | date    | The latest date when the exposure was observed in the database. |
 
 ### Table: comparison_summary
 
