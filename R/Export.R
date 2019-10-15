@@ -776,7 +776,9 @@ exportDiagnostics <- function(outputFolder,
                       .progress = "text")
   data <- do.call("rbind", data)
   fileName <- file.path(exportFolder, "preference_score_dist.csv")
-  colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
+  if (!is.null(data)) {
+    colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
+  }
   write.csv(data, fileName, row.names = FALSE)
   
   
@@ -819,7 +821,9 @@ exportDiagnostics <- function(outputFolder,
                       .progress = "text")
   data <- do.call("rbind", data)
   fileName <- file.path(exportFolder, "propensity_model.csv")
-  colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
+  if (!is.null(data)) {
+    colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
+  }
   write.csv(data, fileName, row.names = FALSE)
   
   
@@ -851,7 +855,9 @@ exportDiagnostics <- function(outputFolder,
   ParallelLogger::logInfo("  Writing to single csv file")
   saveKmToCsv <- function(file, first, outputFile) {
     data <- readRDS(file)
-    colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
+    if (!is.null(data)) {
+      colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
+    }
     write.table(x = data,
                 file = outputFile,
                 row.names = FALSE,
