@@ -18,6 +18,7 @@
 OhdsiRTools::formatRFolder()
 OhdsiRTools::checkUsagePackage("SkeletonComparativeEffectStudy")
 OhdsiRTools::updateCopyrightYearFolder()
+devtools::spell_check()
 
 # Create manual -----------------------------------------------------------
 shell("rm extras/SkeletonComparativeEffectStudy.pdf")

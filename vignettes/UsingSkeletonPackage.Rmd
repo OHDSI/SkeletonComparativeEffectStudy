@@ -31,7 +31,7 @@ This vignette describes how one can use the package skeleton for comparative eff
 2. Additional cohorts for negative controls will also be created.
 3. (optional) Positive controls will be synthesized, based on the negative controls and pre-specified target effect sizes.
 4. The main analysis will be executed using the `CohortMethod` package, including fitting of propensity models, adjusting for the propensity scores, and fitting outcome models.
-5. Results, including all diagnostics, will be exported to the prespecified data model. This data only containts aggregated data, and can therefore be shared between study sites. 
+5. Results, including all diagnostics, will be exported to the prespecified data model. This data only contains aggregated data, and can therefore be shared between study sites. 
 6. Results from multiple sites can be viewed using the provided Shiny app.
 
 The package skeleton currently implements an examplar study, examining the effect of celecoxib versus diclofenac on gastrointestinal (GI) bleeding. If desired (as a test), one can run the package as is. To run the study, simply run the `execute` function in the package. See the R help system for details:
@@ -85,7 +85,7 @@ This code will fetch the cohort definitions from the WebAPI instance, and will i
 We will assume that a set of negative control outcomes have been defined as a set of concept IDs, with one concept ID per negative control. These negative controls need to be specified in a file called `inst/settings/NegativeControls.csv`. This is a comma-separated file with the following columns:  
 
 - *targetId*: The ID of the target cohort as defined in the `CohortsToCreate.csv` file.
-- *targetName*: A name for the target cohort. This is not used anywhere, it is just there for convencience.
+- *targetName*: A name for the target cohort. This is not used anywhere, it is just there for convenience.
 - *comparatorId*: The ID of the comparator cohort as defined in the `CohortsToCreate.csv` file.
 - *comparatorName*: A name for the comparator cohort. This is not used anywhere, it is just there for convencience.
 - *outcomeId*: The concept ID of the negative control outcome.
@@ -99,12 +99,12 @@ We also need logic to convert the concept IDs into cohorts. This logic is define
 
 # Define the target-comparator-outcomes of interest
 
-In a single study it is possible to examine multiple target-compartor-outcome triplets. These should be specified in the `inst/settings/TcosOfInterest.csv` file, which has one row per unique target-comparator pair, so could include multiple outcomes per row. his is a comma-separated file with the following columns:  
+In a single study it is possible to examine multiple target-comparator-outcome triplets. These should be specified in the `inst/settings/TcosOfInterest.csv` file, which has one row per unique target-comparator pair, so could include multiple outcomes per row. his is a comma-separated file with the following columns:  
 
 - *targetId*: The ID of the target cohort as defined in the `CohortsToCreate.csv` file.
 - *comparatorId*: The ID of the comparator cohort as defined in the `CohortsToCreate.csv` file.
 - *outcomeIds*: The IDs of the outcome cohorts as defined in the `CohortsToCreate.csv` file. Multiple IDs should be separated using semicolons (;).
-- *excludedCovariateConceptIds*: A list of concept IDs to exclude from the covariates. For example, the concept IDs defining the exposures of interest should typically be excluded and should be listed here. Descendant concepts are automaticaly excluded as well. Multiple IDs should be separated using semicolons (;).
+- *excludedCovariateConceptIds*: A list of concept IDs to exclude from the covariates. For example, the concept IDs defining the exposures of interest should typically be excluded and should be listed here. Descendant concepts are automatically excluded as well. Multiple IDs should be separated using semicolons (;).
 
 # Define the analyses settings
 
@@ -119,7 +119,7 @@ createAnalysesDetails("inst/settings/")
 
 # Positive control synthesis
 
-In addition to negative controls, where the true effect size is believed to be a relative risk of 1, we can also include positive controls, where the true effect has a known magnitude unequal to 1. These positive controls can be used together with the negative controls to perform confidence inteval calibration. We can automatically synthesize positive controls by taking negative controls and adding simulated outcomes during the time at risk. To preserve (measured) confounding, these simulated outcomes should be sampled from the baseline probabilities based on the patients' characteristics. 
+In addition to negative controls, where the true effect size is believed to be a relative risk of 1, we can also include positive controls, where the true effect has a known magnitude unequal to 1. These positive controls can be used together with the negative controls to perform confidence interval calibration. We can automatically synthesize positive controls by taking negative controls and adding simulated outcomes during the time at risk. To preserve (measured) confounding, these simulated outcomes should be sampled from the baseline probabilities based on the patients' characteristics. 
 
 Positive control synthesis must be configured correctly for it to work. Most importantly, the `washoutPeriod`, `riskWindowStart`, `riskWindowEnd`, `addExposureDaysToEnd`, and `removePeopleWithPriorOutcomes` arguments need to be specified to match those in the primary analysis. We can create these settings and store them in our package. You can modify the `createPositiveControlSynthesisArgs` function in the file `extras/CreateStudyAnalysisDetails.R` to create the desired study design settings, and use the code below to execute this code, which can also be found in `PackageMaintenance.R`.
 
@@ -127,7 +127,7 @@ Positive control synthesis must be configured correctly for it to work. Most imp
 source("extras/CreateStudyAnalysisDetails.R")
 createPositiveControlSynthesisArgs("inst/settings/")
 ```
-It is also possible to disable positive control sysnthesis altogether by setting the `doPositiveControlSynthesis` variable to `FALSE` in the `R/Main.R` file.
+It is also possible to disable positive control synthesis altogether by setting the `doPositiveControlSynthesis` variable to `FALSE` in the `R/Main.R` file.
 
 
 

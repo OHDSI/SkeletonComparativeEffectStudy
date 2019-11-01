@@ -17,7 +17,7 @@
 #' Synthesize positive controls
 #'
 #' @details
-#' This function will synthesize positve controls based on the negative controls. The simulated outcomes
+#' This function will synthesize positive controls based on the negative controls. The simulated outcomes
 #' will be added to the cohort table.
 #'
 #' @param connectionDetails    An object of type \code{connectionDetails} as created using the

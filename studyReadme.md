@@ -20,13 +20,14 @@ How to run
 	```r
 	install.packages("devtools")
 	library(devtools)
-	install_github("ohdsi/SqlRender", ref = "v1.6.0")
-	install_github("ohdsi/DatabaseConnector", ref = "v2.3.0")
+	install_github("ohdsi/ParallelLogger", ref = "v1.1.1")
+	install_github("ohdsi/SqlRender", ref = "v1.6.3")
+	install_github("ohdsi/DatabaseConnector", ref = "v2.4.1")
 	install_github("ohdsi/OhdsiSharing", ref = "v0.1.3")
-	install_github("ohdsi/FeatureExtraction", ref = "v2.2.3")
-	install_github("ohdsi/CohortMethod", ref = "v3.0.2")
+	install_github("ohdsi/FeatureExtraction", ref = "v2.2.5")
+	install_github("ohdsi/CohortMethod", ref = "v3.1.0")
 	install_github("ohdsi/EmpiricalCalibration", ref = "v2.0.0")
-	install_github("ohdsi/MethodEvaluation", ref = "v1.0.2")
+	install_github("ohdsi/MethodEvaluation", ref = "v1.1.0")
 	```
 
 	If you experience problems on Windows where rJava can't find Java, one solution may be to add `args = "--no-multiarch"` to each `install_github` call, for example:
@@ -35,7 +36,7 @@ How to run
 	install_github("ohdsi/SqlRender", args = "--no-multiarch")
 	```
 	
-	Alternatively, ensure that you have installed both 32-bit and 64-bit JDK versions, as mentioned in the [video tutorial](https://youtu.be/K9_0s2Rchbo).
+	Alternatively, ensure that you have installed only the 64-bit versions of R and Java, as described in [the Book of OHDSI](https://ohdsi.github.io/TheBookOfOhdsi/OhdsiAnalyticsTools.html#installR)
 	
 2. In `R`, use the following `devtools` command to install the SkeletonComparativeEffectStudy package:
 
