@@ -95,6 +95,7 @@ execute <- function(connectionDetails,
   }
   
   ParallelLogger::addDefaultFileLogger(file.path(outputFolder, "log.txt"))
+  on.exit(ParallelLogger::unregisterLogger("DEFAULT"))
   
   if (createCohorts) {
     ParallelLogger::logInfo("Creating exposure and outcome cohorts")
