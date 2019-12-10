@@ -24,8 +24,13 @@ mainColumnNames <- c("<span title=\"Analysis\">Analysis</span>",
                      "<span title=\"Two-sided p-value (calibrated)\">Cal.P</span>")
 
 shinyServer(function(input, output, session) {
+  if (blind) {
+    hideTab(inputId = "detailsTabsetPanel", target = "Kaplan-Meier")
+  }
+  if (!exists("cmInteractionResult")) {
+    hideTab(inputId = "detailsTabsetPanel", target = "Subgroups")
+  }
   
-
   observe({
     targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
     comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
@@ -91,17 +96,6 @@ shinyServer(function(input, output, session) {
   })
   outputOptions(output, "rowIsSelected", suspendWhenHidden = FALSE)
   
-  output$hasSubgroups <- reactive({
-    return(exists("cmInteractionResult"))
-  })
-  outputOptions(output, "hasSubgroups", suspendWhenHidden = FALSE)
-
-  output$blind <- reactive({
-    return(blind)
-  })
-  outputOptions(output, "blind", suspendWhenHidden = FALSE)
-  
-    
   balance <- reactive({
      row <- selectedRow()
      if (is.null(row)) {
