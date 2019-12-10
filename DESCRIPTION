@@ -21,7 +21,8 @@ Imports:
     OhdsiSharing (>= 0.1.3),
 	ParallelLogger (>= 1.1.1),
 	survival,
-	plyr
+	plyr,
+	readr
 Suggests:
     knitr,
     rmarkdown,
