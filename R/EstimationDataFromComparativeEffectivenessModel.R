@@ -60,7 +60,6 @@ getDataForPreferenceScorePlot <- function(connection = NULL,
                                           analysisId
 ) {
 
-  exposureId <- c(targetId, comparatorId, outcomeId) %>% purrr::discard(is.null)
   
   errorMessage <- checkmate::makeAssertCollection()
   checkmate::assertInt(targetId, add = errorMessage)
@@ -112,4 +111,3 @@ getDataForPreferenceScorePlot <- function(connection = NULL,
       dplyr::left_join(y = exposureOfInterest, by = c("group" = "group")) %>%
       dplyr::mutate(group = snakecase::to_sentence_case(group))
 }
-
