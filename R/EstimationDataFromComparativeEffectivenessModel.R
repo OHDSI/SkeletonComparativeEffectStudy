@@ -64,6 +64,7 @@ getDataForPreferenceScorePlot <- function(connection = NULL,
   errorMessage <- checkmate::makeAssertCollection()
   checkmate::assertInt(targetId, add = errorMessage)
   checkmate::assertInt(comparatorId, add = errorMessage)
+  checkmate::assertInt(outcomeId, add = errorMessage)
   checkmate::assertInt(analysisId, add = errorMessage)
   checkmate::assertScalar(databaseId, add = errorMessage)
   checkmate::assertCharacter(databaseId, add = errorMessage)
