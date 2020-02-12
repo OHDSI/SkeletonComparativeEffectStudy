@@ -4,14 +4,24 @@
 \alias{execute}
 \title{Execute the Study}
 \usage{
-execute(connectionDetails, cdmDatabaseSchema,
-  cohortDatabaseSchema = cdmDatabaseSchema, cohortTable = "cohort",
-  oracleTempSchema = cohortDatabaseSchema, outputFolder,
-  databaseId = "Unknown", databaseName = "Unknown",
-  databaseDescription = "Unknown", createCohorts = TRUE,
-  synthesizePositiveControls = TRUE, runAnalyses = TRUE,
-  runDiagnostics = TRUE, packageResults = TRUE, maxCores = 4,
-  minCellCount = 5)
+execute(
+  connectionDetails,
+  cdmDatabaseSchema,
+  cohortDatabaseSchema = cdmDatabaseSchema,
+  cohortTable = "cohort",
+  oracleTempSchema = cohortDatabaseSchema,
+  outputFolder,
+  databaseId = "Unknown",
+  databaseName = "Unknown",
+  databaseDescription = "Unknown",
+  createCohorts = TRUE,
+  synthesizePositiveControls = TRUE,
+  runAnalyses = TRUE,
+  runDiagnostics = TRUE,
+  packageResults = TRUE,
+  maxCores = 4,
+  minCellCount = 5
+)
 }
 \arguments{
 \item{connectionDetails}{An object of type \code{connectionDetails} as created using the
@@ -68,7 +78,7 @@ Execute the Study
 This function executes the SkeletonComparativeEffectStudy Study.
 
 The \code{createCohorts}, \code{synthesizePositiveControls}, \code{runAnalyses}, and \code{runDiagnostics} arguments
-are intended to be used to run parts of the full study at a time, but none of the parts are considerd to be optional.
+are intended to be used to run parts of the full study at a time, but none of the parts are considered to be optional.
 }
 \examples{
 \dontrun{

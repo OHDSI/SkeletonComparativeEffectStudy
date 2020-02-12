@@ -22,7 +22,12 @@ Imports:
 	ParallelLogger (>= 1.1.1),
 	survival,
 	plyr,
-	readr
+	readr,
+	magrittr,
+	dplyr,
+	purrr,
+	snakecase,
+	stringr
 Suggests:
     knitr,
     rmarkdown,
@@ -32,4 +37,4 @@ Suggests:
 License: Apache License 2.0
 VignetteBuilder: knitr
 LazyData: TRUE
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
