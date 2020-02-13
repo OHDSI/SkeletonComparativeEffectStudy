@@ -50,7 +50,6 @@
               FROM {@schema !=} ? {exposure_of_interest}:{exposure_of_interest}
               WHERE exposure_id in (@targetId, @comparatorId)"
     
-    schema <- connection@schema
     sql <- SqlRender::render(sql = sql)
     sql <-
       SqlRender::translate(sql, targetDialect = connection@dbms)$sql
