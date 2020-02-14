@@ -25,6 +25,7 @@ Imports:
   plyr,
   purrr,
   readr,
+  scales,
   SqlRender (>= 1.6.3),
   stringr,
   survival,

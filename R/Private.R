@@ -18,7 +18,7 @@
     
     sql <- SqlRender::render(sql = sql)
     sql <-
-      SqlRender::translate(sql, targetDialect = connection@dbms)$sql
+      SqlRender::translate(sql, targetDialect = connection@dbms)
     preferenceScoreDist <-
       DatabaseConnector::querySql(connection, sql, snakeCaseToCamelCase = TRUE)
   } else if (!is.null(preferenceScoreDist)) {
@@ -52,7 +52,7 @@
     
     sql <- SqlRender::render(sql = sql)
     sql <-
-      SqlRender::translate(sql, targetDialect = connection@dbms)$sql
+      SqlRender::translate(sql, targetDialect = connection@dbms)
     exposureOfInterest <-
       DatabaseConnector::querySql(connection, sql, snakeCaseToCamelCase = TRUE)
   } else if (!is.null(exposureOfInterest)) {

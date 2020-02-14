@@ -68,6 +68,7 @@ getPreferenceScore <- function(connectionDetails = NULL,
                                comparatorId,
                                databaseId,
                                analysisId) {
+  #Argument checks
   errorMessage <- checkmate::makeAssertCollection()
   checkmate::assertInt(targetId, add = errorMessage)
   checkmate::assertInt(comparatorId, add = errorMessage)
