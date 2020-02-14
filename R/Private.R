@@ -7,6 +7,8 @@
   if (!is.null(connectionDetails)) {
     if (exists("connectionDetails@schema")) {
       schema <- connectionDetails@schema
+    } else {
+      schema <- NULL
     }
     connection <- DatabaseConnector::connect(connectionDetails)
     sql <-   "SELECT *
@@ -16,11 +18,23 @@
             	and database_id in (@databaseId)
             	and analysis_id in (@analysisId)"
     
-    sql <- SqlRender::render(sql = sql)
     sql <-
-      SqlRender::translate(sql, targetDialect = connection@dbms)
+      SqlRender::render(
+        sql = sql,
+        targetId = targetId,
+        comparatorId = comparatorId,
+        schema = schema,
+        databaseId = databaseId,
+        analysisId = analysisId
+      )
+    sql <-
+      SqlRender::translate(sql = sql, targetDialect = connection@dbms)
     preferenceScoreDist <-
-      DatabaseConnector::querySql(connection, sql, snakeCaseToCamelCase = TRUE)
+      DatabaseConnector::querySql(
+        connection = connection,
+        sql = sql,
+        snakeCaseToCamelCase = TRUE
+      )
   } else if (!is.null(preferenceScoreDist)) {
     preferenceScoreDist <- preferenceScoreDist %>%
       dplyr::filter(
@@ -31,7 +45,7 @@
       ) %>%
       dplyr::select(preferenceScore, targetDensity, comparatorDensity)
   } else {
-    preferenceScoreDist <- NULL
+    preferenceScoreDist
   }
   return(preferenceScoreDist)
 }
@@ -39,28 +53,40 @@
 
 .getExposureOfInterest <- function(connectionDetails = NULL,
                                    exposureOfInterest = NULL,
-                                   targetId,
+                                   targetId ,
                                    comparatorId) {
   if (!is.null(connectionDetails)) {
     if (exists("connectionDetails@schema")) {
       schema <- connectionDetails@schema
+    } else {
+      schema <- NULL
     }
     connection <- DatabaseConnector::connect(connectionDetails)
     sql <-   "SELECT exposure_id, exposure_name
               FROM {@schema !=} ? {exposure_of_interest}:{exposure_of_interest}
               WHERE exposure_id in (@targetId, @comparatorId)"
     
-    sql <- SqlRender::render(sql = sql)
     sql <-
-      SqlRender::translate(sql, targetDialect = connection@dbms)
+      SqlRender::render(
+        sql = sql,
+        targetId = targetId,
+        comparatorId = comparatorId,
+        schema = schema
+      )
+    sql <-
+      SqlRender::translate(sql = sql, targetDialect = connection@dbms)
     exposureOfInterest <-
-      DatabaseConnector::querySql(connection, sql, snakeCaseToCamelCase = TRUE)
+      DatabaseConnector::querySql(
+        connection = connection,
+        sql = sql,
+        snakeCaseToCamelCase = TRUE
+      )
   } else if (!is.null(exposureOfInterest)) {
     exposureOfInterest <- exposureOfInterest %>%
       dplyr::filter(exposureId %in% c(targetId, comparatorId)) %>%
       dplyr::select(exposureId, exposureName)
   } else {
-    exposureOfInterest <- NULL
+    exposureOfInterest
   }
   return(exposureOfInterest)
 }

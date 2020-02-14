@@ -1,0 +1,33 @@
+DBMS:
+sqlite
+
+Error:
+near "CCAE": syntax error
+
+SQL:
+SELECT *
+              FROM  preference_score_dist
+              WHERE target_id in (10817)
+            	and comparator_id in (10833)
+            	and database_id in (IBM CCAE V1061)
+            	and analysis_id in (2)
+
+R version:
+R version 3.6.1 (2019-07-05)
+
+Platform:
+x86_64-w64-mingw32
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- RSQLite (2.2.0)
+- tibble (2.1.3)
+- magrittr (1.5)
