@@ -3,7 +3,6 @@
 \docType{package}
 \name{SkeletonComparativeEffectStudy}
 \alias{SkeletonComparativeEffectStudy}
-\alias{SkeletonComparativeEffectStudy-package}
 \title{SkeletonComparativeEffectStudy}
 \description{
 SkeletonComparativeEffectStudy
