@@ -102,6 +102,17 @@
 #' Get preference score data from data stored in OHDSI comparative effectiveness data model,
 #' The output of this function  maybe used to create plots or tables
 #' that compares the preference score distribution between target and comparators.
+#' 
+#' example1: If the comparative effectiveness results are stored in a 
+#' relational database server: then please provide connection details 
+#' using DatabaseConnector::createConnectionDetails. 
+#' If connectionDetails parameter is not null, the function will attempt to
+#' connect to relational database server, and ignore using at R dataframe objects
+#' example2: If the comparative effectiveness results are stored as a R dataframe object.
+#' Note: R dataframes are expected to follow camelCase for both object names 
+#' and variable names.
+#' Note: schema parameter in createConnectionDetails should not be used. Use
+#' databaseSchema in function call instead. 
 #'
 #' @template optionalConnectionDetails
 #' @template optionalDatabaseSchema
@@ -115,31 +126,23 @@
 #'                             data from exposure_of_interest table in comparative effectiveness data model.
 #' @return                     Tibble with fields preference score, density, cohort-name,
 #'                             group for identifying if the cohort is target vs comparator.
-#'
 #' @examples
-#' # example1: If the comparative effectiveness results are stored in a 
-#' # relational database server: then please provide connection details 
-#' # using DatabaseConnector::createConnectionDetails. 
-#' # If connectionDetails parameter is not null, the function will attempt to
-#' # connect to relational database server, and ignore using at R dataframe objects
-#' # example2: If the comparative effectiveness results are stored as a R dataframe object.
-#' # Note: R dataframes are expected to follow camelCase for both object names 
-#' # and variable names.
-#' # Note: schema parameter in createConnectionDetails should not be used. Use
-#' # databaseSchema in function call instead.                  
 #' \dontrun{
 #'
-#'
+#' #If you're data is in data frames, provide connectionDetails
 #' connectionDetails <- createConnectionDetails(dbms = "postgresql",
 #'                                              user = "joe",
 #'                                              password = "secret",
 #'                                              server = "myserver")
+#' #If connectionDetails is provided, function will attempt to read data from database
+#' # data in R-dataframe format will be ignored
 #' example1 <- getPreferenceScore(connectionDetails = connectionDetails,
 #'                                databaseSchema = 'hcup.version2020',
 #'                                targetId = 100,
 #'                                comparatorId = 200,
 #'                                databaseId = 'HCUP data',
 #'                                analysisId = 2)
+#' #If no connectionDetails is provided, then function will check for data in dataFrame
 #' example2 <- getPreferenceScore(preferenceScoreDist = preferenceScoreDist,
 #'                                exposureOfInterest = exposureOfInterest,
 #'                                targetId = 100,
@@ -168,7 +171,7 @@ getPreferenceScoreDistribution <- function(connectionDetails = NULL,
     checkmate::assertCharacter(databaseSchema)
     checkmate::reportAssertions(errorMessage)
     
-  } else if (is.null(connectionDetails)) {
+  } else if (!is.null(preferenceScoreDist) & !is.null(exposureOfInterest)) {
     checkmate::assertDataFrame(preferenceScoreDist, add = errorMessage)
     checkmate::assertDataFrame(exposureOfInterest, add = errorMessage)
     checkmate::reportAssertions(errorMessage)
