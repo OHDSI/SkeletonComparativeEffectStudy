@@ -103,16 +103,19 @@
 #' The output of this function  maybe used to create plots or tables
 #' that compares the preference score distribution between target and comparators.
 #' 
-#' example1: If the comparative effectiveness results are stored in a 
-#' relational database server: then please provide connection details 
-#' using DatabaseConnector::createConnectionDetails. 
-#' If connectionDetails parameter is not null, the function will attempt to
-#' connect to relational database server, and ignore using at R dataframe objects
-#' example2: If the comparative effectiveness results are stored as a R dataframe object.
-#' Note: R dataframes are expected to follow camelCase for both object names 
-#' and variable names.
-#' Note: schema parameter in createConnectionDetails should not be used. Use
-#' databaseSchema in function call instead. 
+#' If the comparative effectiveness results are stored in a 
+#' relational database server, then please provide connection details 
+#' using DatabaseConnector::createConnectionDetails. If connectionDetails 
+#' parameter is not null, the function will attempt to connect to 
+#' relational database server, and ignore using R dataframe object. 
+#' Note: schema parameter in createConnectionDetails is not used. We use
+#' databaseSchema in function call instead.
+#' 
+#' If the comparative effectiveness results are stored as a R dataframe object,
+#' please make sure connectionDetails is NULL (Defaul value). The function 
+#' will expect data in R dataframe. This R dataframe object is expected to follow 
+#' camelCase for both object names and variable names. 
+#'  
 #'
 #' @template optionalConnectionDetails
 #' @template optionalDatabaseSchema
