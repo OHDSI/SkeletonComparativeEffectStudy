@@ -5,7 +5,7 @@
 \title{Get the preference score distribution for plotting}
 \usage{
 getPreferenceScoreDistribution(
-  connectionDetails = NULL,
+  connection = NULL,
   databaseSchema = NULL,
   preferenceScoreDist = NULL,
   exposureOfInterest = NULL,
@@ -16,16 +16,6 @@ getPreferenceScoreDistribution(
 )
 }
 \arguments{
-\item{connectionDetails}{(optional) An object of type \code{connectionDetails} as created using the
-\code{\link[DatabaseConnector]{createConnectionDetails}} function in the
-DatabaseConnector package.}
-
-\item{databaseSchema}{(optional) The databaseSchema argument is interpreted differently according
-to the different supported RDMS platforms: SQLServer and PDW: The databaseSchema
-schema should specify both the database and the schema,e.g. ’my_database.dbo’.
-PostgreSQL and Redshift: The databaseSchema should specify the schema.
-Oracle:  The databaseSchema should specify the Oracle ’user’.}
-
 \item{preferenceScoreDist}{(optional) A R-dataFrame object with fields named in camelCase containing
 data from preference_score_dist table in comparative effectiveness data model.}
 
@@ -43,10 +33,14 @@ data model (e.g. 'Synpuf')}
 
 \item{analysisId}{An integer identifying the analysis_id field in cohort_method_analysis table
 of OHDSI comparative effectiveness data model}
+
+\item{optionalConnection}{(optional) An object of type \code{connection} as created using the
+\code{\link[DatabaseConnector]{connect}} function in the
+DatabaseConnector package.}
 }
 \value{
-Tibble with fields preference score, density, cohort-name,
-                            group for identifying if the cohort is target vs comparator.
+Tibble with fields preference score, density, cohort-name, group.
+                            group is for identifying if the cohort is target vs comparator.
 }
 \description{
 Get the preference score distribution for plotting
@@ -56,34 +50,36 @@ Get preference score data from data stored in OHDSI comparative effectiveness da
 The output of this function  maybe used to create plots or tables
 that compares the preference score distribution between target and comparators.
 
-example1: If the comparative effectiveness results are stored in a 
-relational database server: then please provide connection details 
-using DatabaseConnector::createConnectionDetails. 
-If connectionDetails parameter is not null, the function will attempt to
-connect to relational database server, and ignore using at R dataframe objects
-example2: If the comparative effectiveness results are stored as a R dataframe object.
-Note: R dataframes are expected to follow camelCase for both object names 
-and variable names.
-Note: schema parameter in createConnectionDetails should not be used. Use
-databaseSchema in function call instead.
+If the comparative effectiveness results are stored in a
+relational database server, then please provide connection
+using DatabaseConnector::connect. If connection
+parameter is not null, the function will attempt to connect to
+relational database server, and ignore using R dataframe object.
+
+
+If the comparative effectiveness results are stored as a R dataframe object,
+please make sure connection is NULL (Default value). The function
+will expect data in R dataframe. This R dataframe object is expected to follow
+camelCase for both object names and variable names.
 }
 \examples{
 \dontrun{
 
-#If you're data is in data frames, provide connectionDetails
-connectionDetails <- createConnectionDetails(dbms = "postgresql",
+#If your data is in database, provide connection.
+connection <- connect(createConnectionDetails(dbms = "postgresql",
                                              user = "joe",
                                              password = "secret",
                                              server = "myserver")
-#If connectionDetails is provided, function will attempt to read data from database
+                                             )
+#If connection is provided, function will attempt to read data from database
 # data in R-dataframe format will be ignored
-example1 <- getPreferenceScore(connectionDetails = connectionDetails,
+example1 <- getPreferenceScore(connection = connection,
                                databaseSchema = 'hcup.version2020',
                                targetId = 100,
                                comparatorId = 200,
                                databaseId = 'HCUP data',
                                analysisId = 2)
-#If no connectionDetails is provided, then function will check for data in dataFrame
+#If no connection is provided, then function will check for data in dataFrame
 example2 <- getPreferenceScore(preferenceScoreDist = preferenceScoreDist,
                                exposureOfInterest = exposureOfInterest,
                                targetId = 100,

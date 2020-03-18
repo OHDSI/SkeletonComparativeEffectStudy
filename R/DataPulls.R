@@ -16,15 +16,14 @@
 # See the License for the specific language governing permissions and
 
 
-.getPreferenceScoreDist <- function(connectionDetails = NULL,
+.getPreferenceScoreDist <- function(connection = NULL,
                                     preferenceScoreDist = NULL,
                                     databaseSchema = NULL,
                                     targetId,
                                     comparatorId,
                                     databaseId,
                                     analysisId) {
-  if (!is.null(connectionDetails)) {
-    connection <- DatabaseConnector::connect(connectionDetails)
+  if (!is.null(connection)) {
     sql <-   "SELECT *
               FROM  @databaseSchema.preference_score_dist
               WHERE target_id = @targetId
@@ -32,23 +31,21 @@
             	AND database_id = '@databaseId'
             	AND analysis_id = @analysisId;"
     
-    sql <-
-      SqlRender::render(
-        sql = sql,
-        databaseSchema = databaseSchema,
-        targetId = targetId,
-        comparatorId = comparatorId,
-        databaseId = databaseId,
-        analysisId = analysisId
-      )
-    sql <-
-      SqlRender::translate(sql = sql, targetDialect = connection@dbms)
-    result <-
-      DatabaseConnector::querySql(
-        connection = connection,
-        sql = sql,
-        snakeCaseToCamelCase = TRUE
-      )
+    sql <- SqlRender::render(
+      sql = sql,
+      databaseSchema = databaseSchema,
+      targetId = targetId,
+      comparatorId = comparatorId,
+      databaseId = databaseId,
+      analysisId = analysisId
+    )
+    sql <-  SqlRender::translate(sql = sql,
+                                 targetDialect = connection@dbms)
+    result <- DatabaseConnector::querySql(
+      connection = connection,
+      sql = sql,
+      snakeCaseToCamelCase = TRUE
+    )
   } else {
     result <- preferenceScoreDist %>%
       dplyr::filter(
@@ -62,33 +59,29 @@
 }
 
 
-.getExposureOfInterest <- function(connectionDetails = NULL,
+.getExposureOfInterest <- function(connection = NULL,
                                    exposureOfInterest = NULL,
                                    databaseSchema = NULL,
                                    targetId ,
                                    comparatorId) {
-  if (!is.null(connectionDetails)) {
-    connection <- DatabaseConnector::connect(connectionDetails)
+  if (!is.null(connection)) {
     sql <-   "SELECT *
               FROM @databaseSchema.exposure_of_interest
               WHERE exposure_id IN (@targetId, @comparatorId);"
     
-    sql <-
-      SqlRender::render(
-        sql = sql,
-        databaseSchema = databaseSchema,
-        targetId = targetId,
-        comparatorId = comparatorId
-      )
-    sql <-
-      SqlRender::translate(sql = sql,
-                           targetDialect = connection@dbms)
-    result <-
-      DatabaseConnector::querySql(
-        connection = connection,
-        sql = sql,
-        snakeCaseToCamelCase = TRUE
-      )
+    sql <- SqlRender::render(
+      sql = sql,
+      databaseSchema = databaseSchema,
+      targetId = targetId,
+      comparatorId = comparatorId
+    )
+    sql <- SqlRender::translate(sql = sql,
+                                targetDialect = connection@dbms)
+    result <- DatabaseConnector::querySql(
+      connection = connection,
+      sql = sql,
+      snakeCaseToCamelCase = TRUE
+    )
   } else {
     result <- exposureOfInterest %>%
       dplyr::filter(exposureId %in% c(targetId, comparatorId))
@@ -97,7 +90,7 @@
 }
 
 
-.getCmFollowUpDist <- function(connectionDetails = NULL,
+.getCmFollowUpDist <- function(connection = NULL,
                                cmFollowUpDist = NULL,
                                databaseSchema = NULL,
                                targetId,
@@ -105,35 +98,31 @@
                                outcomeId,
                                databaseId,
                                analysisId) {
-  if (!is.null(connectionDetails)) {
-    connection <- DatabaseConnector::connect(connectionDetails)
-    sql <-   "SELECT *
-              FROM @databaseSchema.cm_follow_up_dist
-              WHERE target_id = @targetId
-              	and comparator_id = @comparatorId
-              	and outcome_id = @outcomeId
-              	and analysis_id = @analysisId
-              	and database_id = '@databaseId';"
+  if (!is.null(connection)) {
+    sql <-  "SELECT *
+            FROM @databaseSchema.cm_follow_up_dist
+            WHERE target_id = @targetId
+            	and comparator_id = @comparatorId
+            	and outcome_id = @outcomeId
+            	and analysis_id = @analysisId
+            	and database_id = '@databaseId';"
     
-    sql <-
-      SqlRender::render(
-        sql = sql,
-        databaseSchema = databaseSchema,
-        targetId = targetId,
-        comparatorId = comparatorId,
-        outcomeId = outcomeId,
-        analysisId = analysisId,
-        databaseId = databaseId
-      )
-    sql <-
-      SqlRender::translate(sql = sql,
-                           targetDialect = connection@dbms)
-    result <-
-      DatabaseConnector::querySql(
-        connection = connection,
-        sql = sql,
-        snakeCaseToCamelCase = TRUE
-      )
+    sql <- SqlRender::render(
+      sql = sql,
+      databaseSchema = databaseSchema,
+      targetId = targetId,
+      comparatorId = comparatorId,
+      outcomeId = outcomeId,
+      analysisId = analysisId,
+      databaseId = databaseId
+    )
+    sql <- SqlRender::translate(sql = sql,
+                                targetDialect = connection@dbms)
+    result <- DatabaseConnector::querySql(
+      connection = connection,
+      sql = sql,
+      snakeCaseToCamelCase = TRUE
+    )
   } else if (!is.null(cmFollowUpDist)) {
     result <- cmFollowUpDist %>%
       dplyr::filter(
@@ -153,23 +142,21 @@
 #' Get preference score data from data stored in OHDSI comparative effectiveness data model,
 #' The output of this function  maybe used to create plots or tables
 #' that compares the preference score distribution between target and comparators.
-#' 
-#' If the comparative effectiveness results are stored in a 
-#' relational database server, then please provide connection details 
-#' using DatabaseConnector::createConnectionDetails. If connectionDetails 
-#' parameter is not null, the function will attempt to connect to 
-#' relational database server, and ignore using R dataframe object. 
-#' Note: schema parameter in createConnectionDetails is not used. We use
-#' databaseSchema in function call instead.
-#' 
-#' If the comparative effectiveness results are stored as a R dataframe object,
-#' please make sure connectionDetails is NULL (Default value). The function 
-#' will expect data in R dataframe. This R dataframe object is expected to follow 
-#' camelCase for both object names and variable names. 
-#'  
 #'
-#' @template optionalConnectionDetails
-#' @template optionalDatabaseSchema
+#' If the comparative effectiveness results are stored in a
+#' relational database server, then please provide connection
+#' using DatabaseConnector::connect. If connection
+#' parameter is not null, the function will attempt to connect to
+#' relational database server, and ignore using R dataframe object.
+#'
+#'
+#' If the comparative effectiveness results are stored as a R dataframe object,
+#' please make sure connection is NULL (Default value). The function
+#' will expect data in R dataframe. This R dataframe object is expected to follow
+#' camelCase for both object names and variable names.
+#'
+#'
+#' @template optionalConnection
 #' @template targetId
 #' @template comparatorId
 #' @template databaseId
@@ -183,20 +170,21 @@
 #' @examples
 #' \dontrun{
 #'
-#' #If your data is in data frames, provide connectionDetails
-#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
+#' #If your data is in database, provide connection.
+#' connection <- connect(createConnectionDetails(dbms = "postgresql",
 #'                                              user = "joe",
 #'                                              password = "secret",
 #'                                              server = "myserver")
-#' #If connectionDetails is provided, function will attempt to read data from database
+#'                                              )
+#' #If connection is provided, function will attempt to read data from database
 #' # data in R-dataframe format will be ignored
-#' example1 <- getPreferenceScore(connectionDetails = connectionDetails,
+#' example1 <- getPreferenceScore(connection = connection,
 #'                                databaseSchema = 'hcup.version2020',
 #'                                targetId = 100,
 #'                                comparatorId = 200,
 #'                                databaseId = 'HCUP data',
 #'                                analysisId = 2)
-#' #If no connectionDetails is provided, then function will check for data in dataFrame
+#' #If no connection is provided, then function will check for data in dataFrame
 #' example2 <- getPreferenceScore(preferenceScoreDist = preferenceScoreDist,
 #'                                exposureOfInterest = exposureOfInterest,
 #'                                targetId = 100,
@@ -206,7 +194,7 @@
 #' }
 #' @export
 #'
-getPreferenceScoreDistribution <- function(connectionDetails = NULL,
+getPreferenceScoreDistribution <- function(connection = NULL,
                                            databaseSchema = NULL,
                                            preferenceScoreDist = NULL,
                                            exposureOfInterest = NULL,
@@ -221,31 +209,31 @@ getPreferenceScoreDistribution <- function(connectionDetails = NULL,
   checkmate::assertScalar(databaseId, add = errorMessage)
   checkmate::assertCharacter(databaseId, add = errorMessage)
   
-  if (!is.null(connectionDetails)) {
+  if (!is.null(connection)) {
     checkmate::assertCharacter(databaseSchema)
     checkmate::reportAssertions(errorMessage)
     
-  } else if (!is.null(preferenceScoreDist) & !is.null(exposureOfInterest)) {
+  } else if (!is.null(preferenceScoreDist) &
+             !is.null(exposureOfInterest)) {
     checkmate::assertDataFrame(preferenceScoreDist, add = errorMessage)
     checkmate::assertDataFrame(exposureOfInterest, add = errorMessage)
     checkmate::reportAssertions(errorMessage)
   } else {
     stop(
-      "No connection details for an RDMS provided.
+      "No connection for an RDMS provided.
          No R-data frame object preferenceScoreDist or exposureOfInterest provided"
     )
   }
   
-  preferenceScoreDist <-
-    .getPreferenceScoreDist(
-      connectionDetails = connectionDetails,
-      databaseSchema = databaseSchema,
-      preferenceScoreDist = preferenceScoreDist,
-      targetId = targetId,
-      comparatorId = comparatorId,
-      databaseId = databaseId,
-      analysisId = analysisId
-    ) %>%
+  preferenceScoreDist <- .getPreferenceScoreDist(
+    connection = connection,
+    databaseSchema = databaseSchema,
+    preferenceScoreDist = preferenceScoreDist,
+    targetId = targetId,
+    comparatorId = comparatorId,
+    databaseId = databaseId,
+    analysisId = analysisId
+  ) %>%
     dplyr::select(preferenceScore, targetDensity, comparatorDensity) %>%
     tidyr::pivot_longer(
       cols = dplyr::ends_with("Density"),
@@ -259,7 +247,7 @@ getPreferenceScoreDistribution <- function(connectionDetails = NULL,
     ))
   
   exposureOfInterest <- .getExposureOfInterest(
-    connectionDetails = connectionDetails,
+    connection = connection,
     databaseSchema = databaseSchema,
     exposureOfInterest = exposureOfInterest,
     targetId = targetId,
@@ -289,23 +277,20 @@ getPreferenceScoreDistribution <- function(connectionDetails = NULL,
 #' Get follow-up distribution data from data stored in OHDSI comparative effectiveness data model,
 #' The output of this function  maybe used to create plots or tables
 #' that uses the follow-up distribution data.
-#' 
-#' If the comparative effectiveness results are stored in a 
-#' relational database server, then please provide connection details 
-#' using DatabaseConnector::createConnectionDetails. If connectionDetails 
-#' parameter is not null, the function will attempt to connect to 
-#' relational database server, and ignore using R dataframe object. 
-#' Note: schema parameter in createConnectionDetails is not used. We use
-#' databaseSchema in function call instead.
-#' 
-#' If the comparative effectiveness results are stored as a R dataframe object,
-#' please make sure connectionDetails is NULL (Default value). The function 
-#' will expect data in R dataframe. This R dataframe object is expected to follow 
-#' camelCase for both object names and variable names.
-#' 
 #'
-#' @template optionalConnectionDetails
-#' @template optionalDatabaseSchema
+#' If the comparative effectiveness results are stored in a
+#' relational database server, then please provide connection details
+#' using DatabaseConnector::connection. If connection
+#' parameter is not null, the function will attempt to connect to
+#' relational database server, and ignore using R dataframe object.
+#'
+#' If the comparative effectiveness results are stored as a R dataframe object,
+#' please make sure connection is NULL (Default value). The function
+#' will expect data in R dataframe. This R dataframe object is expected to follow
+#' camelCase for both object names and variable names.
+#'
+#'
+#' @template optionalConnection
 #' @template targetId
 #' @template comparatorId
 #' @template databaseId
@@ -318,20 +303,21 @@ getPreferenceScoreDistribution <- function(connectionDetails = NULL,
 #'
 #' @examples
 #' \dontrun{
-#' #If your data is in data frames, provide connectionDetails
-#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
+#' #If your data is in database, provide connection
+#' connection <- connect(createConnectionDetails(dbms = "postgresql",
 #'                                              user = "joe",
 #'                                              password = "secret",
 #'                                              server = "myserver")
-#' #If connectionDetails is provided, function will attempt to read data from database
-#' example1 <- getFollowUpDaysDistribution(connectionDetails = connectionDetails,
+#'                                              )
+#' #If connection is provided, function will attempt to read data from database
+#' example1 <- getFollowUpDaysDistribution(connection = connection,
 #'                                         databaseSchema = 'database.schema',
 #'                                         targetId = 100,
 #'                                         comparatorId = 200,
 #'                                         outcomeId = 111,
 #'                                         databaseId = 'HCUP data',
 #'                                         analysisId = 2)
-#' #If no connectionDetails is provided, then function will check for data in dataFrame
+#' #If no connection is provided, then function will check for data in dataFrame
 #' example2 <- getFollowUpDaysDistribution(cmFollowUpDist = cmFollowUpDist,
 #'                                         targetId = 100,
 #'                                         comparatorId = 200,
@@ -341,7 +327,7 @@ getPreferenceScoreDistribution <- function(connectionDetails = NULL,
 #' }
 #' @export
 #'
-getFollowUpDistribution <- function(connectionDetails = NULL,
+getFollowUpDistribution <- function(connection = NULL,
                                     databaseSchema = NULL,
                                     cmFollowUpDist = NULL,
                                     targetId,
@@ -357,11 +343,11 @@ getFollowUpDistribution <- function(connectionDetails = NULL,
   checkmate::assertScalar(databaseId, add = errorMessage)
   checkmate::assertCharacter(databaseId, add = errorMessage)
   
-  if (!is.null(connectionDetails)) {
+  if (!is.null(connection)) {
     checkmate::assertCharacter(databaseSchema)
     checkmate::reportAssertions(errorMessage)
     
-  } else if (is.null(connectionDetails)) {
+  } else if (is.null(connection)) {
     checkmate::assertDataFrame(cmFollowUpDist, add = errorMessage)
     checkmate::reportAssertions(errorMessage)
   } else {
@@ -377,22 +363,21 @@ getFollowUpDistribution <- function(connectionDetails = NULL,
       purrr::map_at(names(.)[stringr::str_detect(string = names(.), pattern = ".*(?:(?!Id).).$")], #not ends with Id regex
                     scales::comma, big.mark = ",") %>%
       tidyr::as_tibble() %>% #map_at returns a list, not a dataframe.
-      dplyr::rename_all( ~ stringr::str_replace(., type, "")) %>%
-      dplyr::rename_all( ~ stringr::str_replace(., "Days", "")) %>%
+      dplyr::rename_all(~ stringr::str_replace(., type, "")) %>%
+      dplyr::rename_all(~ stringr::str_replace(., "Days", "")) %>%
       dplyr::mutate(group = type)
   }
   
-  cmFollowUpDist <-
-    .getCmFollowUpDist(
-      connectionDetails = connectionDetails,
-      databaseSchema = databaseSchema,
-      cmFollowUpDist = cmFollowUpDist,
-      targetId = targetId,
-      comparatorId = comparatorId,
-      outcomeId = outcomeId,
-      databaseId = databaseId,
-      analysisId = analysisId
-    )
+  cmFollowUpDist <- .getCmFollowUpDist(
+    connection = connection,
+    databaseSchema = databaseSchema,
+    cmFollowUpDist = cmFollowUpDist,
+    targetId = targetId,
+    comparatorId = comparatorId,
+    outcomeId = outcomeId,
+    databaseId = databaseId,
+    analysisId = analysisId
+  )
   
   result <- dplyr::bind_rows(
     .prepareData(data = cmFollowUpDist, type = "target"),

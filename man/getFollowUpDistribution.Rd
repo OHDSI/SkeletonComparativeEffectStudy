@@ -5,7 +5,7 @@
 \title{Get followup distribution data.}
 \usage{
 getFollowUpDistribution(
-  connectionDetails = NULL,
+  connection = NULL,
   databaseSchema = NULL,
   cmFollowUpDist = NULL,
   targetId,
@@ -16,16 +16,6 @@ getFollowUpDistribution(
 )
 }
 \arguments{
-\item{connectionDetails}{(optional) An object of type \code{connectionDetails} as created using the
-\code{\link[DatabaseConnector]{createConnectionDetails}} function in the
-DatabaseConnector package.}
-
-\item{databaseSchema}{(optional) The databaseSchema argument is interpreted differently according
-to the different supported RDMS platforms: SQLServer and PDW: The databaseSchema
-schema should specify both the database and the schema,e.g. ’my_database.dbo’.
-PostgreSQL and Redshift: The databaseSchema should specify the schema.
-Oracle:  The databaseSchema should specify the Oracle ’user’.}
-
 \item{cmFollowUpDist}{(optional) A R-dataFrame object with fields named in camelCase containing
 data from cm_follow_up_dist table in comparative effectiveness data model.}
 
@@ -43,6 +33,10 @@ data model (e.g. 'Synpuf')}
 
 \item{analysisId}{An integer identifying the analysis_id field in cohort_method_analysis table
 of OHDSI comparative effectiveness data model}
+
+\item{optionalConnection}{(optional) An object of type \code{connection} as created using the
+\code{\link[DatabaseConnector]{connect}} function in the
+DatabaseConnector package.}
 }
 \value{
 Tibble with fields Id, Min, P10, P25, Median, P75, P90,Max, group.
@@ -56,35 +50,34 @@ Get follow-up distribution data from data stored in OHDSI comparative effectiven
 The output of this function  maybe used to create plots or tables
 that uses the follow-up distribution data.
 
-If the comparative effectiveness results are stored in a 
-relational database server, then please provide connection details 
-using DatabaseConnector::createConnectionDetails. If connectionDetails 
-parameter is not null, the function will attempt to connect to 
-relational database server, and ignore using R dataframe object. 
-Note: schema parameter in createConnectionDetails is not used. We use
-databaseSchema in function call instead.
+If the comparative effectiveness results are stored in a
+relational database server, then please provide connection details
+using DatabaseConnector::connection. If connection
+parameter is not null, the function will attempt to connect to
+relational database server, and ignore using R dataframe object.
 
 If the comparative effectiveness results are stored as a R dataframe object,
-please make sure connectionDetails is NULL (Default value). The function 
-will expect data in R dataframe. This R dataframe object is expected to follow 
+please make sure connection is NULL (Default value). The function
+will expect data in R dataframe. This R dataframe object is expected to follow
 camelCase for both object names and variable names.
 }
 \examples{
 \dontrun{
-#If your data is in data frames, provide connectionDetails
-connectionDetails <- createConnectionDetails(dbms = "postgresql",
+#If your data is in database, provide connection
+connection <- connect(createConnectionDetails(dbms = "postgresql",
                                              user = "joe",
                                              password = "secret",
                                              server = "myserver")
-#If connectionDetails is provided, function will attempt to read data from database
-example1 <- getFollowUpDaysDistribution(connectionDetails = connectionDetails,
+                                             )
+#If connection is provided, function will attempt to read data from database
+example1 <- getFollowUpDaysDistribution(connection = connection,
                                         databaseSchema = 'database.schema',
                                         targetId = 100,
                                         comparatorId = 200,
                                         outcomeId = 111,
                                         databaseId = 'HCUP data',
                                         analysisId = 2)
-#If no connectionDetails is provided, then function will check for data in dataFrame
+#If no connection is provided, then function will check for data in dataFrame
 example2 <- getFollowUpDaysDistribution(cmFollowUpDist = cmFollowUpDist,
                                         targetId = 100,
                                         comparatorId = 200,
