@@ -136,6 +136,86 @@
   return(result)
 }
 
+
+.getcohortMethodResult <- function(connection = NULL,
+                                   cohortMethodResult = NULL,
+                                   databaseSchema = NULL,
+                                   targetId,
+                                   comparatorId,
+                                   outcomeId,
+                                   databaseId,
+                                   analysisId) {
+  if (!is.null(connection)) {
+    sql <-   "SELECT *
+              FROM @databaseSchema.cohort_method_result
+              WHERE target_id = @targetId
+              	and comparator_id = @comparatorId
+              	and outcome_id = @outcomeId
+              	and database_id = '@databaseId'
+              	and analysis_id = @analysisId;"
+    
+    sql <-
+      SqlRender::render(
+        sql = sql,
+        databaseSchema = databaseSchema,
+        targetId = targetId,
+        comparatorId = comparatorId,
+        outcomeId = outcomeId,
+        databaseId = databaseId,
+        analysisId = analysisId
+      )
+    sql <-
+      SqlRender::translate(sql = sql,
+                           targetDialect = connection@dbms)
+    result <-
+      DatabaseConnector::querySql(
+        connection = connection,
+        sql = sql,
+        snakeCaseToCamelCase = TRUE
+      )
+  } else if (!is.null(cohortMethodResult)) {
+    result <- cohortMethodResult %>%
+      dplyr::filter(
+        targetId %in% !!targetId,
+        comparatorId %in% !!comparatorId,
+        outcomeId %in% !!outcomeId,
+        databaseId %in% !!databaseId,
+        analysisId %in% !!analysisId
+      )
+  }
+  return(result)
+}
+
+
+.getcohortMethodAnalysis <- function(connection = NULL,
+                                     cohortMethodAnalysis = NULL,
+                                     databaseSchema = NULL,
+                                     analysisId) {
+  if (!is.null(connection)) {
+    sql <-   "SELECT *
+              FROM @databaseSchema.cohort_method_analysis
+              WHERE analysis_id = @analysisId;"
+    
+    sql <-
+      SqlRender::render(sql = sql,
+                        databaseSchema = databaseSchema,
+                        analysisId = analysisId)
+    sql <-
+      SqlRender::translate(sql = sql,
+                           targetDialect = connection@dbms)
+    result <-
+      DatabaseConnector::querySql(
+        connection = connection,
+        sql = sql,
+        snakeCaseToCamelCase = TRUE
+      )
+  } else if (!is.null(cohortMethodAnalysis)) {
+    result <- cohortMethodAnalysis %>%
+      dplyr::filter(analysisId %in% !!analysisId)
+  }
+  return(result)
+}
+
 #' Get the preference score distribution for plotting
 #'
 #' @details
@@ -383,6 +463,134 @@ getFollowUpDistribution <- function(connection = NULL,
     .prepareData(data = cmFollowUpDist, type = "target"),
     .prepareData(data = cmFollowUpDist, type = "comparator")
   )
+  
+  return(result)
+}
+
+
+
+
+
+#' Get the main study results data.
+#'
+#' @details
+#' Get the main results data for target, comparator and outcome cohorts in data frame format from
+#' OHDSI comparative effectiveness data model. The output maybe used to create plots or tables
+#' that use the main study results data.
+#'
+#' @template connection
+#' @template databaseSchema
+#' @param cohortMethodResult   (optional) A R-dataFrame object with fields named in camelCase containing
+#'                             data from cohort_method_result table in comparative effectiveness data model.
+#' @param cohortMethodAnalysis (optional) A R-dataFrame object with fields named in camelCase containing
+#'                             data from cohort_method_analysis table in comparative effectiveness data model.
+#' @return                     Tibble. Fields with column names 'HR (95% CI)', 'Cal. HR (95% CI)' are provided
+#'                             in print friendly format.
+#'
+#' @examples
+#' \dontrun{
+#' #If your data is in database, provide connection
+#' connection <- connect(createConnectionDetails(dbms = "postgresql",
+#'                                              user = "joe",
+#'                                              password = "secret",
+#'                                              server = "myserver")
+#'                                              )
+#' example1 <- getCohortMethodResult(connection = connection,
+#'                                   databaseSchema = 'database.schema',
+#'                                   targetId = 100,
+#'                                   comparatorId = 200,
+#'                                   outcomeId = 111,
+#'                                   databaseId = 'HCUP data',
+#'                                   analysisId = 2)
+#' example2 <- getCohortMethodResult(cohortMethodResult = cohortMethodResult,
+#'                                   cohortMethodAnalysis = cohortMethodAnalysis,
+#'                                   targetId = 100,
+#'                                   comparatorId = 200,
+#'                                   outcomeId = 111,
+#'                                   databaseId = 'HCUP data',
+#'                                   analysisId = 2)
+#' }
+#' @export
+#'
+getCohortMethodResult <- function(connection = NULL,
+                                  databaseSchema = NULL,
+                                  cohortMethodResult = NULL,
+                                  cohortMethodAnalysis = NULL,
+                                  targetId,
+                                  comparatorId,
+                                  outcomeId,
+                                  databaseId,
+                                  analysisId) {
+  errorMessage <- checkmate::makeAssertCollection()
+  checkmate::assertInt(targetId, add = errorMessage)
+  checkmate::assertInt(comparatorId, add = errorMessage)
+  checkmate::assertInt(outcomeId, add = errorMessage)
+  checkmate::assertInt(analysisId, add = errorMessage)
+  checkmate::assertScalar(databaseId, add = errorMessage)
+  checkmate::assertCharacter(databaseId, add = errorMessage)
+  
+  if (!is.null(connection)) {
+    checkmate::assertCharacter(databaseSchema)
+    checkmate::reportAssertions(errorMessage)
+    
+  } else if (is.null(connection)) {
+    checkmate::assertDataFrame(cohortMethodResult, add = errorMessage)
+    checkmate::assertDataFrame(cohortMethodAnalysis, add = errorMessage)
+    checkmate::reportAssertions(errorMessage)
+  } else {
+    stop(
+      "No connection for an RDMS provided.
+         No R-data frame object cohortMethodResult or cohortMethodAnalysis provided"
+    )
+  }
+  
+  cohortMethodResult <-
+    .getcohortMethodResult(
+      connection = connection,
+      databaseSchema = databaseSchema,
+      cohortMethodResult = cohortMethodResult,
+      targetId = targetId,
+      comparatorId = comparatorId,
+      outcomeId = outcomeId,
+      databaseId = databaseId,
+      analysisId = analysisId
+    )
+  
+  cohortMethodAnalysis <-
+    .getcohortMethodAnalysis(
+      connection = connection,
+      databaseSchema = databaseSchema,
+      cohortMethodAnalysis = cohortMethodAnalysis,
+      analysisId = analysisId
+    )
+  
+  result <- cohortMethodResult %>%
+    purrr::map_at(
+      c(
+        'rr',
+        'ci95Lb',
+        'ci95Ub',
+        'calibratedRr',
+        'p',
+        'calibratedCi95Lb',
+        'calibratedCi95Ub',
+        'calibratedP'
+      ),
+      sprintf,
+      fmt = "%.2f"
+    ) %>%
+    #sprintF is able to handle NA better than scales
+    # if we use NA will result in error e.g. scales::comma(NA) -- Error in UseMethod("round_any")
+    tidyr::as_tibble() %>%
+    dplyr::mutate(
+      "HR (95% CI)" = glue::glue('{rr} ({ci95Lb} - {ci95Ub})'),
+      "Cal. HR (95% CI)" = glue::glue('{calibratedRr} ({calibratedCi95Lb} - {calibratedCi95Ub})')
+    ) %>%
+    dplyr::left_join(y = cohortMethodAnalysis, by = c('analysisId' = 'analysisId')) %>%
+    dplyr::rename(Analysis = description,
+                  P = p,
+                  "Cal. p" = calibratedP) %>%
+    dplyr::select(-definition)
   
   return(result)
 }
