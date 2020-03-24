@@ -16,6 +16,10 @@ getPreferenceScoreDistribution(
 )
 }
 \arguments{
+\item{connection}{(optional) An object of type \code{connection} as created using the
+\code{\link[DatabaseConnector]{connect}} function in the
+DatabaseConnector package.}
+
 \item{preferenceScoreDist}{(optional) A R-dataFrame object with fields named in camelCase containing
 data from preference_score_dist table in comparative effectiveness data model.}
 
@@ -33,10 +37,6 @@ data model (e.g. 'Synpuf')}
 
 \item{analysisId}{An integer identifying the analysis_id field in cohort_method_analysis table
 of OHDSI comparative effectiveness data model}
-
-\item{optionalConnection}{(optional) An object of type \code{connection} as created using the
-\code{\link[DatabaseConnector]{connect}} function in the
-DatabaseConnector package.}
 }
 \value{
 Tibble with fields preference score, density, cohort-name, group.

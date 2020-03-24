@@ -156,7 +156,7 @@
 #' camelCase for both object names and variable names.
 #'
 #'
-#' @template optionalConnection
+#' @template connection
 #' @template targetId
 #' @template comparatorId
 #' @template databaseId
@@ -290,7 +290,7 @@ getPreferenceScoreDistribution <- function(connection = NULL,
 #' camelCase for both object names and variable names.
 #'
 #'
-#' @template optionalConnection
+#' @template connection
 #' @template targetId
 #' @template comparatorId
 #' @template databaseId

@@ -16,6 +16,10 @@ getFollowUpDistribution(
 )
 }
 \arguments{
+\item{connection}{(optional) An object of type \code{connection} as created using the
+\code{\link[DatabaseConnector]{connect}} function in the
+DatabaseConnector package.}
+
 \item{cmFollowUpDist}{(optional) A R-dataFrame object with fields named in camelCase containing
 data from cm_follow_up_dist table in comparative effectiveness data model.}
 
@@ -33,10 +37,6 @@ data model (e.g. 'Synpuf')}
 
 \item{analysisId}{An integer identifying the analysis_id field in cohort_method_analysis table
 of OHDSI comparative effectiveness data model}
-
-\item{optionalConnection}{(optional) An object of type \code{connection} as created using the
-\code{\link[DatabaseConnector]{connect}} function in the
-DatabaseConnector package.}
 }
 \value{
 Tibble with fields Id, Min, P10, P25, Median, P75, P90,Max, group.
