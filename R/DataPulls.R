@@ -153,7 +153,6 @@
               	and outcome_id = @outcomeId
               	and database_id = '@databaseId'
               	and analysis_id = @analysisId;"
-    
     sql <-
       SqlRender::render(
         sql = sql,
@@ -195,7 +194,6 @@
     sql <-   "SELECT *
               FROM @databaseSchema.cohort_method_analysis
               WHERE analysis_id = @analysisId;"
-    
     sql <-
       SqlRender::render(sql = sql,
                         databaseSchema = databaseSchema,
