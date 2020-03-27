@@ -17,6 +17,7 @@ Imports:
   FeatureExtraction (>= 2.2.5),
   ff,
   ffbase,
+  glue,
   ggplot2,
   magrittr,
   MethodEvaluation (>= 0.3.1),
