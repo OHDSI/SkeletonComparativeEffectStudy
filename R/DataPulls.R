@@ -239,6 +239,7 @@
 #' @template comparatorId
 #' @template databaseId
 #' @template analysisId
+#' @template databaseSchema
 #' @param preferenceScoreDist  (optional) A R-dataFrame object with fields named in camelCase containing
 #'                             data from preference_score_dist table in comparative effectiveness data model.
 #' @param exposureOfInterest   (optional) A R-dataFrame object with fields named in camelCase containing
@@ -374,6 +375,7 @@ getPreferenceScoreDistribution <- function(connection = NULL,
 #' @template databaseId
 #' @template analysisId
 #' @template outcomeId
+#' @template databaseSchema
 #' @param cmFollowUpDist       (optional) A R-dataFrame object with fields named in camelCase containing
 #'                             data from cm_follow_up_dist table in comparative effectiveness data model.
 #' @return                     Tibble with fields Id, Min, P10, P25, Median, P75, P90,Max, group.
@@ -478,6 +480,11 @@ getFollowUpDistribution <- function(connection = NULL,
 #'
 #' @template connection
 #' @template databaseSchema
+#' @template targetId
+#' @template comparatorId
+#' @template databaseId
+#' @template analysisId
+#' @template outcomeId
 #' @param cohortMethodResult   (optional) A R-dataFrame object with fields named in camelCase containing
 #'                             data from cohort_method_result table in comparative effectiveness data model.
 #' @param cohortMethodAnalysis (optional) A R-dataFrame object with fields named in camelCase containing
@@ -590,5 +597,171 @@ getCohortMethodResult <- function(connection = NULL,
                   "Cal. p" = calibratedP) %>%
     dplyr::select(-definition)
   
+  return(result)
+}
+
+
+
+#' Get Power data
+#'
+#' @details
+#' Get the power results for target, comparator and outcome cohorts in data frame format from
+#' OHDSI comparative effectiveness data model. The output maybe used to create plots or tables.
+#'
+#' @template connection
+#' @template databaseSchema
+#' @template targetId
+#' @template comparatorId
+#' @template databaseId
+#' @template analysisId
+#' @template outcomeId
+#' @param cohortMethodResult   (optional) A R-dataFrame object with fields named in camelCase containing
+#'                             data from cohort_method_result table in comparative effectiveness data model.
+#' @param cohortMethodAnalysis (optional) A R-dataFrame object with fields named in camelCase containing
+#'                             data from cohort_method_analysis table in comparative effectiveness data model.
+#' @return                     Tibble. 
+#'
+#' @examples
+#' \dontrun{
+#' connectionDetails <- createConnectionDetails(dbms = "postgresql",
+#'                                            user = "joe",
+#'                                            password = "secret",
+#'                                            server = "myserver")
+#' example1 <- getPower(connection = connectionDetails,
+#'                      databaseSchema = 'database.schema',
+#'                      targetId = 100,
+#'                      comparatorId = 200,
+#'                      outcomeId = 111,
+#'                      databaseId = 'HCUP data',
+#'                      analysisId = 2)
+#' example2 <- getPower(cohortMethodResult = cohortMethodResult,
+#'                      cohortMethodAnalysis = cohortMethodAnalysis,
+#'                      targetId = 100,
+#'                      comparatorId = 200,
+#'                      outcomeId = 111,
+#'                      databaseId = 'HCUP data',
+#'                      analysisId = 2)
+#' }
+#' @export
+#'
+getPower <- function(connection = NULL,
+                     databaseSchema = NULL,
+                     cohortMethodResult = NULL,
+                     cohortMethodAnalysis = NULL,
+                     targetId,
+                     comparatorId,
+                     outcomeId,
+                     databaseId,
+                     analysisId) {
+  errorMessage <- checkmate::makeAssertCollection()
+  checkmate::assertInt(targetId, add = errorMessage)
+  checkmate::assertInt(comparatorId, add = errorMessage)
+  checkmate::assertInt(outcomeId, add = errorMessage)
+  checkmate::assertInt(analysisId, add = errorMessage)
+  checkmate::assertScalar(databaseId, add = errorMessage)
+  checkmate::assertCharacter(databaseId, add = errorMessage)
+  
+  if (!is.null(connection)) {
+    checkmate::assertCharacter(databaseSchema)
+    checkmate::reportAssertions(errorMessage)
+    
+  } else if (is.null(connection)) {
+    checkmate::assertDataFrame(cohortMethodResult, add = errorMessage)
+    checkmate::assertDataFrame(cohortMethodAnalysis, add = errorMessage)
+    checkmate::reportAssertions(errorMessage)
+  } else {
+    stop(
+      "No connection for an RDMS provided.
+         No R-data frame object cohortMethodResult and cohortMethodAnalysis provided"
+    )
+  }
+  
+  cohortMethodResult <-
+    .getcohortMethodResult(
+      connection = connection,
+      databaseSchema = databaseSchema,
+      cohortMethodResult = cohortMethodResult,
+      targetId = targetId,
+      comparatorId = comparatorId,
+      outcomeId = outcomeId,
+      databaseId = databaseId,
+      analysisId = analysisId
+    )
+  
+  cohortMethodAnalysis <-
+    .getcohortMethodAnalysis(
+      connection = connection,
+      databaseSchema = databaseSchema,
+      cohortMethodAnalysis = cohortMethodAnalysis,
+      analysisId = analysisId
+    ) %>%
+    dplyr::select(-definition)
+  
+  #fixed parameters
+  alpha <- 0.05
+  power <- 0.8
+  z1MinAlpha <- qnorm(1 - alpha / 2)
+  zBeta <- -qnorm(1 - power)
+  
+  result <- cohortMethodResult %>%
+    dplyr::left_join(y = cohortMethodAnalysis, by = c("analysisId" = "analysisId")) %>%
+    dplyr::mutate(
+      pA = targetSubjects / (targetSubjects + comparatorSubjects),
+      pB = 1 - (targetSubjects / (targetSubjects + comparatorSubjects)),
+      totalEvents = abs(targetOutcomes) + comparatorOutcomes,
+      targetYears = targetDays / 365.25,
+      comparatorYears = comparatorDays / 365.25
+    ) %>%
+    dplyr::mutate(
+      mdrr = exp(sqrt((zBeta + z1MinAlpha) ^ 2 / (totalEvents * pA * pB))),
+      targetIr = 1000 * (targetOutcomes / targetYears),
+      comparatorIr = 1000 * (comparatorOutcomes / comparatorYears)
+    ) %>%
+    purrr::map_at(c('targetIr','comparatorIr','mdrr'),
+                  sprintf,
+                  fmt = "%.2f") %>%
+    purrr::map_at(
+      c(
+        'targetSubjects',
+        'comparatorSubjects',
+        'targetYears',
+        'comparatorYears',
+        'targetOutcomes',
+        'comparatorOutcomes'
+      ),
+      formatC,
+      big.mark = ",",
+      format = "d"
+    ) %>%
+    purrr::map_at(
+      c(
+        "targetSubjects",
+        "comparatorSubjects",
+        "targetOutcomes",
+        "comparatorOutcomes",
+        "targetIr",
+        "comparatorIr"
+      ),
+      stringr::str_replace,
+      pattern = "^-",
+      replacement = "<"
+    ) %>%
+    tidyr::as_tibble() %>%
+    dplyr::select(
+      description,
+      targetSubjects,
+      comparatorSubjects,
+      targetYears,
+      comparatorYears,
+      targetOutcomes,
+      comparatorOutcomes,
+      targetIr,
+      comparatorIr,
+      mdrr
+    )
+  
+  idx = (result$targetOutcomes < 0 | result$comparatorOutcomes < 0)
+  result$mdrr[idx] <-
+    paste0(">", result$mdrr[idx])
   return(result)
 }
