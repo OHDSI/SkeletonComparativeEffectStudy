@@ -202,7 +202,7 @@ Lists the covariates constructed in a database.
 | database_id           | varchar | Foreign key referencing the database. |
 | analysis_id           | integer | A foreign key referencing the cohort_method_analysis table. |
 | covariate_id          | integer | A unique identified for a covariate. |
-| comparator_name       | varchar | A name for a covariate, e.g. 'Age group: 20-25 years'. |
+| covariate_name        | varchar | A name for a covariate, e.g. 'Age group: 20-25 years'. |
 | covariate_analysis_id | integer | A foreign key referencing the covariate_analysis table. |
 
 ### Table: cm_follow_up_dist
