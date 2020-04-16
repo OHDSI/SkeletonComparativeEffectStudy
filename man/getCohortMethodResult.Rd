@@ -68,6 +68,8 @@ connection <- connect(createConnectionDetails(dbms = "postgresql",
                                              password = "secret",
                                              server = "myserver")
                                              )
+#If connection is provided, function will attempt to read data from database
+# data in R-dataframe format will be ignored
 example1 <- getCohortMethodResult(connection = connection,
                                   databaseSchema = 'database.schema',
                                   targetId = 100,
@@ -75,6 +77,7 @@ example1 <- getCohortMethodResult(connection = connection,
                                   outcomeId = 111,
                                   databaseId = 'HCUP data',
                                   analysisId = 2)
+#If no connection is provided, then function will check for data in dataFrame
 example2 <- getCohortMethodResult(cohortMethodResult = cohortMethodResult,
                                   cohortMethodAnalysis = cohortMethodAnalysis,
                                   targetId = 100,

@@ -500,6 +500,8 @@ getFollowUpDistribution <- function(connection = NULL,
 #'                                              password = "secret",
 #'                                              server = "myserver")
 #'                                              )
+#' #If connection is provided, function will attempt to read data from database
+#' # data in R-dataframe format will be ignored
 #' example1 <- getCohortMethodResult(connection = connection,
 #'                                   databaseSchema = 'database.schema',
 #'                                   targetId = 100,
@@ -507,6 +509,7 @@ getFollowUpDistribution <- function(connection = NULL,
 #'                                   outcomeId = 111,
 #'                                   databaseId = 'HCUP data',
 #'                                   analysisId = 2)
+#' #If no connection is provided, then function will check for data in dataFrame
 #' example2 <- getCohortMethodResult(cohortMethodResult = cohortMethodResult,
 #'                                   cohortMethodAnalysis = cohortMethodAnalysis,
 #'                                   targetId = 100,
@@ -615,6 +618,12 @@ getCohortMethodResult <- function(connection = NULL,
 #' @template databaseId
 #' @template analysisId
 #' @template outcomeId
+#' @param    alpha             (optional) Default value = 0.05. Threshold for Type 1 error in hypothesis testing,
+#'                             i.e. rejection of a true null hypothesis (also known as a "false positive" 
+#'                             finding or conclusion)
+#' @param    power             (optional) Default value = 0.8. Threshold for Type 2 error in hypothesis testing,
+#'                             i.e. non-rejection of a false null hypothesis (also known as a "false negative" 
+#'                             finding or conclusion)
 #' @param cohortMethodResult   (optional) A R-dataFrame object with fields named in camelCase containing
 #'                             data from cohort_method_result table in comparative effectiveness data model.
 #' @param cohortMethodAnalysis (optional) A R-dataFrame object with fields named in camelCase containing
@@ -627,6 +636,8 @@ getCohortMethodResult <- function(connection = NULL,
 #'                                            user = "joe",
 #'                                            password = "secret",
 #'                                            server = "myserver")
+#' #If connection is provided, function will attempt to read data from database
+#' # data in R-dataframe format will be ignored
 #' example1 <- getPower(connection = connectionDetails,
 #'                      databaseSchema = 'database.schema',
 #'                      targetId = 100,
@@ -634,6 +645,7 @@ getCohortMethodResult <- function(connection = NULL,
 #'                      outcomeId = 111,
 #'                      databaseId = 'HCUP data',
 #'                      analysisId = 2)
+#' #If no connection is provided, then function will check for data in dataFrame
 #' example2 <- getPower(cohortMethodResult = cohortMethodResult,
 #'                      cohortMethodAnalysis = cohortMethodAnalysis,
 #'                      targetId = 100,
@@ -652,7 +664,9 @@ getPower <- function(connection = NULL,
                      comparatorId,
                      outcomeId,
                      databaseId,
-                     analysisId) {
+                     analysisId,
+                     alpha = 0.05,
+                     power = 0.8) {
   errorMessage <- checkmate::makeAssertCollection()
   checkmate::assertInt(targetId, add = errorMessage)
   checkmate::assertInt(comparatorId, add = errorMessage)
@@ -697,9 +711,6 @@ getPower <- function(connection = NULL,
     ) %>%
     dplyr::select(-definition)
   
-  #fixed parameters
-  alpha <- 0.05
-  power <- 0.8
   z1MinAlpha <- qnorm(1 - alpha / 2)
   zBeta <- -qnorm(1 - power)
   

@@ -13,7 +13,9 @@ getPower(
   comparatorId,
   outcomeId,
   databaseId,
-  analysisId
+  analysisId,
+  alpha = 0.05,
+  power = 0.8
 )
 }
 \arguments{
@@ -47,6 +49,14 @@ data model (e.g. 'Synpuf')}
 
 \item{analysisId}{An integer identifying the analysis_id field in cohort_method_analysis table
 of OHDSI comparative effectiveness data model}
+
+\item{alpha}{(optional) Default value = 0.05. Threshold for Type 1 error in hypothesis testing,
+i.e. rejection of a true null hypothesis (also known as a "false positive" 
+finding or conclusion)}
+
+\item{power}{(optional) Default value = 0.8. Threshold for Type 2 error in hypothesis testing,
+i.e. non-rejection of a false null hypothesis (also known as a "false negative" 
+finding or conclusion)}
 }
 \value{
 Tibble.
@@ -64,6 +74,8 @@ connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                            user = "joe",
                                            password = "secret",
                                            server = "myserver")
+#If connection is provided, function will attempt to read data from database
+# data in R-dataframe format will be ignored
 example1 <- getPower(connection = connectionDetails,
                      databaseSchema = 'database.schema',
                      targetId = 100,
@@ -71,6 +83,7 @@ example1 <- getPower(connection = connectionDetails,
                      outcomeId = 111,
                      databaseId = 'HCUP data',
                      analysisId = 2)
+#If no connection is provided, then function will check for data in dataFrame
 example2 <- getPower(cohortMethodResult = cohortMethodResult,
                      cohortMethodAnalysis = cohortMethodAnalysis,
                      targetId = 100,
