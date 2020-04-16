@@ -4,6 +4,3 @@
 \name{SkeletonComparativeEffectStudy}
 \alias{SkeletonComparativeEffectStudy}
 \title{SkeletonComparativeEffectStudy}
-\description{
-SkeletonComparativeEffectStudy
-}
