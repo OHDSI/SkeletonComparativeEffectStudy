@@ -286,18 +286,15 @@
               FROM @databaseSchema.covariate
               WHERE database_id = '@databaseId'
               and analysis_id = @analysisId;"
-    sql <-
-      SqlRender::render(
+    sql <- SqlRender::render(
         sql = sql,
         databaseId = databaseId,
         analysisId = analysisId,
         databaseSchema = databaseSchema
       )
-    sql <-
-      SqlRender::translate(sql = sql,
-                           targetDialect = connection@dbms)
-    result <-
-      DatabaseConnector::querySql(
+    sql <- SqlRender::translate(sql = sql,
+                                targetDialect = connection@dbms)
+    result <- DatabaseConnector::querySql(
         connection = connection,
         sql = sql,
         snakeCaseToCamelCase = TRUE
