@@ -22,6 +22,12 @@ getCovariateBalance(
 \code{\link[DatabaseConnector]{connect}} function in the
 DatabaseConnector package.}
 
+\item{databaseSchema}{(optional) The databaseSchema argument is interpreted differently according
+to the different supported RDMS platforms: SQLServer and PDW: The databaseSchema
+schema should specify both the database and the schema,e.g. ’my_database.dbo’.
+PostgreSQL and Redshift: The databaseSchema should specify the schema.
+Oracle:  The databaseSchema should specify the Oracle ’user’.}
+
 \item{covariateBalance}{(optional) A R-dataFrame object with fields named in camelCase containing
 data from covariate_balance table in comparative effectiveness data model.}
 

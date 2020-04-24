@@ -100,12 +100,12 @@
                                analysisId) {
   if (!is.null(connection)) {
     sql <-  "SELECT *
-            FROM @databaseSchema.cm_follow_up_dist
-            WHERE target_id = @targetId
-            	and comparator_id = @comparatorId
-            	and outcome_id = @outcomeId
-            	and analysis_id = @analysisId
-            	and database_id = '@databaseId';"
+             FROM @databaseSchema.cm_follow_up_dist
+             WHERE target_id = @targetId
+             and comparator_id = @comparatorId
+             and outcome_id = @outcomeId
+             and analysis_id = @analysisId
+             and database_id = '@databaseId';"
     
     sql <- SqlRender::render(
       sql = sql,
@@ -149,12 +149,11 @@
     sql <-   "SELECT *
               FROM @databaseSchema.cohort_method_result
               WHERE target_id = @targetId
-              	and comparator_id = @comparatorId
-              	and outcome_id = @outcomeId
-              	and database_id = '@databaseId'
-              	and analysis_id = @analysisId;"
-    sql <-
-      SqlRender::render(
+              and comparator_id = @comparatorId
+              and outcome_id = @outcomeId
+              and database_id = '@databaseId'
+              and analysis_id = @analysisId;"
+    sql <- SqlRender::render(
         sql = sql,
         databaseSchema = databaseSchema,
         targetId = targetId,
@@ -163,9 +162,8 @@
         databaseId = databaseId,
         analysisId = analysisId
       )
-    sql <-
-      SqlRender::translate(sql = sql,
-                           targetDialect = connection@dbms)
+    sql <- SqlRender::translate(sql = sql,
+                                targetDialect = connection@dbms)
     result <-
       DatabaseConnector::querySql(
         connection = connection,
@@ -194,19 +192,16 @@
     sql <-   "SELECT *
               FROM @databaseSchema.cohort_method_analysis
               WHERE analysis_id = @analysisId;"
-    sql <-
-      SqlRender::render(sql = sql,
-                        databaseSchema = databaseSchema,
-                        analysisId = analysisId)
-    sql <-
-      SqlRender::translate(sql = sql,
-                           targetDialect = connection@dbms)
-    result <-
-      DatabaseConnector::querySql(
-        connection = connection,
-        sql = sql,
-        snakeCaseToCamelCase = TRUE
-      )
+    sql <- SqlRender::render(sql = sql,
+                             databaseSchema = databaseSchema,
+                             analysisId = analysisId)
+    sql <- SqlRender::translate(sql = sql,
+                                targetDialect = connection@dbms)
+    result <- DatabaseConnector::querySql(
+      connection = connection,
+      sql = sql,
+      snakeCaseToCamelCase = TRUE
+    )
   } else if (!is.null(cohortMethodAnalysis)) {
     result <- cohortMethodAnalysis %>%
       dplyr::filter(analysisId %in% !!analysisId)
@@ -229,13 +224,12 @@
     sql <-   "SELECT *
               FROM @databaseSchema.covariate_balance
               WHERE target_id = @targetId
-              	and comparator_id = @comparatorId
-              	and outcome_id = @outcomeId
-              	and database_id = '@databaseId'
-              	{@interactionCovariateIdNull} ? {and interaction_covariate_id IS NULL}:{and interaction_covariate_id = @interactionCovariateId}
-              	and analysis_id = @analysisId;"
-    sql <-
-      SqlRender::render(
+              and comparator_id = @comparatorId
+              and outcome_id = @outcomeId
+              and database_id = '@databaseId'
+              {@interactionCovariateIdNull} ? {and interaction_covariate_id IS NULL}:{and interaction_covariate_id = @interactionCovariateId}
+              and analysis_id = @analysisId;"
+    sql <- SqlRender::render(
         sql = sql,
         databaseSchema = databaseSchema,
         targetId = targetId,
@@ -246,11 +240,9 @@
         interactionCovariateId = interactionCovariateId,
         interactionCovariateIdNull = interactionCovariateIdNull
       )
-    sql <-
-      SqlRender::translate(sql = sql,
+    sql <- SqlRender::translate(sql = sql,
                            targetDialect = connection@dbms)
-    result <-
-      DatabaseConnector::querySql(
+    result <- DatabaseConnector::querySql(
         connection = connection,
         sql = sql,
         snakeCaseToCamelCase = TRUE
@@ -282,10 +274,10 @@
                           databaseId,
                           analysisId) {
   if (!is.null(connection)) {
-    sql <-   "SELECT *
-              FROM @databaseSchema.covariate
-              WHERE database_id = '@databaseId'
-              and analysis_id = @analysisId;"
+    sql <- "SELECT *
+            FROM @databaseSchema.covariate
+            WHERE database_id = '@databaseId'
+            and analysis_id = @analysisId;"
     sql <- SqlRender::render(
         sql = sql,
         databaseId = databaseId,
@@ -308,8 +300,6 @@
   }
   return(result)
 }
-
-
 
 
 #' Get the preference score distribution for plotting
@@ -647,8 +637,7 @@ getCohortMethodResult <- function(connection = NULL,
     )
   }
   
-  cohortMethodResult <-
-    .getcohortMethodResult(
+  cohortMethodResult <- .getcohortMethodResult(
       connection = connection,
       databaseSchema = databaseSchema,
       cohortMethodResult = cohortMethodResult,
@@ -659,8 +648,7 @@ getCohortMethodResult <- function(connection = NULL,
       analysisId = analysisId
     )
   
-  cohortMethodAnalysis <-
-    .getcohortMethodAnalysis(
+  cohortMethodAnalysis <- .getcohortMethodAnalysis(
       connection = connection,
       databaseSchema = databaseSchema,
       cohortMethodAnalysis = cohortMethodAnalysis,
@@ -784,8 +772,7 @@ getPower <- function(connection = NULL,
     )
   }
   
-  cohortMethodResult <-
-    .getcohortMethodResult(
+  cohortMethodResult <- .getcohortMethodResult(
       connection = connection,
       databaseSchema = databaseSchema,
       cohortMethodResult = cohortMethodResult,
@@ -796,8 +783,7 @@ getPower <- function(connection = NULL,
       analysisId = analysisId
     )
   
-  cohortMethodAnalysis <-
-    .getcohortMethodAnalysis(
+  cohortMethodAnalysis <- .getcohortMethodAnalysis(
       connection = connection,
       databaseSchema = databaseSchema,
       cohortMethodAnalysis = cohortMethodAnalysis,
@@ -866,8 +852,7 @@ getPower <- function(connection = NULL,
     )
   
   idx = (result$targetOutcomes < 0 | result$comparatorOutcomes < 0)
-  result$mdrr[idx] <-
-    paste0(">", result$mdrr[idx])
+  result$mdrr[idx] <- paste0(">", result$mdrr[idx])
   return(result)
 }
 
@@ -897,8 +882,9 @@ getPower <- function(connection = NULL,
 #' @template databaseId
 #' @template analysisId
 #' @template outcomeId
+#' @template databaseSchema
 #' @param interactionCovariateId (optoinal) An integer identifying the covariate in interactionCovariateId
-#'                                  field of covariate_balance table of OHDSI comparative effectiveness data model
+#'                                field of covariate_balance table of OHDSI comparative effectiveness data model
 #' @param covariateBalance     (optional) A R-dataFrame object with fields named in camelCase containing
 #'                             data from covariate_balance table in comparative effectiveness data model.
 #' @param covariate            (optional) A R-dataFrame object with fields named in camelCase containing
@@ -932,15 +918,15 @@ getPower <- function(connection = NULL,
 #' @export
 #'
 getCovariateBalance <- function(connection = NULL,
-                                    databaseSchema = NULL,
-                                    covariateBalance = NULL,
-                                    covariate = NULL,
-                                    targetId,
-                                    comparatorId,
-                                    outcomeId,
-                                    databaseId,
-                                    analysisId,
-                                    interactionCovariateId = NULL) {
+                                databaseSchema = NULL,
+                                covariateBalance = NULL,
+                                covariate = NULL,
+                                targetId,
+                                comparatorId,
+                                outcomeId,
+                                databaseId,
+                                analysisId,
+                                interactionCovariateId = NULL) {
   errorMessage <- checkmate::makeAssertCollection()
   checkmate::assertInt(targetId, add = errorMessage)
   checkmate::assertInt(comparatorId, add = errorMessage)
@@ -963,42 +949,39 @@ getCovariateBalance <- function(connection = NULL,
          No R-data frame object covariateBalance and covariate provided"
     )
   }
- 
-  covariateBalance <-
-    .getCovariateBalance(
-      connection = connection,
-      databaseSchema = databaseSchema,
-      covariateBalance = covariateBalance,
-      targetId = targetId,
-      comparatorId = comparatorId,
-      outcomeId = outcomeId,
-      databaseId = databaseId,
-      analysisId = analysisId,
-      interactionCovariateId = interactionCovariateId
-    ) %>% dplyr::tibble()
   
-  covariate <-
-    .getCovariate(
-      connection = connection,
-      databaseSchema = databaseSchema,
-      databaseId = databaseId,
-      covariate = covariate,
-      analysisId = analysisId
-    ) %>% dplyr::tibble()
+  covariateBalance <- .getCovariateBalance(
+    connection = connection,
+    databaseSchema = databaseSchema,
+    covariateBalance = covariateBalance,
+    targetId = targetId,
+    comparatorId = comparatorId,
+    outcomeId = outcomeId,
+    databaseId = databaseId,
+    analysisId = analysisId,
+    interactionCovariateId = interactionCovariateId
+  ) %>% dplyr::tibble()
   
+  covariate <- .getCovariate(
+    connection = connection,
+    databaseSchema = databaseSchema,
+    databaseId = databaseId,
+    covariate = covariate,
+    analysisId = analysisId
+  ) %>% dplyr::tibble()
   
   balance <- covariateBalance %>% 
-             dplyr::left_join(y = covariate, by = c("databaseId" = "databaseId", 
-                                                    "analysisId" = "analysisId", 
-                                                    "covariateId" = "covariateId")
-                              ) %>% 
-            dplyr::rename(beforeMatchingMeanTreated = targetMeanBefore,
-                          beforeMatchingMeanComparator = comparatorMeanBefore,
-                          beforeMatchingStdDiff = stdDiffBefore,
-                          afterMatchingMeanTreated = targetMeanAfter,
-                          afterMatchingMeanComparator = comparatorMeanAfter,
-                          afterMatchingStdDiff = stdDiffAfter) %>% 
-            dplyr::mutate(absBeforeMatchingStdDiff = abs(beforeMatchingStdDiff),
-                          absAfterMatchingStdDiff = abs(afterMatchingStdDiff))
+    dplyr::left_join(y = covariate, by = c("databaseId" = "databaseId", 
+                                           "analysisId" = "analysisId", 
+                                           "covariateId" = "covariateId")
+    ) %>% 
+    dplyr::rename(beforeMatchingMeanTreated = targetMeanBefore,
+                  beforeMatchingMeanComparator = comparatorMeanBefore,
+                  beforeMatchingStdDiff = stdDiffBefore,
+                  afterMatchingMeanTreated = targetMeanAfter,
+                  afterMatchingMeanComparator = comparatorMeanAfter,
+                  afterMatchingStdDiff = stdDiffAfter) %>% 
+    dplyr::mutate(absBeforeMatchingStdDiff = abs(beforeMatchingStdDiff),
+                  absAfterMatchingStdDiff = abs(afterMatchingStdDiff))
   return(balance)
 }
