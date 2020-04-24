@@ -2,52 +2,32 @@
 % Please edit documentation in R/Plots.R
 \name{plotPreferenceScore}
 \alias{plotPreferenceScore}
-\title{Get the preference score distribution plot for data in OHDSI comparative effectiveness data model.}
+\title{Get the preference score distribution plot for data preferenceScore object.}
 \usage{
 plotPreferenceScore(
-  connection = NULL,
-  databaseSchema = NULL,
-  preferenceScoreDist = NULL,
-  exposureOfInterest = NULL,
-  targetId,
-  comparatorId,
-  databaseId,
-  analysisId,
-  ggplot2.scale_fill = ggplot2::scale_fill_viridis_d(alpha = 0.5, option = "E"),
-  ggplot2.scale_color = ggplot2::scale_color_viridis_d(alpha = 0.5, option = "E"),
-  ggplot2.theme = NULL,
+  preferenceScore = NULL,
   xAxisLabel = "Preference score",
-  yAxisLabel = "Density"
+  yAxisLabel = "Density",
+  title = NULL,
+  fileName = NULL,
+  ggplot2.theme = NULL,
+  ggplot2.scale_fill = ggplot2::scale_fill_viridis_d(alpha = 0.5, option = "D"),
+  ggplot2.scale_color = ggplot2::scale_color_viridis_d(alpha = 0.5, option = "D")
 )
 }
 \arguments{
-\item{connection}{(optional) An object of type \code{connection} as created using the
-\code{\link[DatabaseConnector]{connect}} function in the
-DatabaseConnector package.}
+\item{preferenceScore}{A R-dataFrame preferenceScore object that was derived by 
+function \code{getPreferenceScoreDistribution}}
 
-\item{databaseSchema}{(optional) The databaseSchema argument is interpreted differently according
-to the different supported RDMS platforms: SQLServer and PDW: The databaseSchema
-schema should specify both the database and the schema,e.g. ’my_database.dbo’.
-PostgreSQL and Redshift: The databaseSchema should specify the schema.
-Oracle:  The databaseSchema should specify the Oracle ’user’.}
+\item{xAxisLabel}{(optional) Label for x-axis. Default value: "Preference score"}
 
-\item{preferenceScoreDist}{(optional) A R-dataFrame object with fields named in camelCase containing
-data from preference_score_dist table in comparative effectiveness data model.}
+\item{yAxisLabel}{(optional) Label for x-axis. Default value: "Density"}
 
-\item{exposureOfInterest}{(optional) A R-dataFrame object with fields named in camelCase containing
-data from exposure_of_interest table in comparative effectiveness data model.}
+\item{title}{(optional) the main title for the plot. Default value: NULL (no title)}
 
-\item{targetId}{An integer identifying a cohort in exposure_id field of exposure_of_interest
-of OHDSI comparative effectiveness data model}
-
-\item{comparatorId}{An integer identifying a cohort in exposure_id field of exposure_of_interest
-of OHDSI comparative effectiveness data model}
-
-\item{databaseId}{A short string for identifying the database for query from comparative effectiveness
-data model (e.g. 'Synpuf')}
-
-\item{analysisId}{An integer identifying the analysis_id field in cohort_method_analysis table
-of OHDSI comparative effectiveness data model}
+\item{fileName}{(optional) Name of the file where the plot should be saved, for example 'plot.png'.
+See the function \code{ggsave} in the ggplot2 package for supported file
+formats.}
 
 \item{ggplot2.scale_fill}{(optional) See ggplot2::scale_manual. This parameter accepts scale_fill* object.
 Default: ggplot2::scale_fill_viridis_d(alpha = 0.5, option = "E")}
@@ -58,64 +38,25 @@ Default: ggplot2::scale_color_viridis_d(alpha = 0.5, option = "E")}
 \item{ggplot.theme}{(optional) A fully specified ggplot2::theme() object to cusomtize plot.}
 }
 \value{
-Tibble with fields preference score, density, cohort-name, group.
-                            group is for identifying if the cohort is target vs comparator.
+ggplot object. if fileName is provided, a ggsave will be used to save the object.
 }
 \description{
-Get the preference score distribution plot for data in OHDSI comparative effectiveness data model.
+Get the preference score distribution plot for data preferenceScore object.
 }
 \details{
-Get preference score distribution plot for data stored in OHDSI 
-comparative effectiveness data model. The output of this function  visualizes 
-the preference score distribution between target and comparators.
+This function creates the preference score distribution plot for data in 
+preferenceScore object. The preferenceScore object is created from OHDSI
+comparative effectiveness data model by function \code{getPreferenceScoreDistribution}. 
+The output of this function visualizes the preference score distribution 
+between target and comparators.
 
-If the comparative effectiveness results are stored in a
-relational database server, then please provide connection
-using DatabaseConnector::connect. If connection
-parameter is not null, the function will attempt to connect to
-relational database server, and ignore using R dataframe object.
-
-
-If the comparative effectiveness results are stored as a R dataframe object,
-please make sure connection is NULL (Default value). The function
-will expect data in R dataframe. This R dataframe object is expected to follow
-camelCase for both object names and variable names.
-
-The plots are customizable by using ggplot2 options. Use ggplot2.theme to set theme.
-Example how to create ggplot2Theme
-   ggplot2::theme_set(ggplot2::theme_minimal())
-   ggplot2::theme_update(panel.grid = ggplot2::element_blank(),
-                         legend.title = ggplot2::element_blank(),
-                         legend.position = 'top')
-   ggplot2Theme <- ggplot2::theme_get()
-   
-Similarly, plot colors and borders may be changed using ggplot2.scale_fill and 
-ggplot2::scale_color
+(Advance) The plot function has a default theme, but maybe overwritten by using ggplot2.theme
+object. Plot also has default colors and borders, but it maybe changed using ggplot2.scale_fill
+and ggplot2::scale_color. Advanced users may further take the ggplot object and modify it
+as needed.
 }
 \examples{
 \dontrun{
-
-#If your data is in database, provide connection.
-connection <- connect(createConnectionDetails(dbms = "postgresql",
-                                              user = "joe",
-                                              password = "secret",
-                                              server = "myserver")
-)
-If connection is provided, function will attempt to read data from database
-data in R-dataframe format will be ignored
-example1 <- plotPreferenceScore(connection = connection,
-                   databaseSchema = 'hcup.version2020',
-                   targetId = 100,
-                   comparatorId = 200,
-                   databaseId = 'HCUP data',
-                   analysisId = 2)
-If no connection is provided, then function will check for data in dataFrame
-example2 <- plotPreferenceScore(preferenceScoreDist = preferenceScoreDist,
-                   exposureOfInterest = exposureOfInterest,
-                   targetId = 100,
-                   comparatorId = 200,
-                   databaseId = 'HCUP data',
-                   analysisId = 2)
-}
-
+example1 <- plotPreferenceScore(preferenceScore = preferenceScore)
+} 
 }

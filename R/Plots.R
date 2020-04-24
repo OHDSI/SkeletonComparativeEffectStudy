@@ -25,143 +25,79 @@
   return(ggplot2::theme_get())
 }
 
-#' Get the preference score distribution plot for data in OHDSI comparative effectiveness data model.
+#' Get the preference score distribution plot for data preferenceScore object.
 #'
 #' @details
-#' Get preference score distribution plot for data stored in OHDSI 
-#' comparative effectiveness data model. The output of this function  visualizes 
-#' the preference score distribution between target and comparators.
-#'
-#' If the comparative effectiveness results are stored in a
-#' relational database server, then please provide connection
-#' using DatabaseConnector::connect. If connection
-#' parameter is not null, the function will attempt to connect to
-#' relational database server, and ignore using R dataframe object.
-#'
-#'
-#' If the comparative effectiveness results are stored as a R dataframe object,
-#' please make sure connection is NULL (Default value). The function
-#' will expect data in R dataframe. This R dataframe object is expected to follow
-#' camelCase for both object names and variable names.
+#' This function creates the preference score distribution plot for data in 
+#' preferenceScore object. The preferenceScore object is created from OHDSI
+#' comparative effectiveness data model by function \code{getPreferenceScoreDistribution}. 
+#' The output of this function visualizes the preference score distribution 
+#' between target and comparators.
 #' 
-#' The plots are customizable by using ggplot2 options. Use ggplot2.theme to set theme.
-#' Example how to create ggplot2Theme
-#'    ggplot2::theme_set(ggplot2::theme_minimal())
-#'    ggplot2::theme_update(panel.grid = ggplot2::element_blank(),
-#'                          legend.title = ggplot2::element_blank(),
-#'                          legend.position = 'top')
-#'    ggplot2Theme <- ggplot2::theme_get()
-#'    
-#' Similarly, plot colors and borders may be changed using ggplot2.scale_fill and 
-#' ggplot2::scale_color
+#' (Advance) The plot function has a default theme, but maybe overwritten by using ggplot2.theme
+#' object. Plot also has default colors and borders, but it maybe changed using ggplot2.scale_fill
+#' and ggplot2::scale_color. Advanced users may further take the ggplot object and modify it
+#' as needed.
 #'
-#' @template connection
-#' @template databaseSchema
-#' @template targetId
-#' @template comparatorId
-#' @template databaseId
-#' @template analysisId
-#' @param preferenceScoreDist  (optional) A R-dataFrame object with fields named in camelCase containing
-#'                             data from preference_score_dist table in comparative effectiveness data model.
-#' @param exposureOfInterest   (optional) A R-dataFrame object with fields named in camelCase containing
-#'                             data from exposure_of_interest table in comparative effectiveness data model.
+#' @param preferenceScore   A R-dataFrame preferenceScore object that was derived by 
+#'                          function \code{getPreferenceScoreDistribution}
+#' @param title             (optional) the main title for the plot. Default value: NULL (no title)
+#' @param xAxisLabel        (optional) Label for x-axis. Default value: "Preference score"
+#' @param yAxisLabel        (optional) Label for x-axis. Default value: "Density"
+#' @param fileName          (optional) Name of the file where the plot should be saved, for example 'plot.png'.
+#'                          See the function \code{ggsave} in the ggplot2 package for supported file
+#'                          formats.
 #' @template ggplot2.theme 
 #' @template ggplot2.scale_fill 
-#' @template ggplot2.scale_color       
-#' @return                     Tibble with fields preference score, density, cohort-name, group.
-#'                             group is for identifying if the cohort is target vs comparator.
+#' @template ggplot2.scale_color  
+#' @return                  ggplot object. if fileName is provided, a ggsave will be used to save the object.
 #' @examples
 #' \dontrun{
-#'
-#' #If your data is in database, provide connection.
-#' connection <- connect(createConnectionDetails(dbms = "postgresql",
-#'                                               user = "joe",
-#'                                               password = "secret",
-#'                                               server = "myserver")
-#' )
-#' If connection is provided, function will attempt to read data from database
-#' data in R-dataframe format will be ignored
-#' example1 <- plotPreferenceScore(connection = connection,
-#'                    databaseSchema = 'hcup.version2020',
-#'                    targetId = 100,
-#'                    comparatorId = 200,
-#'                    databaseId = 'HCUP data',
-#'                    analysisId = 2)
-#' If no connection is provided, then function will check for data in dataFrame
-#' example2 <- plotPreferenceScore(preferenceScoreDist = preferenceScoreDist,
-#'                    exposureOfInterest = exposureOfInterest,
-#'                    targetId = 100,
-#'                    comparatorId = 200,
-#'                    databaseId = 'HCUP data',
-#'                    analysisId = 2)
-#' }
-#' 
+#' example1 <- plotPreferenceScore(preferenceScore = preferenceScore)
+#' } 
 #' @export
-plotPreferenceScore <- function(connection = NULL,
-                                databaseSchema = NULL,
-                                preferenceScoreDist = NULL,
-                                exposureOfInterest = NULL,
-                                targetId,
-                                comparatorId,
-                                databaseId,
-                                analysisId,
-                                ggplot2.scale_fill = ggplot2::scale_fill_viridis_d(alpha = 0.5, option = "E"),
-                                ggplot2.scale_color = ggplot2::scale_color_viridis_d(alpha = 0.5, option = "E"),
-                                ggplot2.theme = NULL,
+plotPreferenceScore <- function(preferenceScore = NULL,
                                 xAxisLabel = "Preference score",
-                                yAxisLabel = "Density"
+                                yAxisLabel = "Density", 
+                                title = NULL,
+                                fileName = NULL,
+                                ggplot2.theme = NULL,
+                                ggplot2.scale_fill = ggplot2::scale_fill_viridis_d(alpha = 0.5, option = "D"),
+                                ggplot2.scale_color = ggplot2::scale_color_viridis_d(alpha = 0.5, option = "D")
 ) {
-  errorMessage <- checkmate::makeAssertCollection()
-  checkmate::assertInt(targetId, add = errorMessage)
-  checkmate::assertInt(comparatorId, add = errorMessage)
-  checkmate::assertInt(analysisId, add = errorMessage)
-  checkmate::assertScalar(databaseId, add = errorMessage)
-  checkmate::assertCharacter(databaseId, add = errorMessage)
   
-  if (!is.null(connection)) {
-    checkmate::assertCharacter(databaseSchema)
-    checkmate::reportAssertions(errorMessage)
-    
-  } else if (!is.null(preferenceScoreDist) &
-             !is.null(exposureOfInterest)) {
-    checkmate::assertDataFrame(preferenceScoreDist, add = errorMessage)
-    checkmate::assertDataFrame(exposureOfInterest, add = errorMessage)
-    checkmate::reportAssertions(errorMessage)
-  } else {
-    stop(
-      "No connection for an RDMS provided.
-         No R-data frame object preferenceScoreDist or exposureOfInterest provided"
-    )
+  if (is.null(preferenceScore)) {
+    stop("Must provide preferenceScore object.")
   }
-  
-  preferenceScore <- getPreferenceScoreDistribution(connection = connection,
-                                                    databaseSchema = databaseSchema,
-                                                    preferenceScoreDist = preferenceScoreDist,
-                                                    exposureOfInterest = exposureOfInterest,
-                                                    targetId = targetId,
-                                                    comparatorId = comparatorId,
-                                                    databaseId = databaseId,
-                                                    analysisId = analysisId) %>% 
+  plotData <- preferenceScore %>% 
     dplyr::rename(x = preferenceScore, y = density) %>% 
     dplyr::select(-exposureName)
-  # set ggplot2 theme for plotting
-  if (!is.null(ggplot2.theme)) {
-    ggplot2::theme_set(ggplot2.theme)
-  } else {
-    ggplot2::theme_set(.getDefaultGgplotTheme())
-  }
+  
   # create the plot
-  plot <- ggplot2::ggplot(preferenceScore,
+  plot <- ggplot2::ggplot(plotData,
                           ggplot2::aes(x = x, y = y, color = group, group = group, fill = group)) +
     ggplot2::geom_density(stat = "identity") + 
     ggplot2::scale_x_continuous(xAxisLabel, limits = c(0, 1)) +
     ggplot2::scale_y_continuous(yAxisLabel)
-  # apply optional color to plot
+  
+  # apply optional title
+  if (!is.null(title)) {
+    plot <- plot + ggplot2::ggtitle(title)
+  }
+  # apply optional theme
+  if (!is.null(ggplot2.theme)) {
+    ggplot2::theme_set(ggplot2.theme)
+  }
+  # apply optional color to plot body
   if (!is.null(ggplot2.scale_fill)) {
     plot <- plot + ggplot2.scale_fill
   }
+  # apply optional color to plot line
   if (!is.null(ggplot2.scale_color)) {
     plot <- plot + ggplot2.scale_color
+  }
+  if (!is.null(fileName)) {
+    ggplot2::ggsave(fileName, plot, width = 5, height = 3.5, dpi = 400)
   }
   return(plot)
 }
