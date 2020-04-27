@@ -4,38 +4,15 @@
 \alias{plotPreferenceScore}
 \title{Get the preference score distribution plot for data preferenceScore object.}
 \usage{
-plotPreferenceScore(
-  preferenceScore = NULL,
-  xAxisLabel = "Preference score",
-  yAxisLabel = "Density",
-  title = NULL,
-  fileName = NULL,
-  ggplot2.theme = NULL,
-  ggplot2.scale_fill = ggplot2::scale_fill_viridis_d(alpha = 0.5, option = "D"),
-  ggplot2.scale_color = ggplot2::scale_color_viridis_d(alpha = 0.5, option = "D")
-)
+plotPreferenceScore(preferenceScore = NULL, fileName = NULL)
 }
 \arguments{
 \item{preferenceScore}{A R-dataFrame preferenceScore object that was derived by 
 function \code{getPreferenceScoreDistribution}}
 
-\item{xAxisLabel}{(optional) Label for x-axis. Default value: "Preference score"}
-
-\item{yAxisLabel}{(optional) Label for x-axis. Default value: "Density"}
-
-\item{title}{(optional) the main title for the plot. Default value: NULL (no title)}
-
 \item{fileName}{(optional) Name of the file where the plot should be saved, for example 'plot.png'.
 See the function \code{ggsave} in the ggplot2 package for supported file
 formats.}
-
-\item{ggplot2.scale_fill}{(optional) See ggplot2::scale_manual. This parameter accepts scale_fill* object.
-Default: ggplot2::scale_fill_viridis_d(alpha = 0.5, option = "E")}
-
-\item{ggplot2.scale_color}{(optional) See ggplot2::scale_manual. This parameter accepts scale_color* object.
-Default: ggplot2::scale_color_viridis_d(alpha = 0.5, option = "E")}
-
-\item{ggplot.theme}{(optional) A fully specified ggplot2::theme() object to cusomtize plot.}
 }
 \value{
 ggplot object. if fileName is provided, a ggsave will be used to save the object.
@@ -50,10 +27,7 @@ comparative effectiveness data model by function \code{getPreferenceScoreDistrib
 The output of this function visualizes the preference score distribution 
 between target and comparators.
 
-(Advance) The plot function has a default theme, but maybe overwritten by using ggplot2.theme
-object. Plot also has default colors and borders, but it maybe changed using ggplot2.scale_fill
-and ggplot2::scale_color. Advanced users may further take the ggplot object and modify it
-as needed.
+(Advanced) The output is a ggplot object. It maybe modified to change color, title, label etc.
 }
 \examples{
 \dontrun{

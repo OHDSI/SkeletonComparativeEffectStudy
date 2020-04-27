@@ -34,22 +34,13 @@
 #' The output of this function visualizes the preference score distribution 
 #' between target and comparators.
 #' 
-#' (Advance) The plot function has a default theme, but maybe overwritten by using ggplot2.theme
-#' object. Plot also has default colors and borders, but it maybe changed using ggplot2.scale_fill
-#' and ggplot2::scale_color. Advanced users may further take the ggplot object and modify it
-#' as needed.
+#' (Advanced) The output is a ggplot object. It maybe modified to change color, title, label etc.
 #'
 #' @param preferenceScore   A R-dataFrame preferenceScore object that was derived by 
 #'                          function \code{getPreferenceScoreDistribution}
-#' @param title             (optional) the main title for the plot. Default value: NULL (no title)
-#' @param xAxisLabel        (optional) Label for x-axis. Default value: "Preference score"
-#' @param yAxisLabel        (optional) Label for x-axis. Default value: "Density"
 #' @param fileName          (optional) Name of the file where the plot should be saved, for example 'plot.png'.
 #'                          See the function \code{ggsave} in the ggplot2 package for supported file
 #'                          formats.
-#' @template ggplot2.theme 
-#' @template ggplot2.scale_fill 
-#' @template ggplot2.scale_color  
 #' @return                  ggplot object. if fileName is provided, a ggsave will be used to save the object.
 #' @examples
 #' \dontrun{
@@ -57,13 +48,7 @@
 #' } 
 #' @export
 plotPreferenceScore <- function(preferenceScore = NULL,
-                                xAxisLabel = "Preference score",
-                                yAxisLabel = "Density", 
-                                title = NULL,
-                                fileName = NULL,
-                                ggplot2.theme = NULL,
-                                ggplot2.scale_fill = ggplot2::scale_fill_viridis_d(alpha = 0.5, option = "D"),
-                                ggplot2.scale_color = ggplot2::scale_color_viridis_d(alpha = 0.5, option = "D")
+                                fileName = NULL
 ) {
   
   if (is.null(preferenceScore)) {
@@ -77,25 +62,14 @@ plotPreferenceScore <- function(preferenceScore = NULL,
   plot <- ggplot2::ggplot(plotData,
                           ggplot2::aes(x = x, y = y, color = group, group = group, fill = group)) +
     ggplot2::geom_density(stat = "identity") + 
-    ggplot2::scale_x_continuous(xAxisLabel, limits = c(0, 1)) +
-    ggplot2::scale_y_continuous(yAxisLabel)
+    ggplot2::scale_x_continuous("Preference score", limits = c(0, 1)) +
+    ggplot2::scale_y_continuous("Density")
   
-  # apply optional title
-  if (!is.null(title)) {
-    plot <- plot + ggplot2::ggtitle(title)
-  }
-  # apply optional theme
-  if (!is.null(ggplot2.theme)) {
-    ggplot2::theme_set(ggplot2.theme)
-  }
-  # apply optional color to plot body
-  if (!is.null(ggplot2.scale_fill)) {
-    plot <- plot + ggplot2.scale_fill
-  }
-  # apply optional color to plot line
-  if (!is.null(ggplot2.scale_color)) {
-    plot <- plot + ggplot2.scale_color
-  }
+  # apply theme and colors.
+  ggplot2::theme_set(.getDefaultGgplotTheme())
+  plot <- plot + ggplot2::scale_fill_viridis_d(alpha = 0.5, option = "D")
+  plot <- plot + ggplot2::scale_color_viridis_d(alpha = 0.5, option = "D")
+  
   if (!is.null(fileName)) {
     ggplot2::ggsave(fileName, plot, width = 5, height = 3.5, dpi = 400)
   }
