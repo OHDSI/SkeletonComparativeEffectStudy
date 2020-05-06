@@ -49,7 +49,7 @@ data model (e.g. 'Synpuf')}
 \item{analysisId}{An integer identifying the analysis_id field in cohort_method_analysis table
 of OHDSI comparative effectiveness data model}
 
-\item{interactionCovariateId}{(optoinal) An integer identifying the covariate in interactionCovariateId
+\item{interactionCovariateId}{(optional) An integer identifying the covariate in interactionCovariateId
 field of covariate_balance table of OHDSI comparative effectiveness data model}
 }
 \value{

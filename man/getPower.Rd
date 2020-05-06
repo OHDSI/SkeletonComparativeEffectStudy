@@ -51,11 +51,11 @@ data model (e.g. 'Synpuf')}
 of OHDSI comparative effectiveness data model}
 
 \item{alpha}{(optional) Default value = 0.05. Threshold for Type 1 error in hypothesis testing,
-i.e. rejection of a true null hypothesis (also known as a "false positive" 
+i.e. rejection of a true null hypothesis (also known as a "false positive"
 finding or conclusion)}
 
 \item{power}{(optional) Default value = 0.8. Threshold for Type 2 error in hypothesis testing,
-i.e. non-rejection of a false null hypothesis (also known as a "false negative" 
+i.e. non-rejection of a false null hypothesis (also known as a "false negative"
 finding or conclusion)}
 }
 \value{

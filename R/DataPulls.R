@@ -154,14 +154,14 @@
               and database_id = '@databaseId'
               and analysis_id = @analysisId;"
     sql <- SqlRender::render(
-        sql = sql,
-        databaseSchema = databaseSchema,
-        targetId = targetId,
-        comparatorId = comparatorId,
-        outcomeId = outcomeId,
-        databaseId = databaseId,
-        analysisId = analysisId
-      )
+      sql = sql,
+      databaseSchema = databaseSchema,
+      targetId = targetId,
+      comparatorId = comparatorId,
+      outcomeId = outcomeId,
+      databaseId = databaseId,
+      analysisId = analysisId
+    )
     sql <- SqlRender::translate(sql = sql,
                                 targetDialect = connection@dbms)
     result <-
@@ -218,7 +218,6 @@
                                  databaseId,
                                  analysisId,
                                  interactionCovariateId = NULL) {
-  
   if (!is.null(connection)) {
     interactionCovariateIdNull <- is.null(interactionCovariateId)
     sql <-   "SELECT *
@@ -230,23 +229,23 @@
               {@interactionCovariateIdNull} ? {and interaction_covariate_id IS NULL}:{and interaction_covariate_id = @interactionCovariateId}
               and analysis_id = @analysisId;"
     sql <- SqlRender::render(
-        sql = sql,
-        databaseSchema = databaseSchema,
-        targetId = targetId,
-        comparatorId = comparatorId,
-        outcomeId = outcomeId,
-        databaseId = databaseId,
-        analysisId = analysisId,
-        interactionCovariateId = interactionCovariateId,
-        interactionCovariateIdNull = interactionCovariateIdNull
-      )
+      sql = sql,
+      databaseSchema = databaseSchema,
+      targetId = targetId,
+      comparatorId = comparatorId,
+      outcomeId = outcomeId,
+      databaseId = databaseId,
+      analysisId = analysisId,
+      interactionCovariateId = interactionCovariateId,
+      interactionCovariateIdNull = interactionCovariateIdNull
+    )
     sql <- SqlRender::translate(sql = sql,
-                           targetDialect = connection@dbms)
+                                targetDialect = connection@dbms)
     result <- DatabaseConnector::querySql(
-        connection = connection,
-        sql = sql,
-        snakeCaseToCamelCase = TRUE
-      )
+      connection = connection,
+      sql = sql,
+      snakeCaseToCamelCase = TRUE
+    )
   } else if (!is.null(covariateBalance)) {
     result <- covariateBalance %>%
       dplyr::filter(
@@ -257,11 +256,11 @@
         analysisId %in% !!analysisId
       )
     if (is.null(interactionCovariateId)) {
-      result <- result %>% 
-                dplyr::filter(is.na(interactionCovariateId)) #data.frames cant have NULL
+      result <- result %>%
+        dplyr::filter(is.na(interactionCovariateId)) #data.frames cant have NULL
     } else {
-      result <- result %>% 
-                dplyr::filter(interactionCovariateId %in% !!interactionCovariateId)
+      result <- result %>%
+        dplyr::filter(interactionCovariateId %in% !!interactionCovariateId)
     }
   }
   return(result)
@@ -279,24 +278,22 @@
             WHERE database_id = '@databaseId'
             and analysis_id = @analysisId;"
     sql <- SqlRender::render(
-        sql = sql,
-        databaseId = databaseId,
-        analysisId = analysisId,
-        databaseSchema = databaseSchema
-      )
+      sql = sql,
+      databaseId = databaseId,
+      analysisId = analysisId,
+      databaseSchema = databaseSchema
+    )
     sql <- SqlRender::translate(sql = sql,
                                 targetDialect = connection@dbms)
     result <- DatabaseConnector::querySql(
-        connection = connection,
-        sql = sql,
-        snakeCaseToCamelCase = TRUE
-      )
+      connection = connection,
+      sql = sql,
+      snakeCaseToCamelCase = TRUE
+    )
   } else if (!is.null(covariate)) {
     result <- covariate %>%
-      dplyr::filter(
-        databaseId %in% !!databaseId,
-        analysisId %in% !!analysisId
-      )
+      dplyr::filter(databaseId %in% !!databaseId,
+                    analysisId %in% !!analysisId)
   }
   return(result)
 }
@@ -531,8 +528,8 @@ getFollowUpDistribution <- function(connection = NULL,
       purrr::map_at(names(.)[stringr::str_detect(string = names(.), pattern = ".*(?:(?!Id).).$")], #not ends with Id regex
                     scales::comma, big.mark = ",") %>%
       tidyr::as_tibble() %>% #map_at returns a list, not a dataframe.
-      dplyr::rename_all(~ stringr::str_replace(., type, "")) %>%
-      dplyr::rename_all(~ stringr::str_replace(., "Days", "")) %>%
+      dplyr::rename_all( ~ stringr::str_replace(., type, "")) %>%
+      dplyr::rename_all( ~ stringr::str_replace(., "Days", "")) %>%
       dplyr::mutate(group = type)
   }
   
@@ -638,22 +635,22 @@ getCohortMethodResult <- function(connection = NULL,
   }
   
   cohortMethodResult <- .getcohortMethodResult(
-      connection = connection,
-      databaseSchema = databaseSchema,
-      cohortMethodResult = cohortMethodResult,
-      targetId = targetId,
-      comparatorId = comparatorId,
-      outcomeId = outcomeId,
-      databaseId = databaseId,
-      analysisId = analysisId
-    )
+    connection = connection,
+    databaseSchema = databaseSchema,
+    cohortMethodResult = cohortMethodResult,
+    targetId = targetId,
+    comparatorId = comparatorId,
+    outcomeId = outcomeId,
+    databaseId = databaseId,
+    analysisId = analysisId
+  )
   
   cohortMethodAnalysis <- .getcohortMethodAnalysis(
-      connection = connection,
-      databaseSchema = databaseSchema,
-      cohortMethodAnalysis = cohortMethodAnalysis,
-      analysisId = analysisId
-    )
+    connection = connection,
+    databaseSchema = databaseSchema,
+    cohortMethodAnalysis = cohortMethodAnalysis,
+    analysisId = analysisId
+  )
   
   result <- cohortMethodResult %>%
     purrr::map_at(
@@ -701,16 +698,16 @@ getCohortMethodResult <- function(connection = NULL,
 #' @template analysisId
 #' @template outcomeId
 #' @param    alpha             (optional) Default value = 0.05. Threshold for Type 1 error in hypothesis testing,
-#'                             i.e. rejection of a true null hypothesis (also known as a "false positive" 
+#'                             i.e. rejection of a true null hypothesis (also known as a "false positive"
 #'                             finding or conclusion)
 #' @param    power             (optional) Default value = 0.8. Threshold for Type 2 error in hypothesis testing,
-#'                             i.e. non-rejection of a false null hypothesis (also known as a "false negative" 
+#'                             i.e. non-rejection of a false null hypothesis (also known as a "false negative"
 #'                             finding or conclusion)
 #' @param cohortMethodResult   (optional) A R-dataFrame object with fields named in camelCase containing
 #'                             data from cohort_method_result table in comparative effectiveness data model.
 #' @param cohortMethodAnalysis (optional) A R-dataFrame object with fields named in camelCase containing
 #'                             data from cohort_method_analysis table in comparative effectiveness data model.
-#' @return                     Tibble. 
+#' @return                     Tibble.
 #'
 #' @examples
 #' \dontrun{
@@ -773,22 +770,22 @@ getPower <- function(connection = NULL,
   }
   
   cohortMethodResult <- .getcohortMethodResult(
-      connection = connection,
-      databaseSchema = databaseSchema,
-      cohortMethodResult = cohortMethodResult,
-      targetId = targetId,
-      comparatorId = comparatorId,
-      outcomeId = outcomeId,
-      databaseId = databaseId,
-      analysisId = analysisId
-    )
+    connection = connection,
+    databaseSchema = databaseSchema,
+    cohortMethodResult = cohortMethodResult,
+    targetId = targetId,
+    comparatorId = comparatorId,
+    outcomeId = outcomeId,
+    databaseId = databaseId,
+    analysisId = analysisId
+  )
   
   cohortMethodAnalysis <- .getcohortMethodAnalysis(
-      connection = connection,
-      databaseSchema = databaseSchema,
-      cohortMethodAnalysis = cohortMethodAnalysis,
-      analysisId = analysisId
-    ) %>%
+    connection = connection,
+    databaseSchema = databaseSchema,
+    cohortMethodAnalysis = cohortMethodAnalysis,
+    analysisId = analysisId
+  ) %>%
     dplyr::select(-definition)
   
   z1MinAlpha <- qnorm(1 - alpha / 2)
@@ -804,11 +801,12 @@ getPower <- function(connection = NULL,
       comparatorYears = comparatorDays / 365.25
     ) %>%
     dplyr::mutate(
-      mdrr = exp(sqrt((zBeta + z1MinAlpha) ^ 2 / (totalEvents * pA * pB))),
+      mdrr = exp(sqrt((zBeta + z1MinAlpha) ^ 2 / (totalEvents * pA * pB)
+      )),
       targetIr = 1000 * (targetOutcomes / targetYears),
       comparatorIr = 1000 * (comparatorOutcomes / comparatorYears)
     ) %>%
-    purrr::map_at(c('targetIr','comparatorIr','mdrr'),
+    purrr::map_at(c('targetIr', 'comparatorIr', 'mdrr'),
                   sprintf,
                   fmt = "%.2f") %>%
     purrr::map_at(
@@ -883,7 +881,7 @@ getPower <- function(connection = NULL,
 #' @template analysisId
 #' @template outcomeId
 #' @template databaseSchema
-#' @param interactionCovariateId (optoinal) An integer identifying the covariate in interactionCovariateId
+#' @param interactionCovariateId (optional) An integer identifying the covariate in interactionCovariateId
 #'                                field of covariate_balance table of OHDSI comparative effectiveness data model
 #' @param covariateBalance     (optional) A R-dataFrame object with fields named in camelCase containing
 #'                             data from covariate_balance table in comparative effectiveness data model.
@@ -970,18 +968,379 @@ getCovariateBalance <- function(connection = NULL,
     analysisId = analysisId
   ) %>% dplyr::tibble()
   
-  balance <- covariateBalance %>% 
-    dplyr::left_join(y = covariate, by = c("databaseId" = "databaseId", 
-                                           "analysisId" = "analysisId", 
-                                           "covariateId" = "covariateId")
-    ) %>% 
-    dplyr::rename(beforeMatchingMeanTreated = targetMeanBefore,
-                  beforeMatchingMeanComparator = comparatorMeanBefore,
-                  beforeMatchingStdDiff = stdDiffBefore,
-                  afterMatchingMeanTreated = targetMeanAfter,
-                  afterMatchingMeanComparator = comparatorMeanAfter,
-                  afterMatchingStdDiff = stdDiffAfter) %>% 
-    dplyr::mutate(absBeforeMatchingStdDiff = abs(beforeMatchingStdDiff),
-                  absAfterMatchingStdDiff = abs(afterMatchingStdDiff))
+  balance <- covariateBalance %>%
+    dplyr::left_join(
+      y = covariate,
+      by = c(
+        "databaseId" = "databaseId",
+        "analysisId" = "analysisId",
+        "covariateId" = "covariateId"
+      )
+    ) %>%
+    dplyr::rename(
+      beforeMatchingMeanTreated = targetMeanBefore,
+      beforeMatchingMeanComparator = comparatorMeanBefore,
+      beforeMatchingStdDiff = stdDiffBefore,
+      afterMatchingMeanTreated = targetMeanAfter,
+      afterMatchingMeanComparator = comparatorMeanAfter,
+      afterMatchingStdDiff = stdDiffAfter
+    ) %>%
+    dplyr::mutate(
+      absBeforeMatchingStdDiff = abs(beforeMatchingStdDiff),
+      absAfterMatchingStdDiff = abs(afterMatchingStdDiff)
+    )
   return(balance)
+}
+
+
+
+#' Get metadata on models natural keys
+#'
+#' @details
+#' Get the metadata on natural keys used in the comparative effectiveness data model tables
+#' cohort_method_analysis, covariate_analysis, exposure_of_interest, outcome_of_interest,
+#' negative_control_outcome, positive_control_outcome, database.
+#'
+#' @template connection
+#' @template databaseSchema
+#' @param cohortMethodAnalysis     (optional) A R-dataFrame object with fields named in camelCase containing
+#'                                 data from cohort_method_analysis table in comparative effectiveness data model.
+#' @param covariateAnalysis        (optional) A R-dataFrame object with fields named in camelCase containing
+#'                                 data from covariate_analysis table in comparative effectiveness data model.
+#' @param exposureOfInterest       (optional) A R-dataFrame object with fields named in camelCase containing
+#'                                 data from exposure_of_interest table in comparative effectiveness data model.
+#' @param outcomeOfInterest        (optional) A R-dataFrame object with fields named in camelCase containing
+#'                                 data from outcome_of_interest table in comparative effectiveness data model.
+#' @param negativeControlOutcome   (optional) A R-dataFrame object with fields named in camelCase containing
+#'                                 data from negative_control_outcome table in comparative effectiveness data model.
+#' @param positiveControlOutcome   (optional) A R-dataFrame object with fields named in camelCase containing
+#'                                 data from positive_control_outcome table in comparative effectiveness data model.
+#' @param database                 (optional) A R-dataFrame object with fields named in camelCase containing
+#'                                 data from database table in comparative effectiveness data model.
+#' @return                         Tibble data frame with fields table, key, keyId, keyName, keyDescription.
+#' @examples
+#' \dontrun{
+#'
+#' #If your data is in database, provide connection.
+#' connection <- connect(createConnectionDetails(dbms = "postgresql",
+#'                                              user = "joe",
+#'                                              password = "secret",
+#'                                              server = "myserver")
+#'                                              )
+#' #If connection is provided, function will attempt to read data from database
+#' # data in R-dataframe format will be ignored
+#' example1 <- getMetadataForNaturalKeys(connection = NULL)
+#' #If no connection is provided, then function will check for data in dataFrame
+#' example2 <- getMetadataForNaturalKeys(connection = NULL,
+#'                                       cohortMethodAnalysis = cohortMethodAnalysis,
+#'                                       covariateAnalysis = covariateAnalysis,
+#'                                       exposureOfInterest = exposureOfInterest)
+#' }
+#' @export
+#'
+
+getMetadataForNaturalKeys <- function(connection = NULL,
+                                      databaseSchema = NULL,
+                                      cohortMethodAnalysis = NULL,
+                                      covariateAnalysis = NULL,
+                                      exposureOfInterest = NULL,
+                                      outcomeOfInterest = NULL,
+                                      negativeControlOutcome = NULL,
+                                      positiveControlOutcome = NULL,
+                                      database = NULL) {
+  errorMessage <- checkmate::makeAssertCollection()
+  
+  output <- list()
+  if (is.null(connection)) {
+    if (!is.null(cohortMethodAnalysis)) {
+      checkmate::assertDataFrame(
+        cohortMethodAnalysis,
+        any.missing = FALSE,
+        min.rows = 1,
+        col.names = c("analysisId", "description")
+      )
+      output$cohortMethodAnlaysis <-
+        .getCohortMethodAnalysisKeys(cohortMethodAnalysis =
+                                       cohortMethodAnalysis)
+    }
+    if (!is.null(covariateAnalysis)) {
+      checkmate::assertDataFrame(
+        covariateAnalysis,
+        any.missing = FALSE,
+        min.rows = 1,
+        col.names = c("covariateAnalysisId", "covariateAnalysisName")
+      )
+output$covariateAnalysis <-
+  .getCovariateAnalysisKeys(covariateAnalysis =
+                              covariateAnalysis)
+    }
+    if (!is.null(exposureOfInterest)) {
+      checkmate::assertDataFrame(
+        exposureOfInterest,
+        any.missing = FALSE,
+        min.rows = 1,
+        col.names = c("exposureId", "exposureName")
+      )
+output$exposureOfInterest <-
+  .getExposureOfInterestKeys(exposureOfInterest =
+                               exposureOfInterest)
+    }
+    if (!is.null(outcomeOfInterest)) {
+      checkmate::assertDataFrame(
+        outcomeOfInterest,
+        any.missing = FALSE,
+        min.rows = 1,
+        col.names = c("outcomeId", "outcomeName")
+      )
+output$outcomeOfInterest <-
+  .getOutcomeOfInterestKeys(outcomeOfInterest =
+                              outcomeOfInterest)
+    }
+    if (!is.null(negativeControlOutcome)) {
+      checkmate::assertDataFrame(
+        negativeControlOutcome,
+        any.missing = FALSE,
+        min.rows = 1,
+        col.names = c("outcomeId", "outcomeName")
+      )
+output$negativeControlOutcome <-
+  .getNegativeControlOutcomeKeys(negativeControlOutcome =
+                                   negativeControlOutcome)
+    }
+    if (!is.null(positiveControlOutcome)) {
+      checkmate::assertDataFrame(
+        positiveControlOutcome,
+        any.missing = FALSE,
+        min.rows = 1,
+        col.names = c("outcomeId", "outcomeName")
+      )
+output$positiveControlOutcome <-
+  .getPositiveControlOutcomeKeys(positiveControlOutcome =
+                                   positiveControlOutcome)
+    }
+    if (!is.null(database)) {
+      checkmate::assertDataFrame(
+        database,
+        any.missing = FALSE,
+        min.rows = 1,
+        col.names = c("outcomeId", "outcomeName")
+      )
+output$databaseSchema <- .getDatabaseKeys(database =
+                                            database)
+    }
+  } else if (!is.null(connection)) {
+    checkmate::assertCharacter(databaseSchema)
+    checkmate::reportAssertions(errorMessage)
+    output$cohortMethodAnlaysis <-
+      .getCohortMethodAnalysisKeys(connection = connection,
+                                   databaseSchema = databaseSchema)
+    output$covariateAnalysis <-
+      .getCovariateAnalysisKeys(connection = connection,
+                                databaseSchema = databaseSchema)
+    output$exposureOfInterest <-
+      .getExposureOfInterestKeys(connection = connection,
+                                 databaseSchema = databaseSchema)
+    output$outcomeOfInterest <-
+      .getOutcomeOfInterestKeys(connection = connection,
+                                databaseSchema = databaseSchema)
+    output$negativeControlOutcome <-
+      .getNegativeControlOutcomeKeys(connection = connection,
+                                     databaseSchema = databaseSchema)
+    output$positiveControlOutcome <-
+      .getPositiveControlOutcomeKeys(connection = connection,
+                                     databaseSchema = databaseSchema)
+    output$database <- .getDatabaseKeys(connection = connection,
+                                        databaseSchema = databaseSchema)
+  } else {
+    stop(
+      "No connection for an RDMS provided.
+         No R-data frame object cohortMethodAnalysis, covariateAnalysis, exposureOfInterest,
+         outcomeOfInterest, negativeControlOutcome or positiveControlOutcome provided"
+    )
+  }
+  return(output)
+}
+
+
+
+.querySqlMetaData <- function(sql, databaseSchema, connection) {
+  sql <- SqlRender::render(sql = sql,
+                           databaseSchema = databaseSchema)
+  sql <-  SqlRender::translate(sql = sql,
+                               targetDialect = connection@dbms)
+  result <- DatabaseConnector::querySql(
+    connection = connection,
+    sql = sql,
+    snakeCaseToCamelCase = TRUE
+  )
+  return(result)
+}
+
+
+
+.getCohortMethodAnalysisKeys <- function(connection = NULL,
+                                         databaseSchema = NULL,
+                                         cohortMethodAnalysis) {
+  if (!is.null(connection)) {
+    if (DatabaseConnector::dbExistsTable(conn = connection,
+                                         name = 'cohort_method_analysis',
+                                         databaseSchema = databaseSchema)) {
+      sql <-   "SELECT distinct analysis_id,
+                          description
+                          FROM  @databaseSchema.cohort_method_analysis;"
+      result <- .querySqlMetaData(sql, databaseSchema, connection)
+    } else {
+      result <- tidyr::tibble()
+    }
+  } else {
+    result <- cohortMethodAnalysis %>%
+      dplyr::select(analysisId, description) %>%
+      dplyr::distinct()
+  }
+  return(result)
+}
+
+
+
+.getCovariateAnalysisKeys <- function(connection = NULL,
+                                      databaseSchema = NULL,
+                                      covariateAnalysis) {
+  if (!is.null(connection)) {
+    if (DatabaseConnector::dbExistsTable(conn = connection,
+                                         name = 'covariate_analysis',
+                                         databaseSchema = databaseSchema)) {
+      sql <-   "SELECT distinct covariate_analysis_id,
+                      covariate_analysis_name
+                      FROM  @databaseSchema.covariate_analysis;"
+      result <- .querySqlMetaData(sql, databaseSchema, connection)
+    } else {
+      result <- tidyr::tibble()
+    }
+  } else {
+    result <- covariateAnalysis %>%
+      dplyr::select(covariateAnalysisId, covariateAnalysisName) %>%
+      dplyr::distinct()
+  }
+  return(result)
+}
+
+
+
+.getExposureOfInterestKeys <- function(connection = NULL,
+                                       databaseSchema = NULL,
+                                       exposureOfInterest) {
+  if (!is.null(connection)) {
+    if (DatabaseConnector::dbExistsTable(conn = connection,
+                                         name = 'exposure_of_interest',
+                                         databaseSchema = databaseSchema)) {
+      sql <-   "SELECT distinct exposure_id,
+                      exposure_name
+                      FROM  @databaseSchema.exposure_of_interest;"
+      result <- .querySqlMetaData(sql, databaseSchema, connection)
+    } else {
+      result <- tidyr::tibble()
+    }
+  } else {
+    result <- exposureOfInterest %>%
+      dplyr::select(exposureId, exposureName) %>%
+      dplyr::distinct()
+  }
+  return(result)
+}
+
+
+
+.getOutcomeOfInterestKeys <- function(connection = NULL,
+                                      databaseSchema = NULL,
+                                      outcomeOfInterest) {
+  if (!is.null(connection)) {
+    if (DatabaseConnector::dbExistsTable(conn = connection,
+                                         name = 'outcome_of_interest',
+                                         databaseSchema = databaseSchema)) {
+      sql <-   "SELECT distinct outcome_id,
+                      outcome_name
+                      FROM  @databaseSchema.outcome_of_interest;"
+      result <- .querySqlMetaData(sql, databaseSchema, connection)
+    } else {
+      result <- tidyr::tibble()
+    }
+  } else {
+    result <- outcomeOfInterest %>%
+      dplyr::select(outcomeId, outcomeName) %>%
+      dplyr::distinct()
+  }
+  return(result)
+}
+
+
+
+.getNegativeControlOutcomeKeys <- function(connection = NULL,
+                                           databaseSchema = NULL,
+                                           negativeControlOutcome) {
+  if (!is.null(connection)) {
+    if (DatabaseConnector::dbExistsTable(conn = connection,
+                                         name = 'negative_control_outcome',
+                                         databaseSchema = databaseSchema)) {
+      sql <-   "SELECT distinct outcome_id,
+                      outcome_name
+                      FROM  @databaseSchema.negative_control_outcome;"
+      result <- .querySqlMetaData(sql, databaseSchema, connection)
+    } else {
+      result <- tidyr::tibble()
+    }
+  } else {
+    result <- negativeControlOutcome %>%
+      dplyr::select(outcomeId, outcomeName) %>%
+      dplyr::distinct()
+  }
+  return(result)
+}
+
+
+
+.getPositiveControlOutcomeKeys <- function(connection = NULL,
+                                           databaseSchema = NULL,
+                                           positiveControlOutcome) {
+  if (!is.null(connection)) {
+    if (DatabaseConnector::dbExistsTable(conn = connection,
+                                         name = 'positive_control_outcome',
+                                         databaseSchema = databaseSchema)) {
+      sql <-   "SELECT distinct outcome_id,
+                      outcome_name
+                      FROM  @databaseSchema.positive_control_outcome;"
+      result <- .querySqlMetaData(sql, databaseSchema, connection)
+    } else {
+      result <- tidyr::tibble()
+    }
+  } else {
+    result <- positiveControlOutcome %>%
+      dplyr::select(outcomeId, outcomeName) %>%
+      dplyr::distinct()
+  }
+  return(result)
+}
+
+
+
+.getDatabaseKeys <- function(connection = NULL,
+                             databaseSchema = NULL,
+                             database) {
+  if (!is.null(connection)) {
+    if (DatabaseConnector::dbExistsTable(conn = connection,
+                                         name = 'database',
+                                         databaseSchema = databaseSchema)) {
+      sql <-   "SELECT distinct database_id,
+                      database_name,
+                      description
+                      FROM  @databaseSchema.database;"
+      result <- .querySqlMetaData(sql, databaseSchema, connection)
+    } else {
+      result <- tidyr::tibble()
+    }
+  } else {
+    result <- database %>%
+      dplyr::select(databaseId, databaseName, description) %>%
+      dplyr::distinct()
+  }
+  return(result)
 }
