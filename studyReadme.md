@@ -20,13 +20,13 @@ How to run
 	```r
 	install.packages("devtools")
 	library(devtools)
-	install_github("ohdsi/ParallelLogger", ref = "v1.1.1")
-	install_github("ohdsi/SqlRender", ref = "v1.6.3")
-	install_github("ohdsi/DatabaseConnector", ref = "v2.4.1")
-	install_github("ohdsi/OhdsiSharing", ref = "v0.1.3")
-	install_github("ohdsi/FeatureExtraction", ref = "v2.2.5")
-	install_github("ohdsi/CohortMethod", ref = "v3.1.0")
-	install_github("ohdsi/EmpiricalCalibration", ref = "v2.0.0")
+	install_github("ohdsi/ParallelLogger", ref = "v1.2.0")
+	install_github("ohdsi/SqlRender", ref = "v1.6.6")
+	install_github("ohdsi/DatabaseConnector", ref = "v2.4.2")
+	install_github("ohdsi/OhdsiSharing", ref = "v0.2.1")
+	install_github("ohdsi/FeatureExtraction", ref = "v3.0.0")
+	install_github("ohdsi/CohortMethod", ref = "v4.0.0")
+	install_github("ohdsi/EmpiricalCalibration", ref = "v2.0.2")
 	install_github("ohdsi/MethodEvaluation", ref = "v1.1.0")
 	```
 
@@ -49,8 +49,8 @@ How to run
 	```r
 	library(SkeletonComparativeEffectStudy)
 	
-	# Optional: specify where the temporary files (used by the ff package) will be created:
-	options(fftempdir = "c:/FFtemp")
+  # Optional: specify where the temporary files (used by the Andromeda package) will be created:
+  options(andromedaTempFolder = "c:/andromedaTemp")
 	
 	# Maximum number of cores to be used:
 	maxCores <- parallel::detectCores()
@@ -95,23 +95,22 @@ How to run
             createCohorts = TRUE,
             synthesizePositiveControls = TRUE,
             runAnalyses = TRUE,
-            runDiagnostics = TRUE,
             packageResults = TRUE,
             maxCores = maxCores)
 	```
 
-4. Upload the file ```export/Results<DatabaseId>.zip``` in the output folder to the study coordinator:
+4. Upload the file ```export/Results_<DatabaseId>.zip``` in the output folder to the study coordinator:
 
 	```r
-	submitResults("export/Results<DatabaseId>.zip", key = "<key>", secret = "<secret>")
+	uploadResults(outputFolder, privateKeyFileName = "<file>", userName = "<name>")
 	```
 	
-	Where ```key``` and ```secret``` are the credentials provided to you personally by the study coordinator.
+	Where ```<file>``` and ```<name<``` are the credentials provided to you personally by the study coordinator.
 		
 5. To view the results, use the Shiny app:
 
 	```r
-	prepareForEvidenceExplorer("Result<databaseId>.zip", "/shinyData")
+	prepareForEvidenceExplorer("Result_<databaseId>.zip", "/shinyData")
 	launchEvidenceExplorer("/shinyData", blind = TRUE)
 	```
   

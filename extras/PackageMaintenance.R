@@ -1,4 +1,4 @@
-# Copyright 2019 Observational Health Data Sciences and Informatics
+# Copyright 2020 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 #
@@ -21,7 +21,7 @@ OhdsiRTools::updateCopyrightYearFolder()
 devtools::spell_check()
 
 # Create manual -----------------------------------------------------------
-shell("rm extras/SkeletonComparativeEffectStudy.pdf")
+unlink("extras/SkeletonComparativeEffectStudy.pdf")
 shell("R CMD Rd2pdf ./ --output=extras/SkeletonComparativeEffectStudy.pdf")
 
 # Create vignettes ---------------------------------------------------------
@@ -38,12 +38,12 @@ rmarkdown::render("vignettes/DataModel.Rmd",
                                           number_sections = TRUE))
 
 # Insert cohort definitions from ATLAS into package -----------------------
-OhdsiRTools::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv",
-                                                baseUrl = Sys.getenv("baseUrl"),
-                                                insertTableSql = TRUE,
-                                                insertCohortCreationR = TRUE,
-                                                generateStats = FALSE,
-                                                packageName = "SkeletonComparativeEffectStudy")
+ROhdsiWebApi::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv",
+                                                 baseUrl = Sys.getenv("baseUrl"),
+                                                 insertTableSql = TRUE,
+                                                 insertCohortCreationR = TRUE,
+                                                 generateStats = FALSE,
+                                                 packageName = "SkeletonComparativeEffectStudy")
 
 # Create analysis details -------------------------------------------------
 source("extras/CreateStudyAnalysisDetails.R")

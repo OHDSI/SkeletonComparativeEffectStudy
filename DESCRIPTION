@@ -15,11 +15,14 @@ Imports:
     FeatureExtraction (>= 2.2.5),
     CohortMethod (>= 3.0.1),
     ggplot2,
-    ff,
-    ffbase,
+    Andromeda,
+    dplyr,
+    tibble,
+    readr,
+    rlang,
     MethodEvaluation (>= 0.3.1),
-    OhdsiSharing (>= 0.1.3),
-	ParallelLogger (>= 1.1.1),
+    OhdsiSharing (>= 0.2.1),
+	ParallelLogger (>= 1.2.0),
 	survival,
 	plyr,
 	readr
@@ -32,4 +35,4 @@ Suggests:
 License: Apache License 2.0
 VignetteBuilder: knitr
 LazyData: TRUE
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
