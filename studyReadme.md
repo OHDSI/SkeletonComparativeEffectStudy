@@ -11,18 +11,18 @@ Requirements
 - [Java](http://java.com)
 - 25 GB of free disk space
 
-See [these instructions](https://ohdsi.github.io/MethodsLibrary/rSetup.html) on how to set up the R environment on Windows.
-
 How to run
 ==========
-1. In `R`, use the following code to install the dependencies:
+1. Follow [these instructions](https://ohdsi.github.io/Hades/rSetup.html) for seting up your R environment, including RTools and Java. 
+
+2. In `R`, use the following code to install the dependencies:
 
 	```r
-	install.packages("devtools")
-	library(devtools)
-	install_github("ohdsi/ParallelLogger", ref = "v1.2.0")
+	install.packages("remotes")
+	library(remotes)
+	install_github("ohdsi/ParallelLogger", ref = "v2.0.0")
 	install_github("ohdsi/SqlRender", ref = "v1.6.6")
-	install_github("ohdsi/DatabaseConnector", ref = "v2.4.2")
+	install_github("ohdsi/DatabaseConnector", ref = "v3.0.0")
 	install_github("ohdsi/OhdsiSharing", ref = "v0.2.1")
 	install_github("ohdsi/FeatureExtraction", ref = "v3.0.0")
 	install_github("ohdsi/CohortMethod", ref = "v4.0.0")
@@ -30,15 +30,7 @@ How to run
 	install_github("ohdsi/MethodEvaluation", ref = "v1.1.0")
 	```
 
-	If you experience problems on Windows where rJava can't find Java, one solution may be to add `args = "--no-multiarch"` to each `install_github` call, for example:
-	
-	```r
-	install_github("ohdsi/SqlRender", args = "--no-multiarch")
-	```
-	
-	Alternatively, ensure that you have installed only the 64-bit versions of R and Java, as described in [the Book of OHDSI](https://ohdsi.github.io/TheBookOfOhdsi/OhdsiAnalyticsTools.html#installR)
-	
-2. In `R`, use the following `devtools` command to install the SkeletonComparativeEffectStudy package:
+3. In `R`, use the following `devtools` command to install the SkeletonComparativeEffectStudy package:
 
 	```r
 	install() # Note: it is ok to delete inst/doc
