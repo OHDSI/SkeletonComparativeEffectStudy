@@ -496,7 +496,7 @@ exportMainResults <- function(outputFolder,
                               loadInteractionsFromOutcomeModel,
                               .progress = "text")
   interactions <- bind_rows(interactions)
-  if (!is.null(interactions)) {
+  if (nrow(interactions) > 0) {
     ParallelLogger::logInfo("  Performing empirical calibration on interaction effects")
     allControls <- getAllControls(outputFolder)
     negativeControls <- allControls[allControls$targetEffectSize == 1, ]
