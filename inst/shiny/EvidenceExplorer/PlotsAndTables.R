@@ -425,7 +425,7 @@ plotCovariateBalanceScatterPlot <- function(balance, beforeLabel = "Before strat
   return(plot)
 }
 
-plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName) {
+plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName, ci = F) {
   data <- rbind(data.frame(time = kaplanMeier$time,
                            s = kaplanMeier$targetSurvival,
                            lower = kaplanMeier$targetSurvivalLb,
@@ -447,8 +447,9 @@ plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName) {
                                              color = strata,
                                              fill = strata,
                                              ymin = lower,
-                                             ymax = upper)) +
-          ggplot2::geom_ribbon(color = rgb(0, 0, 0, alpha = 0)) +
+                                             ymax = upper)) + 
+          ggplot2::theme_classic() +
+          #ggplot2::geom_ribbon(color = rgb(0, 0, 0, alpha = 0)) +
           ggplot2::geom_step(size = 1) +
           ggplot2::scale_color_manual(values = c(rgb(0.8, 0, 0, alpha = 0.8),
                                                  rgb(0, 0, 0.8, alpha = 0.8))) +
@@ -461,6 +462,10 @@ plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName) {
                          legend.key.size = ggplot2::unit(1, "lines"),
                          plot.title = ggplot2::element_text(hjust = 0.5)) +
           ggplot2::theme(axis.title.y = ggplot2::element_text(vjust = -10))
+  
+  if (ci){
+    plot <- plot + ggplot2::geom_ribbon(color = rgb(0, 0, 0, alpha = 0))
+  }
 
   targetAtRisk <- kaplanMeier$targetAtRisk[!is.na(kaplanMeier$targetAtRisk)]
   comparatorAtRisk <- kaplanMeier$comparatorAtRisk[!is.na(kaplanMeier$comparatorAtRisk)]

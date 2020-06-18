@@ -84,9 +84,18 @@ shinyUI(
                                                   tabPanel("Kaplan-Meier",
                                                            plotOutput("kaplanMeierPlot", height = 550),
                                                            uiOutput("kaplanMeierPlotPlotCaption"),
+                                                           checkboxInput("ci_km", "Show 95% CI", value = F),
+                                                           fluidRow(
+                                                             column(6, uiOutput("x_km")),
+                                                             column(6, sliderInput("ymin_km", "Y axis start", min = 0, max = 1, value = 0.7, step = 0.05))
+                                                           ),
+                                                           fluidRow(
+                                                             column(6, sliderInput("width_km","Plot width", min = 5, max = 20, value = 10)),
+                                                             column(6, sliderInput("height_km","Plot height", min = 2, max = 15, value = 5))
+                                                           ),
                                                            div(style = "display: inline-block;vertical-align:top;",
                                                                downloadButton("downloadKaplanMeierPlotPng", label = "Download plot as PNG"),
-                                                               downloadButton("downloadKaplanMeierPlotPdf", label = "Download plot as PDF")
+                                                               downloadButton("downloadKaplanMeierPlotEmf", label = "Download plot as EMF")
                                                            )),
                                                   tabPanel("Subgroups",
                                                            uiOutput("subgroupTableCaption"),

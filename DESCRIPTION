@@ -25,7 +25,8 @@ Imports:
 	ParallelLogger (>= 2.0.0),
 	survival,
 	plyr,
-	readr
+	readr,
+	devEMF
 Suggests:
     knitr,
     rmarkdown,

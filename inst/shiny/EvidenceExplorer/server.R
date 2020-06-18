@@ -489,6 +489,25 @@ shinyServer(function(input, output, session) {
                                                      ggplot2::ggsave(file = file, plot = systematicErrorPlot(), width = 12, height = 5.5)
                                                    })
 
+  output$x_km <- renderUI({
+    row <- selectedRow()
+    if (is.null(row)) {
+      return(NULL)
+    } else {
+      targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
+      comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
+      outcomeId <- outcomeOfInterest$outcomeId[outcomeOfInterest$outcomeName == input$outcome]
+      km <- getKaplanMeier(connection = connection,
+                           targetId = targetId,
+                           comparatorId = comparatorId,
+                           outcomeId = outcomeId,
+                           databaseId = row$databaseId,
+                           analysisId = row$analysisId)
+      
+      sliderInput("xmax_km", "X axis end", min = 10, max = max(km$time), value = max(km$time), step = 5)
+    }
+  })
+  
   kaplanMeierPlot <- reactive({
     row <- selectedRow()
     if (is.null(row)) {
@@ -503,9 +522,9 @@ shinyServer(function(input, output, session) {
                                    outcomeId = outcomeId,
                                    databaseId = row$databaseId,
                                    analysisId = row$analysisId)
-      plot <- plotKaplanMeier(kaplanMeier = km,
+      plot <- plotKaplanMeier(kaplanMeier = subset(km, time <= input$xmax_km),
                               targetName = input$target,
-                              comparatorName = input$comparator)
+                              comparatorName = input$comparator, ymin = input$ymin_km, ci = input$ci_km)
       return(plot)
     }
   })
@@ -517,14 +536,16 @@ shinyServer(function(input, output, session) {
   output$downloadKaplanMeierPlotPng <- downloadHandler(filename = "KaplanMeier.png", 
                                                    contentType = "image/png", 
                                                    content = function(file) {
-                                                     ggplot2::ggsave(file, plot = kaplanMeierPlot(), width = 7, height = 5, dpi = 400)
+                                                     ggplot2::ggsave(file, plot = kaplanMeierPlot(), width = input$width_km, height = input$height_km, dpi = 600)
                                                    })
   
-  output$downloadKaplanMeierPlotPdf <- downloadHandler(filename = "KaplanMeier.pdf", 
-                                                   contentType = "application/pdf", 
-                                                   content = function(file) {
-                                                     ggplot2::ggsave(file = file, plot = kaplanMeierPlot(), width = 7, height = 5)
-                                                   })
+  output$downloadKaplanMeierPlotEmf <- downloadHandler(filename = "KaplanMeier.emf", 
+                                                       contentType = "application/emf", 
+                                                       content = function(file) {
+                                                         devEMF::emf(file, width = input$width_km, height = input$height_km, emfPlus = T, coordDPI = 600)
+                                                         plot(kaplanMeierPlot())
+                                                         dev.off()
+                                                       })
   
   output$kaplanMeierPlotPlotCaption <- renderUI({
     row <- selectedRow()
