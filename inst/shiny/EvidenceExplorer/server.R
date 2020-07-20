@@ -504,7 +504,7 @@ shinyServer(function(input, output, session) {
                            databaseId = row$databaseId,
                            analysisId = row$analysisId)
       
-      sliderInput("xmax_km", "X axis end", min = 10, max = max(km$time), value = max(km$time), step = 5)
+      sliderInput("xmax_km", "X axis range", min = 0, max = max(km$time), value = c(0, max(km$time)), step = 5)
     }
   })
   
@@ -522,9 +522,9 @@ shinyServer(function(input, output, session) {
                                    outcomeId = outcomeId,
                                    databaseId = row$databaseId,
                                    analysisId = row$analysisId)
-      plot <- plotKaplanMeier(kaplanMeier = subset(km, time <= input$xmax_km),
+      plot <- plotKaplanMeier(kaplanMeier = subset(km, time >= input$xmax_km[1] & time <= input$xmax_km[2]),
                               targetName = input$target,
-                              comparatorName = input$comparator, ymin = input$ymin_km, ci = input$ci_km)
+                              comparatorName = input$comparator, ymin = input$ymin_km, ci = input$ci_km, cum_inc = input$cumulative_km)
       return(plot)
     }
   })

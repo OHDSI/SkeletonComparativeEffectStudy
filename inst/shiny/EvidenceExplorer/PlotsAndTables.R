@@ -425,7 +425,7 @@ plotCovariateBalanceScatterPlot <- function(balance, beforeLabel = "Before strat
   return(plot)
 }
 
-plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName, ci = F, ymin) {
+plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName, ci = F, ymin, cum_inc = F) {
   data <- rbind(data.frame(time = kaplanMeier$time,
                            s = kaplanMeier$targetSurvival,
                            lower = kaplanMeier$targetSurvivalLb,
@@ -438,9 +438,19 @@ plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName, ci = F, ymi
                            strata = paste0(" ", comparatorName)))
 
   xlims <- c(-max(data$time)/40, max(data$time))
-  ylims <- c(ymin, 1)
+  ylims <- ymin
   xLabel <- "Time in days"
   yLabel <- "Survival probability"
+  
+  if (cum_inc == T){
+    data$s <- 1 - data$s
+    lower2 <- 1 - data$upper
+    upper2 <- 1 - data$lower
+    data$upper <- upper2
+    data$lower <- lower2
+    yLabel <- "Cumulative incidence"
+  }
+  
   xBreaks <- kaplanMeier$time[!is.na(kaplanMeier$targetAtRisk)]
   plot <- ggplot2::ggplot(data, ggplot2::aes(x = time,
                                              y = s,

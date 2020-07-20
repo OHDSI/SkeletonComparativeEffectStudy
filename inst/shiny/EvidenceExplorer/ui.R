@@ -84,10 +84,13 @@ shinyUI(
                                                   tabPanel("Kaplan-Meier",
                                                            plotOutput("kaplanMeierPlot", height = 550),
                                                            uiOutput("kaplanMeierPlotPlotCaption"),
-                                                           checkboxInput("ci_km", "Show 95% CI", value = F),
+                                                           fluidRow(
+                                                             column(6, checkboxInput("ci_km", "Show 95% CI", value = F)),
+                                                             column(6, checkboxInput("cumulative_km", "Show cumulative incidence", value = F))
+                                                           ),
                                                            fluidRow(
                                                              column(6, uiOutput("x_km")),
-                                                             column(6, sliderInput("ymin_km", "Y axis start", min = 0, max = 1, value = 0.7, step = 0.05))
+                                                             column(6, sliderInput("ymin_km", "Y axis range", min = 0, max = 1, value = c(0, 1), step = 0.05))
                                                            ),
                                                            fluidRow(
                                                              column(6, sliderInput("width_km","Plot width", min = 5, max = 20, value = 10)),
