@@ -782,7 +782,7 @@ exportDiagnostics <- function(outputFolder,
   if (!is.null(data)) {
     colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
   }
-  readr::write_csv(data, fileName)
+  write.csv(data, fileName)
   
   
   ParallelLogger::logInfo("- propensity_model table")
@@ -825,7 +825,7 @@ exportDiagnostics <- function(outputFolder,
   if (!is.null(data)) {
     colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
   }
-  readr::write_csv(data, fileName)
+  write.csv(data, fileName)
   
   
   ParallelLogger::logInfo("- kaplan_meier_dist table")
