@@ -1,3 +1,4 @@
+options(shiny.sanitize.errors = F)
 library(shiny)
 library(DT)
 
@@ -23,11 +24,10 @@ shinyUI(
                              tags$div("Procesing...",id = "loadmessage")),
             fluidRow(
               column(3,
-                     selectInput("target", "Target", unique(exposureOfInterest$exposureName)),
-                     selectInput("comparator", "Comparator", unique(exposureOfInterest$exposureName), selected = unique(exposureOfInterest$exposureName)[2]),
-                     selectInput("outcome", "Outcome", unique(outcomeOfInterest$outcomeName)),
-                     checkboxGroupInput("database", "Data source", database$databaseId, selected = database$databaseId),
-                     checkboxGroupInput("analysis", "Analysis", cohortMethodAnalysis$description,  selected = cohortMethodAnalysis$description)
+                     fileInput("file", "Upload compressed file"),
+                     textOutput("zz"),
+                     uiOutput("selectdata"),
+                     
               ),
               column(9,
                      dataTableOutput("mainTable"),
@@ -85,8 +85,10 @@ shinyUI(
                                                            plotOutput("kaplanMeierPlot", height = 550),
                                                            uiOutput("kaplanMeierPlotPlotCaption"),
                                                            fluidRow(
-                                                             column(6, checkboxInput("ci_km", "Show 95% CI", value = F)),
-                                                             column(6, checkboxInput("cumulative_km", "Show cumulative incidence", value = F))
+                                                             column(4, checkboxInput("ci_km", "Show 95% CI", value = F)),
+                                                             column(4, checkboxInput("cumulative_km", "Show cumulative incidence", value = F)),
+                                                             column(4, checkboxInput("percent_km", "% Y-scale", value = F)),
+                                                             column(4, checkboxInput("yearx_km", "Year X-scale", value = F))
                                                            ),
                                                            fluidRow(
                                                              column(6, uiOutput("x_km")),

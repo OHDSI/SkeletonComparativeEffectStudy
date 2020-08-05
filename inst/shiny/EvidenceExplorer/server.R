@@ -24,14 +24,93 @@ mainColumnNames <- c("<span title=\"Analysis\">Analysis</span>",
                      "<span title=\"Two-sided p-value (calibrated)\">Cal.P</span>")
 
 shinyServer(function(input, output, session) {
+  
   if (blind) {
     hideTab(inputId = "detailsTabsetPanel", target = "Kaplan-Meier")
   }
-  if (!exists("cmInteractionResult")) {
-    hideTab(inputId = "detailsTabsetPanel", target = "Subgroups")
-  }
+  
+  
+  datainfo <- eventReactive(input$file, {
+    dataFolder <- tempfile()
+    zip::unzip(input$file$datapath, exdir = dataFolder)
+    splittableTables <- c("covariate_balance", "preference_score_dist", "kaplan_meier_dist")
+    
+    files <- list.files(dataFolder, pattern = ".rds")
+    
+    ## check.csv
+    files.csv <- list.files(dataFolder, pattern = ".csv")
+    validate(
+      need(!(length(files) > 0 & length(files.csv) > 0), "zip file contains rds only or csv only"),
+      need(!(length(files) == 0 & length(files.csv) == 0), "zip file contains rds only or csv only")
+      )
+    if (length(files.csv) != 0){
+      prepareForEvidenceExplorer(input$file$datapath, dataFolder)
+      files <- list.files(dataFolder, pattern = ".rds")
+    }
+    
+    
+    # Find part to remove from all file names (usually databaseId):
+    databaseFileName <- files[grepl("^database", files)]
+    removeParts <- paste0(gsub("database", "", databaseFileName), "$")
+    
+    ## data name
+    tableNames <- gsub("_t[0-9]+_c[0-9]+$", "", gsub(removeParts, "", files[grepl(removeParts, files)])) 
+    camelCaseNames <- SqlRender::snakeCaseToCamelCase(tableNames)
+    camelCaseNames <- unique(camelCaseNames)
+    camelCaseNames <- camelCaseNames[!(camelCaseNames %in% SqlRender::snakeCaseToCamelCase(splittableTables))]
+    
+    
+    
+    loaddata <- lapply(files[grepl(removeParts, files)], function(file){
+      tableName <- gsub("_t[0-9]+_c[0-9]+$", "", gsub(removeParts, "", file)) 
+      #camelCaseName <- SqlRender::snakeCaseToCamelCase(tableName)
+      if (!(tableName %in% splittableTables)) {
+        newData <- readRDS(file.path(dataFolder, file))
+        colnames(newData) <- SqlRender::snakeCaseToCamelCase(colnames(newData))
+      } else{
+        newData <-NULL
+      }
+      return(newData)
+    })
+    
+    loaddata <- loaddata[!sapply(loaddata, is.null)]
+    names(loaddata) <- camelCaseNames
+    
+    tcos <- unique(loaddata$cohortMethodResult[, c("targetId", "comparatorId", "outcomeId")])
+    tcos <- data.frame(tcos[tcos$outcomeId %in% loaddata$outcomeOfInterest$outcomeId, ])
+    
+    if (!("cmInteractionResult" %in% names(loaddata))) {
+      hideTab(inputId = "detailsTabsetPanel", target = "Subgroups")
+    } 
+  
+    
+    return(list(loaddata = loaddata, tcos = tcos, dataFolder = dataFolder))
+  })
+  
+  
+  
+  output$selectdata <- renderUI({
+    req(datainfo())
+    exposureOfInterest <- datainfo()$loaddata$exposureOfInterest
+    outcomeOfInterest <- datainfo()$loaddata$outcomeOfInterest
+    database <- datainfo()$loaddata$database
+    cohortMethodAnalysis <- datainfo()$loaddata$cohortMethodAnalysis
+    
+    tagList(
+      selectInput("target", "Target", unique(exposureOfInterest$exposureName)),
+      selectInput("comparator", "Comparator", unique(exposureOfInterest$exposureName), selected = unique(exposureOfInterest$exposureName)[2]),
+      selectInput("outcome", "Outcome", unique(outcomeOfInterest$outcomeName)),
+      checkboxGroupInput("database", "Data source", database$databaseId, selected = database$databaseId),
+      checkboxGroupInput("analysis", "Analysis", cohortMethodAnalysis$description,  selected = cohortMethodAnalysis$description)
+    )
+  })
+  
   
   observe({
+    tcos <- datainfo()$tcos
+    exposureOfInterest <- datainfo()$loaddata$exposureOfInterest
+    outcomeOfInterest <- datainfo()$loaddata$outcomeOfInterest
+    
     targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
     comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
     tcoSubset <- tcos[tcos$targetId == targetId & tcos$comparatorId == comparatorId, ]
@@ -42,6 +121,10 @@ shinyServer(function(input, output, session) {
   })
   
   resultSubset <- reactive({
+    exposureOfInterest <- datainfo()$loaddata$exposureOfInterest
+    outcomeOfInterest <- datainfo()$loaddata$outcomeOfInterest
+    cohortMethodAnalysis <- datainfo()$loaddata$cohortMethodAnalysis
+    
     targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
     comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
     outcomeId <- outcomeOfInterest$outcomeId[outcomeOfInterest$outcomeName == input$outcome]
@@ -58,7 +141,8 @@ shinyServer(function(input, output, session) {
                               comparatorIds = comparatorId,
                               outcomeIds = outcomeId,
                               databaseIds = databaseIds,
-                              analysisIds = analysisIds)
+                              analysisIds = analysisIds,
+                              cohortMethodResult = datainfo()$loaddata$cohortMethodResult)
     results <- results[order(results$analysisId), ]
     if (blind) {
       results$rr <- rep(NA, nrow(results))
@@ -101,6 +185,10 @@ shinyServer(function(input, output, session) {
      if (is.null(row)) {
        return(NULL)
      } else {
+       
+       exposureOfInterest <- datainfo()$loaddata$exposureOfInterest
+       outcomeOfInterest <- datainfo()$loaddata$outcomeOfInterest
+       
        targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
        comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
        outcomeId <- outcomeOfInterest$outcomeId[outcomeOfInterest$outcomeName == input$outcome]
@@ -109,7 +197,9 @@ shinyServer(function(input, output, session) {
                                       comparatorId = comparatorId,
                                       databaseId = row$databaseId,
                                       analysisId = row$analysisId,
-                                      outcomeId = outcomeId)
+                                      outcomeId = outcomeId,
+                                      covariate = datainfo()$loaddata$covariate,
+                                      dataFolder = datainfo()$dataFolder)
        return(balance)
      }
   })
@@ -119,6 +209,9 @@ shinyServer(function(input, output, session) {
     if (is.null(table) || nrow(table) == 0) {
       return(NULL)
     }
+    
+    cohortMethodAnalysis <- datainfo()$loaddata$cohortMethodAnalysis
+    
     table$description <- cohortMethodAnalysis$description[match(table$analysisId, cohortMethodAnalysis$analysisId)]
     table <- table[, mainColumns]
     table$rr <- prettyHr(table$rr)
@@ -163,7 +256,7 @@ shinyServer(function(input, output, session) {
     if (is.null(row)) {
       return(NULL)
     } else {
-      table <- preparePowerTable(row, cohortMethodAnalysis)
+      table <- preparePowerTable(row, datainfo()$loaddata$cohortMethodAnalysis)
       table$description <- NULL
       colnames(table) <- c("Target subjects",
                            "Comparator subjects",
@@ -195,6 +288,10 @@ shinyServer(function(input, output, session) {
     if (is.null(row)) {
       return(NULL)
     } else {
+      exposureOfInterest <- datainfo()$loaddata$exposureOfInterest
+      outcomeOfInterest <- datainfo()$loaddata$outcomeOfInterest
+      
+      
       targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
       comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
       outcomeId <- outcomeOfInterest$outcomeId[outcomeOfInterest$outcomeName == input$outcome]
@@ -203,7 +300,8 @@ shinyServer(function(input, output, session) {
                                         comparatorId = comparatorId,
                                         outcomeId = outcomeId,
                                         databaseId = row$databaseId,
-                                        analysisId = row$analysisId)
+                                        analysisId = row$analysisId,
+                                        cmFollowUpDist = datainfo()$loaddata$cmFollowUpDist)
       table <- prepareFollowUpDistTable(followUpDist)
       return(table)
     }
@@ -214,6 +312,9 @@ shinyServer(function(input, output, session) {
     if (is.null(row)) {
       return(NULL)
     } else {
+      exposureOfInterest <- datainfo()$loaddata$exposureOfInterest
+      outcomeOfInterest <- datainfo()$loaddata$outcomeOfInterest
+      
       targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
       comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
       outcomeId <- outcomeOfInterest$outcomeId[outcomeOfInterest$outcomeName == input$outcome]
@@ -222,7 +323,8 @@ shinyServer(function(input, output, session) {
                                 comparatorId = comparatorId,
                                 outcomeId = outcomeId,
                                 databaseId = row$databaseId,
-                                analysisId = row$analysisId)
+                                analysisId = row$analysisId,
+                                attrition = datainfo()$loaddata$attrition)
       plot <- drawAttritionDiagram(attrition)
       return(plot)
     }
@@ -316,13 +418,18 @@ shinyServer(function(input, output, session) {
     if (is.null(row)) {
       return(NULL)
     } else {
+      
+      exposureOfInterest <- datainfo()$loaddata$exposureOfInterest
+      
       targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
       comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
       model <- getPropensityModel(connection = connection,
                                   targetId = targetId,
                                   comparatorId = comparatorId,
                                   databaseId = row$databaseId,
-                                  analysisId = row$analysisId)
+                                  analysisId = row$analysisId,
+                                  propensityModel = datainfo()$loaddata$propensityModel, 
+                                  covariate = datainfo()$loaddata$covariate)
       
       table <- preparePropensityModelTable(model)
       print(nrow(table))
@@ -348,6 +455,11 @@ shinyServer(function(input, output, session) {
     if (is.null(row)) {
       return(NULL)
     } else {
+      
+      exposureOfInterest <- datainfo()$loaddata$exposureOfInterest
+      outcomeOfInterest <- datainfo()$loaddata$outcomeOfInterest
+      
+      
       targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
       comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
       outcomeId <- outcomeOfInterest$outcomeId[outcomeOfInterest$outcomeName == input$outcome]
@@ -355,7 +467,8 @@ shinyServer(function(input, output, session) {
                   targetIds = targetId,
                   comparatorIds = comparatorId,
                   analysisId = row$analysisId,
-                  databaseId = row$databaseId)
+                  databaseId = row$databaseId,
+                  dataFolder = datainfo()$dataFolder)
       plot <- plotPs(ps, input$target, input$comparator)
       return(plot)
     }
@@ -460,13 +573,19 @@ shinyServer(function(input, output, session) {
     if (is.null(row)) {
       return(NULL)
     } else {
+      exposureOfInterest <- datainfo()$loaddata$exposureOfInterest
+      negativeControlOutcome <- ifelse("negativeControlOutcome" %in% names(datainfo()$loaddata), data.frame(datainfo()$loaddata$negativeControlOutcome), NULL)
+      
       targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
       comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
       controlResults <- getControlResults(connection = connection,
                                           targetId = targetId,
                                           comparatorId = comparatorId,
                                           analysisId = row$analysisId,
-                                          databaseId = row$databaseId)
+                                          databaseId = row$databaseId,
+                                          cohortMethodResult = datainfo()$loaddata$cohortMethodResult, 
+                                          negativeControlOutcome = negativeControlOutcome
+                                          )
 
       plot <- plotScatter(controlResults)
       return(plot)
@@ -494,6 +613,9 @@ shinyServer(function(input, output, session) {
     if (is.null(row)) {
       return(NULL)
     } else {
+      exposureOfInterest <- datainfo()$loaddata$exposureOfInterest
+      outcomeOfInterest <- datainfo()$loaddata$outcomeOfInterest
+      
       targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
       comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
       outcomeId <- outcomeOfInterest$outcomeId[outcomeOfInterest$outcomeName == input$outcome]
@@ -502,7 +624,8 @@ shinyServer(function(input, output, session) {
                            comparatorId = comparatorId,
                            outcomeId = outcomeId,
                            databaseId = row$databaseId,
-                           analysisId = row$analysisId)
+                           analysisId = row$analysisId,
+                           dataFolder = datainfo()$dataFolder)
       
       sliderInput("xmax_km", "X axis range", min = 0, max = max(km$time), value = c(0, max(km$time)), step = 5)
     }
@@ -513,18 +636,22 @@ shinyServer(function(input, output, session) {
     if (is.null(row)) {
       return(NULL)
     } else {
+      exposureOfInterest <- datainfo()$loaddata$exposureOfInterest
+      outcomeOfInterest <- datainfo()$loaddata$outcomeOfInterest
+        
       targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
       comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
       outcomeId <- outcomeOfInterest$outcomeId[outcomeOfInterest$outcomeName == input$outcome]
       km <- getKaplanMeier(connection = connection,
-                                   targetId = targetId,
-                                   comparatorId = comparatorId,
-                                   outcomeId = outcomeId,
-                                   databaseId = row$databaseId,
-                                   analysisId = row$analysisId)
+                           targetId = targetId,
+                           comparatorId = comparatorId,
+                           outcomeId = outcomeId,
+                           databaseId = row$databaseId,
+                           analysisId = row$analysisId,
+                           dataFolder = datainfo()$dataFolder)
       plot <- plotKaplanMeier(kaplanMeier = subset(km, time >= input$xmax_km[1] & time <= input$xmax_km[2]),
                               targetName = input$target,
-                              comparatorName = input$comparator, ymin = input$ymin_km, ci = input$ci_km, cum_inc = input$cumulative_km)
+                              comparatorName = input$comparator, ymin = input$ymin_km, ci = input$ci_km, cum_inc = input$cumulative_km, percent = input$percent_km, year = input$yearx_km)
       return(plot)
     }
   })
@@ -534,10 +661,10 @@ shinyServer(function(input, output, session) {
   }, res = 100)
   
   output$downloadKaplanMeierPlotPng <- downloadHandler(filename = "KaplanMeier.png", 
-                                                   contentType = "image/png", 
-                                                   content = function(file) {
-                                                     ggplot2::ggsave(file, plot = kaplanMeierPlot(), width = input$width_km, height = input$height_km, dpi = 600)
-                                                   })
+                                                       contentType = "image/png", 
+                                                       content = function(file) {
+                                                         ggplot2::ggsave(file, plot = kaplanMeierPlot(), width = input$width_km, height = input$height_km, dpi = 600)
+                                                       })
   
   output$downloadKaplanMeierPlotEmf <- downloadHandler(filename = "KaplanMeier.emf", 
                                                        contentType = "application/emf", 
@@ -566,6 +693,9 @@ shinyServer(function(input, output, session) {
     if (is.null(row)) {
       return(NULL)
     } else {
+      exposureOfInterest <- datainfo()$loaddata$exposureOfInterest
+      outcomeOfInterest <- datainfo()$loaddata$outcomeOfInterest
+      
       targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
       comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
       outcomeId <- outcomeOfInterest$outcomeId[outcomeOfInterest$outcomeName == input$outcome]
@@ -574,7 +704,8 @@ shinyServer(function(input, output, session) {
                                             comparatorIds = comparatorId,
                                             outcomeIds = outcomeId,
                                             databaseIds = row$databaseId,
-                                            analysisIds = row$analysisId)
+                                            analysisIds = row$analysisId,
+                                            cmInteractionResult = ifelse("cmInteractionResult" %in% names(datainfo()$loaddata), datainfo()$loaddata$cmInteractionResult, NULL))
       if (nrow(subgroupResults) == 0) {
         return(NULL)
       } else {
