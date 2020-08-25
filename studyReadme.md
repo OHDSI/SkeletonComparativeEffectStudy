@@ -15,22 +15,14 @@ How to run
 ==========
 1. Follow [these instructions](https://ohdsi.github.io/Hades/rSetup.html) for seting up your R environment, including RTools and Java. 
 
-2. In `R`, make sure the working directory is the path to the package, and use the following code to install the dependencies:
+2. Open your study package in RStudio. Use the following code to install all the dependencies:
 
 	```r
-	install.packages("renv")
-	library(renv)
-	init()
+	renv::restore()
 	```
 
-3. In `R`, use `devtools` to install the SkeletonComparativeEffectStudy package (or in RStudio, select Build -> Install and Restart):
+3. In RStudio, select 'Build' then 'Install and Restart' to build the package.
 
-	```r
-	install.packages("devtools")
-	library(devtools)
-	install() # Note: it is ok to delete inst/doc
-	```
-	
 3. Once installed, you can execute the study by modifying and using the code below. For your convenience, this code is also provided under `extras/CodeToRun.R`:
 
 	```r
