@@ -51,5 +51,4 @@ createAnalysesDetails("inst/settings/")
 createPositiveControlSynthesisArgs("inst/settings/")
 
 # Store environment in which the study was executed -----------------------
-
 OhdsiRTools::createRenvLockFile("SkeletonComparativeEffectStudy")

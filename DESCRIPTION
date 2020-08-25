@@ -9,34 +9,33 @@ Depends:
     R(>= 3.5.0),
     DatabaseConnector (>= 3.0.0)
 Imports:
-    SqlRender (>= 1.6.6),
-    EmpiricalCalibration (>= 2.0.0),
+    SqlRender (>= 1.6.8),
+    EmpiricalCalibration (>= 2.0.2),
     Cyclops (>= 3.0.0),
-    FeatureExtraction (>= 3.0.0),
+    FeatureExtraction (>= 3.0.1),
     CohortMethod (>= 4.0.0),
     ggplot2,
-    Andromeda,
+    Andromeda (>= 0.3.2),
     dplyr,
     tibble,
     readr,
     rlang,
     MethodEvaluation (>= 2.0.0),
-    OhdsiSharing (>= 0.2.1),
+    OhdsiSharing (>= 0.2.2),
 	ParallelLogger (>= 2.0.0),
 	survival,
-	plyr,
-	readr
+	plyr
 Suggests:
     knitr,
     rmarkdown,
     DT,
-    shiny,
-    OhdsiRTools
+    shiny
 Remotes:
     ohdsi/FeatureExtraction,
     ohdsi/CohortMethod,
-    ohdsi/MethodEvaluation
+    ohdsi/MethodEvaluation,
+    ohdsi/OhdsiSharing
 License: Apache License 2.0
 VignetteBuilder: knitr
 LazyData: TRUE
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

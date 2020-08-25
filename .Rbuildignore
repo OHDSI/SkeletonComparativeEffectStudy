@@ -6,4 +6,5 @@ documents
 readme.md
 studyReadme.md
 HydraConfig.json
+renv.lock
 

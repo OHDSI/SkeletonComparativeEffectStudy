@@ -15,24 +15,19 @@ How to run
 ==========
 1. Follow [these instructions](https://ohdsi.github.io/Hades/rSetup.html) for seting up your R environment, including RTools and Java. 
 
-2. In `R`, use the following code to install the dependencies:
+2. In `R`, make sure the working directory is the path to the package, and use the following code to install the dependencies:
 
 	```r
-	install.packages("remotes")
-	library(remotes)
-	install_github("ohdsi/ParallelLogger", ref = "v2.0.0")
-	install_github("ohdsi/SqlRender", ref = "v1.6.6")
-	install_github("ohdsi/DatabaseConnector", ref = "v3.0.0")
-	install_github("ohdsi/OhdsiSharing", ref = "v0.2.1")
-	install_github("ohdsi/FeatureExtraction", ref = "v3.0.0")
-	install_github("ohdsi/CohortMethod", ref = "v4.0.0")
-	install_github("ohdsi/EmpiricalCalibration", ref = "v2.0.2")
-	install_github("ohdsi/MethodEvaluation", ref = "v1.1.0")
+	install.packages("renv")
+	library(renv)
+	init()
 	```
 
 3. In `R`, use the following `devtools` command to install the SkeletonComparativeEffectStudy package:
 
 	```r
+	install.packages("devtools")
+	library(devtools)
 	install() # Note: it is ok to delete inst/doc
 	```
 	
