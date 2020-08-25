@@ -23,7 +23,7 @@ How to run
 	init()
 	```
 
-3. In `R`, use the following `devtools` command to install the SkeletonComparativeEffectStudy package:
+3. In `R`, use `devtools` to install the SkeletonComparativeEffectStudy package (or in RStudio, select Build -> Install and Restart):
 
 	```r
 	install.packages("devtools")
