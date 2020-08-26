@@ -84,6 +84,7 @@ prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder) {
 #' 
 #' @export
 launchEvidenceExplorer <- function(dataFolder, blind = TRUE, launch.browser = TRUE) {
+  ensure_installed("shiny")
   ensure_installed("DT")
   appDir <- system.file("shiny", "EvidenceExplorer", package = "SkeletonComparativeEffectStudy")
   .GlobalEnv$shinySettings <- list(dataFolder = dataFolder, blind = blind)
