@@ -13,7 +13,7 @@ Imports:
     EmpiricalCalibration (>= 2.0.2),
     Cyclops (>= 3.0.0),
     FeatureExtraction (>= 3.0.1),
-    CohortMethod (>= 4.0.0),
+    CohortMethod (>= 4.0.1),
     ggplot2,
     Andromeda (>= 0.3.2),
     dplyr,
