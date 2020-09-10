@@ -155,7 +155,7 @@ createTcos <- function(outputFolder) {
     if (length(includeConceptIds) == 1 && is.na(includeConceptIds)) {
       includeConceptIds <- c()
     } else if (length(includeConceptIds) > 0) {
-      includeConceptIds <- as.numeric(strsplit(excludeConceptIds, split = ";")[[1]])
+      includeConceptIds <- as.numeric(strsplit(includeConceptIds, split = ";")[[1]])
     }
     tco <- CohortMethod::createTargetComparatorOutcomes(targetId = targetId,
                                                         comparatorId = comparatorId,
