@@ -646,7 +646,7 @@
     },
     "zip": {
       "Package": "zip",
-      "Version": "2.1.1",
+      "Version": "2.0.3",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "3bc8405c637d988801ec5ea88372d0c2"

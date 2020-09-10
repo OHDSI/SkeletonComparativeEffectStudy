@@ -40,9 +40,9 @@ execute(connectionDetails = connectionDetails,
         databaseId = databaseId,
         databaseName = databaseName,
         databaseDescription = databaseDescription,
-        createCohorts = TRUE,
-        synthesizePositiveControls = TRUE,
-        runAnalyses = TRUE,
+        createCohorts = FALSE,
+        synthesizePositiveControls = FALSE,
+        runAnalyses = FALSE,
         packageResults = TRUE,
         maxCores = maxCores)
 
