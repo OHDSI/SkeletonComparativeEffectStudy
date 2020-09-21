@@ -249,7 +249,7 @@ shinyServer(function(input, output, session) {
     if (is.null(row)) {
       return(NULL)
     } else {
-      text <- "<strong>Figure 1.</strong> Attrition diagram, showing the Number of subjectsin the target (<em>%s</em>) and
+      text <- "<strong>Figure 1.</strong> Attrition diagram, showing the Number of subjects in the target (<em>%s</em>) and
       comparator (<em>%s</em>) group after various stages in the analysis."
       return(HTML(sprintf(text, input$target, input$comparator)))
     }
