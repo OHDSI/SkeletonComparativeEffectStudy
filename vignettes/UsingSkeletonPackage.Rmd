@@ -70,12 +70,12 @@ Next, we can run the following code, which can also be found in `PackageMaintena
 
 ```{r eval=FALSE}
 # Insert cohort definitions from ATLAS into package -----------------------
-OhdsiRTools::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv",
-                                                baseUrl = Sys.getenv("baseUrl"),
-                                                insertTableSql = TRUE,
-                                                insertCohortCreationR = TRUE,
-                                                generateStats = FALSE,
-                                                packageName = "SkeletonComparativeEffectStudy")
+ROhdsiWebApi::insertCohortDefinitionSetInPackage(fileName = "inst/settings/CohortsToCreate.csv",
+                                                 baseUrl = Sys.getenv("baseUrl"),
+                                                 insertTableSql = TRUE,
+                                                 insertCohortCreationR = TRUE,
+                                                 generateStats = FALSE,
+                                                 packageName = "SkeletonComparativeEffectStudy")
 ```
 
 This code will fetch the cohort definitions from the WebAPI instance, and will insert them as json files in the `inst/cohorts` folder. It will also create corresponding sql files in the `inst/sql` folder.

@@ -15,6 +15,7 @@
 # limitations under the License.
 
 # Format and check code ---------------------------------------------------
+remotes::install_github("ohdsi/OhdsiRTools")
 OhdsiRTools::formatRFolder()
 OhdsiRTools::checkUsagePackage("SkeletonComparativeEffectStudy")
 OhdsiRTools::updateCopyrightYearFolder()
@@ -25,17 +26,21 @@ unlink("extras/SkeletonComparativeEffectStudy.pdf")
 shell("R CMD Rd2pdf ./ --output=extras/SkeletonComparativeEffectStudy.pdf")
 
 # Create vignettes ---------------------------------------------------------
+install.packages("rmarkdown")
+dir.create("inst/doc")
 rmarkdown::render("vignettes/UsingSkeletonPackage.Rmd",
                   output_file = "../inst/doc/UsingSkeletonPackage.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
+unlink("inst/doc/UsingSkeletonPackage.tex")
 
 rmarkdown::render("vignettes/DataModel.Rmd",
                   output_file = "../inst/doc/DataModel.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
+unlink("inst/doc/DataModel.tex")
 
 # Insert cohort definitions from ATLAS into package -----------------------
 ROhdsiWebApi::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv",
