@@ -18,6 +18,7 @@
                            cdmDatabaseSchema,
                            vocabularyDatabaseSchema = cdmDatabaseSchema,
                            cohortDatabaseSchema,
+                           resultsDatabaseSchema,
                            cohortTable,
                            oracleTempSchema,
                            outputFolder) {
@@ -46,6 +47,7 @@
                                              vocabulary_database_schema = vocabularyDatabaseSchema,
                                                 
                                              target_database_schema = cohortDatabaseSchema,
+                                             results_database_schema = resultsDatabaseSchema,
                                              target_cohort_table = cohortTable,
                                              target_cohort_id = cohortsToCreate$cohortId[i])
     DatabaseConnector::executeSql(connection, sql)

@@ -29,6 +29,9 @@
 #' @param cohortDatabaseSchema Schema name where intermediate data can be stored. You will need to have
 #'                             write privileges in this schema. Note that for SQL Server, this should
 #'                             include both the database and schema name, for example 'cdm_data.dbo'.
+#' @param resultsDatabaseSchema Schema name where results data can be stored. You will need to have
+#'                             write privileges in this schema. Note that for SQL Server, this should
+#'                             include both the database and schema name, for example 'cdm_data.dbo'.
 #' @param cohortTable          The name of the table that will be created in the work database schema.
 #'                             This table will hold the exposure and outcome cohorts used in this
 #'                             study.
@@ -41,6 +44,7 @@
 createCohorts <- function(connectionDetails,
                           cdmDatabaseSchema,
                           cohortDatabaseSchema,
+                          resultsDatabaseSchema,
                           cohortTable = "cohort",
                           oracleTempSchema,
                           outputFolder) {
@@ -52,6 +56,7 @@ createCohorts <- function(connectionDetails,
   .createCohorts(connection = conn,
                  cdmDatabaseSchema = cdmDatabaseSchema,
                  cohortDatabaseSchema = cohortDatabaseSchema,
+                 resultsDatabaseSchema = resultsDatabaseSchema,
                  cohortTable = cohortTable,
                  oracleTempSchema = oracleTempSchema,
                  outputFolder = outputFolder)
