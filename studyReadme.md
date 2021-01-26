@@ -11,46 +11,25 @@ Requirements
 - [Java](http://java.com)
 - 25 GB of free disk space
 
-See [these instructions](https://ohdsi.github.io/MethodsLibrary/rSetup.html) on how to set up the R environment on Windows.
-
 How to run
 ==========
-1. In `R`, use the following code to install the dependencies:
+1. Follow [these instructions](https://ohdsi.github.io/Hades/rSetup.html) for seting up your R environment, including RTools and Java. 
+
+2. Open your study package in RStudio. Use the following code to install all the dependencies:
 
 	```r
-	install.packages("devtools")
-	library(devtools)
-	install_github("ohdsi/ParallelLogger", ref = "v1.1.1")
-	install_github("ohdsi/SqlRender", ref = "v1.6.3")
-	install_github("ohdsi/DatabaseConnector", ref = "v2.4.1")
-	install_github("ohdsi/OhdsiSharing", ref = "v0.1.3")
-	install_github("ohdsi/FeatureExtraction", ref = "v2.2.5")
-	install_github("ohdsi/CohortMethod", ref = "v3.1.0")
-	install_github("ohdsi/EmpiricalCalibration", ref = "v2.0.0")
-	install_github("ohdsi/MethodEvaluation", ref = "v1.1.0")
+	renv::restore()
 	```
 
-	If you experience problems on Windows where rJava can't find Java, one solution may be to add `args = "--no-multiarch"` to each `install_github` call, for example:
-	
-	```r
-	install_github("ohdsi/SqlRender", args = "--no-multiarch")
-	```
-	
-	Alternatively, ensure that you have installed only the 64-bit versions of R and Java, as described in [the Book of OHDSI](https://ohdsi.github.io/TheBookOfOhdsi/OhdsiAnalyticsTools.html#installR)
-	
-2. In `R`, use the following `devtools` command to install the SkeletonComparativeEffectStudy package:
+3. In RStudio, select 'Build' then 'Install and Restart' to build the package.
 
-	```r
-	install() # Note: it is ok to delete inst/doc
-	```
-	
 3. Once installed, you can execute the study by modifying and using the code below. For your convenience, this code is also provided under `extras/CodeToRun.R`:
 
 	```r
 	library(SkeletonComparativeEffectStudy)
 	
-	# Optional: specify where the temporary files (used by the ff package) will be created:
-	options(fftempdir = "c:/FFtemp")
+  # Optional: specify where the temporary files (used by the Andromeda package) will be created:
+  options(andromedaTempFolder = "c:/andromedaTemp")
 	
 	# Maximum number of cores to be used:
 	maxCores <- parallel::detectCores()
@@ -95,23 +74,22 @@ How to run
             createCohorts = TRUE,
             synthesizePositiveControls = TRUE,
             runAnalyses = TRUE,
-            runDiagnostics = TRUE,
             packageResults = TRUE,
             maxCores = maxCores)
 	```
 
-4. Upload the file ```export/Results<DatabaseId>.zip``` in the output folder to the study coordinator:
+4. Upload the file ```export/Results_<DatabaseId>.zip``` in the output folder to the study coordinator:
 
 	```r
-	submitResults("export/Results<DatabaseId>.zip", key = "<key>", secret = "<secret>")
+	uploadResults(outputFolder, privateKeyFileName = "<file>", userName = "<name>")
 	```
 	
-	Where ```key``` and ```secret``` are the credentials provided to you personally by the study coordinator.
+	Where ```<file>``` and ```<name<``` are the credentials provided to you personally by the study coordinator.
 		
 5. To view the results, use the Shiny app:
 
 	```r
-	prepareForEvidenceExplorer("Result<databaseId>.zip", "/shinyData")
+	prepareForEvidenceExplorer("Result_<databaseId>.zip", "/shinyData")
 	launchEvidenceExplorer("/shinyData", blind = TRUE)
 	```
   

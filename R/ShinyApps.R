@@ -1,4 +1,4 @@
-# Copyright 2019 Observational Health Data Sciences and Informatics
+# Copyright 2020 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 # 
@@ -59,7 +59,7 @@ prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder) {
     tableName <- gsub(".csv$", "", file)
     table <- readr::read_csv(file.path(tempFolder, file), col_types = readr::cols())
     if (tableName %in% splittableTables) {
-      subsets <- split(table, list(table$target_id, table$comparator_id))
+      subsets <- split(table, paste(table$target_id, table$comparator_id))
       plyr::l_ply(subsets, processSubet, tableName = tableName)
     } else {
       saveRDS(table, file.path(dataFolder, sprintf("%s_%s.rds", tableName, databaseId)))  
@@ -84,6 +84,7 @@ prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder) {
 #' 
 #' @export
 launchEvidenceExplorer <- function(dataFolder, blind = TRUE, launch.browser = TRUE) {
+  ensure_installed("shiny")
   ensure_installed("DT")
   appDir <- system.file("shiny", "EvidenceExplorer", package = "SkeletonComparativeEffectStudy")
   .GlobalEnv$shinySettings <- list(dataFolder = dataFolder, blind = blind)

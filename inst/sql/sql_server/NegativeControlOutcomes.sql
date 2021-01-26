@@ -1,6 +1,6 @@
 CREATE TABLE #Codesets (
-  ancestor_concept_id bigint NOT NULL,
-  concept_id bigint NOT NULL
+  ancestor_concept_id INT NOT NULL,
+  concept_id INT NOT NULL
 )
 ;
 

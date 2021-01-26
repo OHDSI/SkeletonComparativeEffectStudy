@@ -1,4 +1,4 @@
-# Copyright 2019 Observational Health Data Sciences and Informatics
+# Copyright 2020 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 #
@@ -15,35 +15,40 @@
 # limitations under the License.
 
 # Format and check code ---------------------------------------------------
+remotes::install_github("ohdsi/OhdsiRTools")
 OhdsiRTools::formatRFolder()
 OhdsiRTools::checkUsagePackage("SkeletonComparativeEffectStudy")
 OhdsiRTools::updateCopyrightYearFolder()
 devtools::spell_check()
 
 # Create manual -----------------------------------------------------------
-shell("rm extras/SkeletonComparativeEffectStudy.pdf")
+unlink("extras/SkeletonComparativeEffectStudy.pdf")
 shell("R CMD Rd2pdf ./ --output=extras/SkeletonComparativeEffectStudy.pdf")
 
 # Create vignettes ---------------------------------------------------------
+install.packages("rmarkdown")
+dir.create("inst/doc")
 rmarkdown::render("vignettes/UsingSkeletonPackage.Rmd",
                   output_file = "../inst/doc/UsingSkeletonPackage.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
+unlink("inst/doc/UsingSkeletonPackage.tex")
 
 rmarkdown::render("vignettes/DataModel.Rmd",
                   output_file = "../inst/doc/DataModel.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
+unlink("inst/doc/DataModel.tex")
 
 # Insert cohort definitions from ATLAS into package -----------------------
-OhdsiRTools::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv",
-                                                baseUrl = Sys.getenv("baseUrl"),
-                                                insertTableSql = TRUE,
-                                                insertCohortCreationR = TRUE,
-                                                generateStats = FALSE,
-                                                packageName = "SkeletonComparativeEffectStudy")
+ROhdsiWebApi::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv",
+                                                 baseUrl = Sys.getenv("baseUrl"),
+                                                 insertTableSql = TRUE,
+                                                 insertCohortCreationR = TRUE,
+                                                 generateStats = FALSE,
+                                                 packageName = "SkeletonComparativeEffectStudy")
 
 # Create analysis details -------------------------------------------------
 source("extras/CreateStudyAnalysisDetails.R")
@@ -51,4 +56,4 @@ createAnalysesDetails("inst/settings/")
 createPositiveControlSynthesisArgs("inst/settings/")
 
 # Store environment in which the study was executed -----------------------
-OhdsiRTools::insertEnvironmentSnapshotInPackage("SkeletonComparativeEffectStudy")
+OhdsiRTools::createRenvLockFile("SkeletonComparativeEffectStudy")

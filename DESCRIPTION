@@ -7,29 +7,35 @@ Maintainer: Martijn J. Schuemie <schuemie@ohdsi.org>
 Description: A skeleton package, to be used as a starting point when implementing comparative effect studies.
 Depends:
     R(>= 3.5.0),
-    DatabaseConnector (>= 2.4.1)
+    DatabaseConnector (>= 3.0.0)
 Imports:
-    SqlRender (>= 1.6.3),
-    EmpiricalCalibration (>= 2.0.0),
-    Cyclops,
-    FeatureExtraction (>= 2.2.5),
-    CohortMethod (>= 3.0.1),
+    SqlRender (>= 1.6.8),
+    EmpiricalCalibration (>= 2.0.2),
+    Cyclops (>= 3.0.0),
+    FeatureExtraction (>= 3.0.1),
+    CohortMethod (>= 4.0.1),
     ggplot2,
-    ff,
-    ffbase,
-    MethodEvaluation (>= 0.3.1),
-    OhdsiSharing (>= 0.1.3),
-	ParallelLogger (>= 1.1.1),
+    Andromeda (>= 0.3.2),
+    dplyr,
+    tibble,
+    readr,
+    rlang,
+    MethodEvaluation (>= 2.0.0),
+    OhdsiSharing (>= 0.2.2),
+	ParallelLogger (>= 2.0.0),
 	survival,
-	plyr,
-	readr
+	plyr
 Suggests:
     knitr,
     rmarkdown,
     DT,
-    shiny,
-    OhdsiRTools
+    shiny
+Remotes:
+    ohdsi/FeatureExtraction,
+    ohdsi/CohortMethod,
+    ohdsi/MethodEvaluation,
+    ohdsi/OhdsiSharing
 License: Apache License 2.0
 VignetteBuilder: knitr
 LazyData: TRUE
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
