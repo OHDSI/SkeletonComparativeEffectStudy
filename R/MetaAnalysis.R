@@ -15,14 +15,28 @@
 # limitations under the License.
 
 
-#' Title
+#' Conducts a meta-analysis across PLE result sets
+#' 
+#' @details 
+#' Conducts a meta-analysis across result sets generated from a population level
+#' effect (PLE) study package.  Meta-analysis methodology is based on 
+#' DerSimonian and Laird (1986) or Schuemie et al. (2021).
+#' 
 #'
 #' @param allDbsFolder    Folder on the local file system containing the individual zip files across databases (i.e., sites)
 #' @param maExportFolder  A local folder where the meta-analysis results will be written. If not specified, results will be
 #'                        written to same directory with all other results.
 #' @param maxCores        Maximum number of CPU cores to be used when computing the meta-analyses.
-#' @param method          The meta-analysis method to use.  Options are "bayesian" or "DL" (DerSimonian-Laird).
-#' @param addTraditional  Boolean indicating if traditional meta-analysis (i.e., "DL") results should be added to result (if method is "bayesian").
+#' @param method          The meta-analysis method to use.  Possible values are "BayesianNonNormal" (Schumie et al.) or "DL" (DerSimonian-Laird).
+#' @param addTraditional  Boolean indicating if traditional meta-analysis (i.e., "DL") results should be added to result (if \code{method} is "BayesianNonNormal").
+#' 
+#' 
+#' @references
+#' DerSimonian R, Laird N. Meta-analysis in clinical trials.
+#' Control Clin Trials. 1986 Sep;7(3):177-88. doi: 10.1016/0197-2456(86)90046-2
+#' Schuemie M, Chen Y, Madigan D, Suchard M, Combining Cox Regressions Across a
+#' Heterogeneous Distributed Research Network Facing Small and Zero Counts. arXiv: 2101.01551, 2021
+#' 
 #'
 #' @return
 #' Does not return a value, but creates a new zip file in the \code{maExportFolder} for the meta-analyses.
@@ -31,7 +45,7 @@
 synthesizeResults <- function(allDbsFolder,
                               maExportFolder = allDbsFolder,
                               maxCores,
-                              method = "bayesian",
+                              method = "BayesianNonNormal",
                               resultsZipPattern = "^Results_.*\\.zip",
                               addTraditional = TRUE) {
   
@@ -46,24 +60,24 @@ synthesizeResults <- function(allDbsFolder,
     stop(sprintf("The allDbsFolder path does not exist:\n\t", allDbsFolder))
   }
   
-  if (!(method %in% c("bayesian", "DL"))) {
-    stop("Accepted method arguments are \"bayesian\" or \"DL\"")
+  if (!(method %in% c("BayesianNonNormal", "DL"))) {
+    stop("Accepted method arguments are \"BayesianNonNormal\" or \"DL\"")
   }
   
-  resultsSets <- list.files(path = allDbsFolder, pattern = resultsZipPattern)
-  ParallelLogger::logInfo(sprintf("Found %d zip files matching pattern %s for synthesizing", length(resultsSets), resultsZipPattern))
-  if(length(resultsSets) == 0) {
+  resultSets <- list.files(path = allDbsFolder, pattern = resultsZipPattern)
+  ParallelLogger::logInfo(sprintf("Found %d zip files matching pattern %s for synthesizing", length(resultSets), resultsZipPattern))
+  if(length(resultSets) == 0) {
     stop(sprintf("No results found matching pattern %s in directory %s", resultsZipPattern, allDbsFolder))
-  } else if(length(resultsSets) == 1) {
+  } else if(length(resultSets) == 1) {
     stop(sprintf("Only single result set found matching pattern %s in directory %s", resultsZipPattern, allDbsFolder))
   }
   
-  mainResults <- lapply(resultsSets, loadDatabaseResults, allDbsFolder = allDbsFolder)
+  mainResults <- lapply(resultSets, loadDatabaseResults, allDbsFolder = allDbsFolder)
   mainResults <- do.call(rbind, mainResults)
   mainResults <- split(mainResults, paste(mainResults$targetId, mainResults$comparatorId, mainResults$analysisId))
   
-  if(method == "bayesian") {
-    profiles <- lapply(resultsSets, loadLikelihoodProfiles, allDbsFolder = allDbsFolder)
+  if(method == "BayesianNonNormal") {
+    profiles <- lapply(resultSets, loadLikelihoodProfiles, allDbsFolder = allDbsFolder)
     profiles <- do.call(rbind, profiles)
     profiles <- split(profiles, paste(profiles$targetId, profiles$comparatorId, profiles$analysisId))
     
@@ -78,8 +92,7 @@ synthesizeResults <- function(allDbsFolder,
   
   ParallelLogger::logInfo("Performing cross-database evidence synthesis")
   cluster <- ParallelLogger::makeCluster(min(maxCores, 10))
-  indices <- 1:length(groups)
-  results <- ParallelLogger::clusterApply(cluster, indices, SkeletonComparativeEffectStudy:::computeGroupMetaAnalysis, groups, method, addTraditional)
+  results <- ParallelLogger::clusterApply(cluster, groups, SkeletonComparativeEffectStudy:::computeGroupMetaAnalysis, method, addTraditional)
   ParallelLogger::stopCluster(cluster)
   
   results <- do.call(rbind, results)
@@ -93,9 +106,7 @@ synthesizeResults <- function(allDbsFolder,
   fileName <-  file.path(tempFolder, "cohort_method_result.csv")
   write.csv(results, fileName, row.names = FALSE)
   
-  ParallelLogger::logInfo("Creating harmonized database table")
-  databases <- lapply(resultsSets, loadDatabase, allDbsFolder = allDbsFolder)
-  databases <- do.call(rbind, databases)
+  ParallelLogger::logInfo("Creating database table")
   database <- data.frame(databaseId = "Meta-analysis",
                          databaseName = "Random effects meta-analysis",
                          description = getDescriptionFromMethod(method),
@@ -203,8 +214,7 @@ loadDatabase <- function(zipFile, allDbsFolder) {
   return(database)
 }
 
-computeGroupMetaAnalysis <- function(index, groups, method, addTraditional) {
-  group <- groups[[index]]
+computeGroupMetaAnalysis <- function(group, method, addTraditional) {
   mainResults <- group$mainResults
   
   if (nrow(mainResults) == 0) {
@@ -336,7 +346,7 @@ computeSingleMetaAnalysis <- function(outcomeId, group, method, addTraditional) 
       maRow$logRr <- rnd$TE
       maRow$seLogRr <- rnd$seTE
     }
-  } else if (method == "bayesian") {
+  } else if (method == "BayesianNonNormal") {
     
     profileDbs <- if (is.null(group$profiles)) c() else group$profiles$databaseId[group$profiles$outcomeId == outcomeId]
     
@@ -416,7 +426,7 @@ computeSingleMetaAnalysis <- function(outcomeId, group, method, addTraditional) 
 getDescriptionFromMethod <- function(method) {
   return(
     switch(method,
-    "bayesian" = "Random effects meta-analysis using non-normal likelihood approximation to avoid bias due to small and zero counts.",
+    "BayesianNonNormal" = "Random effects meta-analysis using non-normal likelihood approximation to avoid bias due to small and zero counts.",
     "DL" = "Random effects meta-analysis using the DerSimonian-Laird estimator",
     "Unknown meta-analysis method"
     )

@@ -2,13 +2,13 @@
 % Please edit documentation in R/MetaAnalysis.R
 \name{synthesizeResults}
 \alias{synthesizeResults}
-\title{Title}
+\title{Conducts a meta-analysis across PLE result sets}
 \usage{
 synthesizeResults(
   allDbsFolder,
   maExportFolder = allDbsFolder,
   maxCores,
-  method = "bayesian",
+  method = "BayesianNonNormal",
   resultsZipPattern = "^Results_.*\\\\.zip",
   addTraditional = TRUE
 )
@@ -21,13 +21,24 @@ written to same directory with all other results.}
 
 \item{maxCores}{Maximum number of CPU cores to be used when computing the meta-analyses.}
 
-\item{method}{The meta-analysis method to use.  Options are "bayesian" or "DL" (DerSimonian-Laird).}
+\item{method}{The meta-analysis method to use.  Possible values are "BayesianNonNormal" (Schumie et al.) or "DL" (DerSimonian-Laird).}
 
-\item{addTraditional}{Boolean indicating if traditional meta-analysis (i.e., "DL") results should be added to result (if method is "bayesian").}
+\item{addTraditional}{Boolean indicating if traditional meta-analysis (i.e., "DL") results should be added to result (if \code{method} is "BayesianNonNormal").}
 }
 \value{
 Does not return a value, but creates a new zip file in the \code{maExportFolder} for the meta-analyses.
 }
 \description{
-Title
+Conducts a meta-analysis across PLE result sets
+}
+\details{
+Conducts a meta-analysis across result sets generated from a population level
+effect (PLE) study package.  Meta-analysis methodology is based on 
+DerSimonian and Laird (1986) or Schuemie et al. (2021).
+}
+\references{
+DerSimonian R, Laird N. Meta-analysis in clinical trials.
+Control Clin Trials. 1986 Sep;7(3):177-88. doi: 10.1016/0197-2456(86)90046-2
+Schuemie M, Chen Y, Madigan D, Suchard M, Combining Cox Regressions Across a
+Heterogeneous Distributed Research Network Facing Small and Zero Counts. arXiv: 2101.01551, 2021
 }
