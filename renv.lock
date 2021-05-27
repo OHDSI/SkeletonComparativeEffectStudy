@@ -486,16 +486,6 @@
 			"RemoteRepo" : "OhdsiSharing",
 			"RemoteUsername" : "ohdsi",
 			"RemoteRef" : "v0.2.2"
-		},
-		"SkeletonComparativeEffectStudy" : {
-			"Package" : "SkeletonComparativeEffectStudy",
-			"Version" : "0.0.1",
-			"Source" : "GitHub",
-			"RemoteType" : "github",
-			"RemoteHost" : "api.github.com",
-			"RemoteRepo" : "SkeletonComparativeEffectStudy",
-			"RemoteUsername" : "ohdsi-studies",
-			"RemoteRef" : "master"
 		}
 	}
 }
