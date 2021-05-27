@@ -1,7 +1,7 @@
 source("DataPulls.R")
 source("PlotsAndTables.R")
 
-# shinySettings <- list(dataFolder = "c:/temp/Gowtham/data", blind = TRUE)
+#shinySettings <- list(dataFolder = "D:/studies/results/shinyData", blind = FALSE)
 dataFolder <- shinySettings$dataFolder
 blind <- shinySettings$blind
 connection <- NULL
@@ -48,4 +48,5 @@ for (removePart in removeParts) {
 
 tcos <- unique(cohortMethodResult[, c("targetId", "comparatorId", "outcomeId")])
 tcos <- tcos[tcos$outcomeId %in% outcomeOfInterest$outcomeId, ]
+metaAnalysisDbIds <- database$databaseId[database$isMetaAnalysis == 1]
                

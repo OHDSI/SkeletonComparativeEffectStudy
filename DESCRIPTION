@@ -29,7 +29,10 @@ Suggests:
     knitr,
     rmarkdown,
     DT,
-    shiny
+    shiny,
+    EvidenceSynthesis,
+    meta,
+    tidyr
 Remotes:
     ohdsi/FeatureExtraction,
     ohdsi/CohortMethod,

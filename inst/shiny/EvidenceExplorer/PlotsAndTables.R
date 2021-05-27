@@ -121,7 +121,7 @@ prepareMainResultsTable <- function(mainResults, analyses) {
   return(table)
 }
 
-preparePowerTable <- function(mainResults, analyses) {
+preparePowerTable <- function(mainResults, analyses, includeDatabaseId = FALSE) {
   table <- merge(mainResults, analyses)
   alpha <- 0.05
   power <- 0.8
@@ -136,6 +136,7 @@ preparePowerTable <- function(mainResults, analyses) {
   table$targetIr <- 1000 * table$targetOutcomes/table$targetYears
   table$comparatorIr <- 1000 * table$comparatorOutcomes/table$comparatorYears
   table <- table[, c("description",
+                     "databaseId",
                      "targetSubjects",
                      "comparatorSubjects",
                      "targetYears",
@@ -348,8 +349,14 @@ prepareTable1 <- function(balance,
 }
 
 plotPs <- function(ps, targetName, comparatorName) {
-  ps <- rbind(data.frame(x = ps$preferenceScore, y = ps$targetDensity, group = targetName),
-              data.frame(x = ps$preferenceScore, y = ps$comparatorDensity, group = comparatorName))
+  if (is.null(ps$databaseId)) {
+    ps <- rbind(data.frame(x = ps$preferenceScore, y = ps$targetDensity, group = targetName),
+                data.frame(x = ps$preferenceScore, y = ps$comparatorDensity, group = comparatorName))
+    
+  } else {
+    ps <- rbind(data.frame(x = ps$preferenceScore, y = ps$targetDensity, databaseId = ps$databaseId, group = targetName),
+                data.frame(x = ps$preferenceScore, y = ps$comparatorDensity, databaseId = ps$databaseId, group = comparatorName))
+  }
   ps$group <- factor(ps$group, levels = c(as.character(targetName), as.character(comparatorName)))
   theme <- ggplot2::element_text(colour = "#000000", size = 12, margin = ggplot2::margin(0, 0.5, 0, 0.1, "cm"))
   plot <- ggplot2::ggplot(ps,
@@ -368,6 +375,10 @@ plotPs <- function(ps, targetName, comparatorName) {
                          legend.text = theme,
                          axis.text = theme,
                          axis.title = theme)
+  if (!is.null(ps$databaseId)) {
+    plot <- plot + ggplot2::facet_grid(databaseId~., switch = "both") +
+      ggplot2::theme(legend.position = "right")
+  }
   return(plot)
 }
 
@@ -494,6 +505,82 @@ plotKaplanMeier <- function(kaplanMeier, targetName, comparatorName) {
     grobs[[i]]$widths[2:5] <- as.list(maxwidth)
   }
   plot <- gridExtra::grid.arrange(grobs[[1]], grobs[[2]], heights = c(400, 100))
+  return(plot)
+}
+
+plotCovariateBalanceSummary <- function(balanceSummary,
+                                        threshold = 0,
+                                        beforeLabel = "Before matching",
+                                        afterLabel = "After matching") {
+  balanceSummary <- balanceSummary[rev(order(balanceSummary$databaseId)), ]
+  dbs <- data.frame(databaseId = unique(balanceSummary$databaseId),
+                    x = 1:length(unique(balanceSummary$databaseId)))
+  vizData <- merge(balanceSummary, dbs)
+  
+  vizData$type <- factor(vizData$type, levels = c(beforeLabel, afterLabel))
+  
+  plot <- ggplot2::ggplot(vizData, ggplot2::aes(x = x,
+                                                ymin = ymin,
+                                                lower = lower,
+                                                middle = median,
+                                                upper = upper,
+                                                ymax = ymax,
+                                                group = databaseId)) +
+    ggplot2::geom_errorbar(ggplot2::aes(ymin = ymin, ymax = ymin), size = 1) +
+    ggplot2::geom_errorbar(ggplot2::aes(ymin = ymax, ymax = ymax), size = 1) +
+    ggplot2::geom_boxplot(stat = "identity", fill = rgb(0, 0, 0.8, alpha = 0.25), size = 1) +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::scale_x_continuous(limits = c(0.5, max(vizData$x) + 1.75)) +
+    ggplot2::scale_y_continuous("Standardized difference of mean") +
+    ggplot2::coord_flip() +
+    ggplot2::facet_grid(~type) +
+    ggplot2::theme(panel.grid.major.y = ggplot2::element_blank(),
+                   panel.grid.minor.y = ggplot2::element_blank(),
+                   panel.grid.major.x = ggplot2::element_line(color = "#AAAAAA"),
+                   panel.background = ggplot2::element_blank(),
+                   axis.text.y = ggplot2::element_blank(),
+                   axis.title.y = ggplot2::element_blank(),
+                   axis.ticks.y = ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_text(size = 11),
+                   axis.title.x = ggplot2::element_text(size = 11),
+                   axis.ticks.x = ggplot2::element_line(color = "#AAAAAA"),
+                   strip.background = ggplot2::element_blank(),
+                   strip.text = ggplot2::element_text(size = 11),
+                   plot.margin = grid::unit(c(0,0,0.1,0), "lines"))
+  
+  if (threshold != 0) {
+    plot <- plot + ggplot2::geom_hline(yintercept = c(threshold, -threshold), linetype = "dotted")
+  }
+  after <- vizData[vizData$type == afterLabel, ]
+  after$max <- pmax(abs(after$ymin), abs(after$ymax))
+  text <- data.frame(y = rep(c(after$x, nrow(after) + 1.25) , 3),
+                     x = rep(c(1,2,3), each = nrow(after) + 1),
+                     label = c(c(as.character(after$databaseId),
+                                 "Source",
+                                 formatC(after$covariateCount, big.mark = ",", format = "d"),
+                                 "Covariate\ncount",
+                                 formatC(after$max,  digits = 2, format = "f"),
+                                 paste(afterLabel, "max(absolute)", sep = "\n"))),
+                     dummy = "")
+  
+  data_table <- ggplot2::ggplot(text, ggplot2::aes(x = x, y = y, label = label)) +
+    ggplot2::geom_text(size = 4, hjust=0, vjust=0.5) +
+    ggplot2::geom_hline(ggplot2::aes(yintercept=nrow(after) + 0.5)) +
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
+                   panel.grid.minor = ggplot2::element_blank(),
+                   legend.position = "none",
+                   panel.border = ggplot2::element_blank(),
+                   panel.background = ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_text(colour="white"),
+                   axis.text.y = ggplot2::element_blank(),
+                   axis.ticks = ggplot2::element_line(colour="white"),
+                   strip.background = ggplot2::element_blank(),
+                   plot.margin = grid::unit(c(0,0,0.1,0), "lines")) +
+    ggplot2::labs(x="",y="") +
+    ggplot2::facet_grid(~dummy) +
+    ggplot2::coord_cartesian(xlim=c(1,4), ylim = c(0.5, max(vizData$x) + 1.75))
+  
+  plot <- gridExtra::grid.arrange(data_table, plot, ncol = 2)
   return(plot)
 }
 
@@ -685,8 +772,6 @@ plotLargeScatter <- function(d, xLabel) {
                    legend.position = "none")
   return(plot)
 }
-
-
 
 drawAttritionDiagram <- function(attrition,
                                  targetLabel = "Target",
@@ -971,3 +1056,207 @@ preparePropensityModelTable <- function(model) {
   return(table)
 }
 
+plotEmpiricalNulls <- function(negativeControls, limits = c(0.1, 10)) {
+  labels <- unique(negativeControls$databaseId)
+  labels <- labels[!(labels %in% metaAnalysisDbIds)]
+  labels <- labels[order(labels)]
+  labels <- c(labels, metaAnalysisDbIds)
+  d <- data.frame(label = labels,
+                  mean = NA,
+                  sd = NA,
+                  xMin = NA,
+                  xMax = NA,
+                  meanLabel = "",
+                  sdLabel = "",
+                  y = length(labels) - (1:length(labels)) + 1,
+                  stringsAsFactors = FALSE)
+  dist <- data.frame(label = rep(unique(negativeControls$databaseId), each = 100),
+                     x = seq(log(limits[1]), log(limits[2]), length.out = 100),
+                     yMax = NA,
+                     yMaxUb = NA,
+                     yMaxLb = NA,
+                     yMin = NA)
+  for (i in 1:nrow(d)) {
+    idx <- negativeControls$databaseId == d$label[i]
+    null <- EmpiricalCalibration::fitNull(logRr = negativeControls$logRr[idx], seLogRr = negativeControls$seLogRr[idx])
+    d$mean[i] <- null[1]
+    d$sd[i] <- null[2]
+    d$xMin[i] <- null[1] - null[2]
+    d$xMax[i] <- null[1] + null[2]
+    d$meanLabel[i] <- sprintf("% 1.2f", d$mean[i])
+    d$sdLabel[i] <- sprintf("%1.2f", d$sd[i])
+    idx <- dist$label == d$label[i]
+    y <- dnorm(dist$x[idx], mean = null[1], sd = null[2])
+    y <- y/max(y)
+    y <- y * 0.7
+    dist$yMax[idx] <- d$y[i] - 0.35 + y
+    dist$yMin[idx] <- d$y[i] - 0.35
+  }
+  
+  breaks <- c(0.1, 0.25, 0.5, 1, 2, 4, 6, 8, 10)
+  plot <- ggplot2::ggplot(d, ggplot2::aes(group = label)) +
+    ggplot2::geom_vline(xintercept = log(breaks), colour = "#AAAAAA", lty = 1, size = 0.2) +
+    ggplot2::geom_vline(xintercept = 0) +
+    ggplot2::geom_ribbon(ggplot2::aes(x = x, ymax = yMax, ymin = yMin), fill = rgb(1, 0, 0), alpha = 0.6, data = dist)
+  
+  
+  plot <- plot + ggplot2::geom_errorbarh(ggplot2::aes(xmax = xMax, xmin = xMin, y = y), height = 0.5, color = rgb(0, 0, 0), size = 0.5) +
+    ggplot2::geom_point(ggplot2::aes(x = mean, y = y), shape = 16, size = 2) +
+    ggplot2::coord_cartesian(xlim = log(limits), ylim = c(0.5, (nrow(d) + 1))) +
+    ggplot2::scale_x_continuous("Hazard ratio", breaks = log(breaks), labels = breaks) +
+    ggplot2::theme(panel.grid.major.y = ggplot2::element_blank(),
+                   panel.grid.minor.y = ggplot2::element_blank(),
+                   panel.grid.major.x = ggplot2::element_line(color = "#AAAAAA"),
+                   panel.background = ggplot2::element_blank(),
+                   axis.text.y = ggplot2::element_blank(),
+                   axis.title.y = ggplot2::element_blank(),
+                   axis.ticks.y = ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_text(size = 11),
+                   axis.title.x = ggplot2::element_text(size = 11),
+                   axis.ticks.x = ggplot2::element_line(color = "#AAAAAA"),
+                   strip.background = ggplot2::element_blank(),
+                   strip.text = ggplot2::element_text(size = 11),
+                   plot.margin = grid::unit(c(0,0,0.1,0), "lines"))
+  
+  text <- data.frame(y = rep(c(d$y, nrow(d) + 1), 3),
+                     x = rep(c(1,2,3.2), each = nrow(d) + 1),
+                     label = c(c(as.character(d$label),
+                                 "Source",
+                                 d$meanLabel,
+                                 " Mean",
+                                 d$sdLabel,
+                                 "SD")),
+                     dummy = "")
+  
+  data_table <- ggplot2::ggplot(text, ggplot2::aes(x = x, y = y, label = label)) +
+    ggplot2::geom_text(size = 4, hjust = 0, vjust = 0.5) +
+    ggplot2::geom_hline(ggplot2::aes(yintercept = nrow(d) + 0.5)) +
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
+                   panel.grid.minor = ggplot2::element_blank(),
+                   legend.position = "none",
+                   panel.border = ggplot2::element_blank(),
+                   panel.background = ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_text(colour = "white"),
+                   axis.text.y = ggplot2::element_blank(),
+                   axis.ticks = ggplot2::element_line(colour = "white"),
+                   strip.background = ggplot2::element_blank(),
+                   plot.margin = grid::unit(c(0,0,0.1,0), "lines")) +
+    ggplot2::labs(x = "",y = "") +
+    ggplot2::coord_cartesian(xlim = c(1,4), ylim = c(0.5, (nrow(d) + 1)))
+  
+  plot <- gridExtra::grid.arrange(data_table, plot, ncol = 2)
+  return(plot)
+}
+
+plotForest <- function(results, limits = c(0.1, 10)) {
+  
+  dbResults <- results[!(results$databaseId %in% metaAnalysisDbIds), ]
+  dbResults <- dbResults[!is.na(dbResults$seLogRr), ]
+  dbResults <- dbResults[order(dbResults$databaseId), ]
+  maResult <- results[results$databaseId %in% metaAnalysisDbIds, ]
+  summaryLabel <- sprintf("Summary (I\u00B2 = %.2f)", as.numeric(maResult$i2))
+  d1 <- data.frame(x = "Uncalibrated",
+                   logRr = -100,
+                   logLb95Ci = -100,
+                   logUb95Ci = -100,
+                   name = "Source",
+                   type = "header",
+                   stringsAsFactors = FALSE)
+  d2 <- data.frame(x = "Uncalibrated",
+                   logRr = dbResults$logRr,
+                   logLb95Ci = log(dbResults$ci95Lb),
+                   logUb95Ci = log(dbResults$ci95Ub),
+                   name = dbResults$databaseId,
+                   type = "db",
+                   stringsAsFactors = FALSE)
+  d3 <- data.frame(x = "Uncalibrated",
+                   logRr = maResult$logRr,
+                   logLb95Ci = log(maResult$ci95Lb),
+                   logUb95Ci = log(maResult$ci95Ub),
+                   name = summaryLabel,
+                   type = "ma",
+                   stringsAsFactors = FALSE)
+  d4 <- data.frame(x = "Calibrated",
+                   logRr = -100,
+                   logLb95Ci = -100,
+                   logUb95Ci = -100,
+                   name = "Source",
+                   type = "header",
+                   stringsAsFactors = FALSE)
+  d5 <- data.frame(x = "Calibrated",
+                   logRr = dbResults$calibratedLogRr,
+                   logLb95Ci = log(dbResults$calibratedCi95Lb),
+                   logUb95Ci = log(dbResults$calibratedCi95Ub),
+                   name = dbResults$databaseId,
+                   type = "db",
+                   stringsAsFactors = FALSE)
+  d6 <- data.frame(x = "Calibrated",
+                   logRr = maResult$calibratedLogRr,
+                   logLb95Ci = log(maResult$calibratedCi95Lb),
+                   logUb95Ci = log(maResult$calibratedCi95Ub),
+                   name = summaryLabel,
+                   type = "ma",
+                   stringsAsFactors = FALSE)
+  
+  d <- rbind(d1, d2, d3, d4, d5, d6)
+  d$name <- factor(d$name, levels = c(summaryLabel, rev(as.character(dbResults$databaseId)), "Source"))
+  d$x <- factor(d$x, levels = c("Uncalibrated", "Calibrated"))
+  
+  breaks <- c(0.1, 0.25, 0.5, 1, 2, 4, 6, 8, 10)
+  plot <- ggplot2::ggplot(d,ggplot2::aes(x = exp(logRr), y = name, xmin = exp(logLb95Ci), xmax = exp(logUb95Ci))) +
+    ggplot2::geom_vline(xintercept = breaks, colour = "#AAAAAA", lty = 1, size = 0.2) +
+    ggplot2::geom_vline(xintercept = 1, size = 0.5) +
+    ggplot2::geom_errorbarh(height = 0.15) +
+    ggplot2::geom_point(size=3, shape = 23, ggplot2::aes(fill=type)) +
+    ggplot2::scale_fill_manual(values = c("#000000", "#000000", "#FFFFFF")) +
+    ggplot2::scale_x_continuous("Hazard ratio", trans = "log10", breaks = breaks, labels = breaks) +
+    ggplot2::coord_cartesian(xlim = limits) +
+    ggplot2::facet_grid(~ x) +
+    ggplot2::theme(text = ggplot2::element_text(size = 18),
+                   panel.grid.major = ggplot2::element_blank(),
+                   panel.grid.minor = ggplot2::element_blank(),
+                   panel.background = ggplot2::element_blank(),
+                   legend.position = "none",
+                   panel.border = ggplot2::element_blank(),
+                   axis.text.y = ggplot2::element_blank(),
+                   axis.title.y = ggplot2::element_blank(),
+                   axis.ticks = ggplot2::element_blank(),
+                   strip.background = ggplot2::element_blank(),
+                   plot.margin = grid::unit(c(0,0,0.1,0), "lines"))
+  
+  d$hr <- paste0(formatC(exp(d$logRr),  digits = 2, format = "f"),
+                 " (",
+                 formatC(exp(d$logLb95Ci), digits = 2, format = "f"),
+                 "-",
+                 formatC(exp(d$logUb95Ci), digits = 2, format = "f"),
+                 ")")
+  d <- d[order(d$x), ]
+  
+  labels <- data.frame(y = factor(c(as.character(d$name[d$x == "Uncalibrated"]), as.character(d$name)), levels = levels(d$name)),
+                       x = rep(1:3, each = nrow(d)/2),
+                       label = c(as.character(d$name[d$x == "Uncalibrated"]), d$hr),
+                       dummy = "dummy",
+                       stringsAsFactors = FALSE)
+  labels$label[nrow(d)/2 + 1] <-  paste("HR (95% CI)")
+  labels$label[nrow(d) + 1] <-  paste("Calibrated HR (95% CI)")
+  dataTable <- ggplot2::ggplot(labels, ggplot2::aes(x = x, y = y, label = label)) +
+    ggplot2::geom_text(size = 5, hjust = 0, vjust = 0.5) +
+    ggplot2::geom_hline(ggplot2::aes(yintercept = nrow(d) - 0.5)) +
+    ggplot2::facet_grid(~dummy) +
+    ggplot2::theme(text = ggplot2::element_text(size = 18),
+                   panel.grid.major = ggplot2::element_blank(),
+                   panel.grid.minor = ggplot2::element_blank(),
+                   legend.position = "none",
+                   panel.border = ggplot2::element_blank(),
+                   panel.background = ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_text(colour = "white"),
+                   axis.text.y = ggplot2::element_blank(),
+                   axis.ticks = ggplot2::element_line(colour = "white"),
+                   strip.background = ggplot2::element_blank(),
+                   strip.text = ggplot2::element_text(colour = "white"),
+                   plot.margin = grid::unit(c(0,0,0.1,0), "lines")) +
+    ggplot2::labs(x = "", y = "") +
+    ggplot2::coord_cartesian(xlim = c(1,4))
+  plot <- gridExtra::grid.arrange(dataTable, plot, ncol = 2)
+  return(plot)
+}
