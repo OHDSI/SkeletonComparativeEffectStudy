@@ -14,37 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Run CohortMethod package
-#'
-#' @details
-#' Run the CohortMethod package, which implements the comparative cohort design.
-#'
-#' @param connectionDetails    An object of type \code{connectionDetails} as created using the
-#'                             \code{\link[DatabaseConnector]{createConnectionDetails}} function in the
-#'                             DatabaseConnector package.
-#' @param cdmDatabaseSchema    Schema name where your patient-level data in OMOP CDM format resides.
-#'                             Note that for SQL Server, this should include both the database and
-#'                             schema name, for example 'cdm_data.dbo'.
-#' @param cohortDatabaseSchema Schema name where intermediate data can be stored. You will need to have
-#'                             write priviliges in this schema. Note that for SQL Server, this should
-#'                             include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param cohortTable          The name of the table that will be created in the work database schema.
-#'                             This table will hold the exposure and outcome cohorts used in this
-#'                             study.
-#' @param oracleTempSchema     Should be used in Oracle to specify a schema where the user has write
-#'                             priviliges for storing temporary tables.
-#' @param outputFolder         Name of local folder where the results were generated; make sure to use forward slashes
-#'                             (/). Do not use a folder on a network drive since this greatly impacts
-#'                             performance.
-#' @param maxCores             How many parallel cores should be used? If more cores are made available
-#'                             this can speed up the analyses.
-#'
-#' @export
 runCohortMethod <- function(connectionDetails,
                             cdmDatabaseSchema,
                             cohortDatabaseSchema,
                             cohortTable,
-                            oracleTempSchema,
+                            tempEmulationSchema,
                             outputFolder,
                             maxCores) {
   cmOutputFolder <- file.path(outputFolder, "cmOutput")
@@ -64,7 +38,7 @@ runCohortMethod <- function(connectionDetails,
                                          outcomeDatabaseSchema = cohortDatabaseSchema,
                                          outcomeTable = cohortTable,
                                          outputFolder = cmOutputFolder,
-                                         oracleTempSchema = oracleTempSchema,
+                                         tempEmulationSchema = tempEmulationSchema,
                                          cmAnalysisList = cmAnalysisList,
                                          targetComparatorOutcomesList = tcosList,
                                          getDbCohortMethodDataThreads = min(3, maxCores),
@@ -128,7 +102,7 @@ addAnalysisDescription <- function(data, IdColumnName = "analysisId", nameColumn
   # Change order of columns:
   idCol <- which(colnames(data) == IdColumnName)
   if (idCol < ncol(data) - 1) {
-    data <- data[, c(1:idCol, ncol(data) , (idCol+1):(ncol(data)-1))]
+    data <- data[, c(1:idCol, ncol(data) , (idCol + 1):(ncol(data) - 1))]
   }
   return(data)
 }

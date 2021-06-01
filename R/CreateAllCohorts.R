@@ -14,46 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Create the exposure and outcome cohorts
-#'
-#' @details
-#' This function will create the exposure and outcome cohorts following the definitions included in
-#' this package.
-#'
-#' @param connectionDetails    An object of type \code{connectionDetails} as created using the
-#'                             \code{\link[DatabaseConnector]{createConnectionDetails}} function in the
-#'                             DatabaseConnector package.
-#' @param cdmDatabaseSchema    Schema name where your patient-level data in OMOP CDM format resides.
-#'                             Note that for SQL Server, this should include both the database and
-#'                             schema name, for example 'cdm_data.dbo'.
-#' @param cohortDatabaseSchema Schema name where intermediate data can be stored. You will need to have
-#'                             write privileges in this schema. Note that for SQL Server, this should
-#'                             include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param cohortTable          The name of the table that will be created in the work database schema.
-#'                             This table will hold the exposure and outcome cohorts used in this
-#'                             study.
-#' @param oracleTempSchema     Should be used in Oracle to specify a schema where the user has write
-#'                             privileges for storing temporary tables.
-#' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
-#'                             (/)
-#'
-#' @export
 createCohorts <- function(connectionDetails,
                           cdmDatabaseSchema,
                           cohortDatabaseSchema,
                           cohortTable = "cohort",
-                          oracleTempSchema,
+                          tempEmulationSchema,
                           outputFolder) {
   if (!file.exists(outputFolder))
     dir.create(outputFolder)
   
   conn <- DatabaseConnector::connect(connectionDetails)
   
+  # Using oracleTempSchema because ROhdsiWebApi-generated code will stil use that:
   .createCohorts(connection = conn,
                  cdmDatabaseSchema = cdmDatabaseSchema,
                  cohortDatabaseSchema = cohortDatabaseSchema,
                  cohortTable = cohortTable,
-                 oracleTempSchema = oracleTempSchema,
+                 oracleTempSchema = tempEmulationSchema,
                  outputFolder = outputFolder)
   
   pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
@@ -65,7 +42,7 @@ createCohorts <- function(connectionDetails,
   sql <- SqlRender::loadRenderTranslateSql("NegativeControlOutcomes.sql",
                                            "SkeletonComparativeEffectStudy",
                                            dbms = connectionDetails$dbms,
-                                           oracleTempSchema = oracleTempSchema,
+                                           tempEmulationSchema = tempEmulationSchema,
                                            cdm_database_schema = cdmDatabaseSchema,
                                            target_database_schema = cohortDatabaseSchema,
                                            target_cohort_table = cohortTable,
@@ -77,7 +54,7 @@ createCohorts <- function(connectionDetails,
   sql <- SqlRender::loadRenderTranslateSql("GetCounts.sql",
                                            "SkeletonComparativeEffectStudy",
                                            dbms = connectionDetails$dbms,
-                                           oracleTempSchema = oracleTempSchema,
+                                           tempEmulationSchema = tempEmulationSchema,
                                            cdm_database_schema = cdmDatabaseSchema,
                                            work_database_schema = cohortDatabaseSchema,
                                            study_cohort_table = cohortTable)
@@ -107,7 +84,7 @@ addCohortNames <- function(data, IdColumnName = "cohortDefinitionId", nameColumn
   # Change order of columns:
   idCol <- which(colnames(data) == IdColumnName)
   if (idCol < ncol(data) - 1) {
-    data <- data[, c(1:idCol, ncol(data) , (idCol+1):(ncol(data)-1))]
+    data <- data[, c(1:idCol, ncol(data) , (idCol + 1):(ncol(data) - 1))]
   }
   return(data)
 }

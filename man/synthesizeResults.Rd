@@ -7,7 +7,7 @@
 synthesizeResults(
   allDbsFolder,
   maExportFolder = allDbsFolder,
-  maxCores,
+  maxCores = 1,
   method = "BayesianNonNormal",
   resultsZipPattern = "^Results_.*\\\\.zip",
   addTraditional = TRUE
@@ -39,6 +39,7 @@ DerSimonian and Laird (1986) or Schuemie et al. (2021).
 \references{
 DerSimonian R, Laird N. Meta-analysis in clinical trials.
 Control Clin Trials. 1986 Sep;7(3):177-88. doi: 10.1016/0197-2456(86)90046-2
+
 Schuemie M, Chen Y, Madigan D, Suchard M, Combining Cox Regressions Across a
 Heterogeneous Distributed Research Network Facing Small and Zero Counts. arXiv: 2101.01551, 2021
 }

@@ -127,7 +127,9 @@ shinyServer(function(input, output, session) {
     } else {
       showTab("detailsTabsetPanel", "Attrition", session = session)
       showTab("detailsTabsetPanel", "Population characteristics", session = session)
-      showTab("detailsTabsetPanel", "Kaplan-Meier", session = session)
+      if (!blind) {
+        showTab("detailsTabsetPanel", "Kaplan-Meier", session = session)
+      }
       showTab("detailsTabsetPanel", "Propensity model", session = session)
       hideTab("detailsTabsetPanel", "Forest plot", session = session)
     }

@@ -14,37 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Synthesize positive controls
-#'
-#' @details
-#' This function will synthesize positive controls based on the negative controls. The simulated outcomes
-#' will be added to the cohort table.
-#'
-#' @param connectionDetails    An object of type \code{connectionDetails} as created using the
-#'                             \code{\link[DatabaseConnector]{createConnectionDetails}} function in the
-#'                             DatabaseConnector package.
-#' @param cdmDatabaseSchema    Schema name where your patient-level data in OMOP CDM format resides.
-#'                             Note that for SQL Server, this should include both the database and
-#'                             schema name, for example 'cdm_data.dbo'.
-#' @param cohortDatabaseSchema Schema name where intermediate data can be stored. You will need to have
-#'                             write priviliges in this schema. Note that for SQL Server, this should
-#'                             include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param cohortTable          The name of the table that will be created in the work database schema.
-#'                             This table will hold the exposure and outcome cohorts used in this
-#'                             study.
-#' @param oracleTempSchema     Should be used in Oracle to specify a schema where the user has write
-#'                             priviliges for storing temporary tables.
-#' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
-#'                             (/)
-#' @param maxCores             How many parallel cores should be used? If more cores are made available
-#'                             this can speed up the analyses.
-#'
-#' @export
 synthesizePositiveControls <- function(connectionDetails,
                                        cdmDatabaseSchema,
                                        cohortDatabaseSchema,
                                        cohortTable = "cohort",
-                                       oracleTempSchema,
+                                       tempEmulationSchema,
                                        outputFolder,
                                        maxCores = 1) {
   
@@ -64,9 +38,10 @@ synthesizePositiveControls <- function(connectionDetails,
     args <- ParallelLogger::loadSettingsFromJson(pathToJson)
     args$control$threads <- min(c(10, maxCores))
     
+    # Using oracleTempSchema until MethodEvaluation has been updated:
     result <- MethodEvaluation::injectSignals(connectionDetails = connectionDetails,
                                               cdmDatabaseSchema = cdmDatabaseSchema,
-                                              oracleTempSchema = oracleTempSchema,
+                                              oracleTempSchema = tempEmulationSchema,
                                               exposureDatabaseSchema = cohortDatabaseSchema,
                                               exposureTable = cohortTable,
                                               outcomeDatabaseSchema = cohortDatabaseSchema,

@@ -233,7 +233,7 @@
 		},
 		"stringi" : {
 			"Package" : "stringi",
-			"Version" : "1.6.2",
+			"Version" : "1.6.1",
 			"Source" : "Repository",
 			"Repository" : "CRAN"
 		},
@@ -363,12 +363,17 @@
 			"Source" : "Repository",
 			"Repository" : "CRAN"
 		},
-		"zip" : {
-			"Package" : "zip",
-			"Version" : "2.1.1",
-			"Source" : "Repository",
-			"Repository" : "CRAN"
-		},
+		"zip": {
+      "Package": "zip",
+      "Version": "2.0.4",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "zip",
+      "RemoteUsername": "r-lib",
+      "RemoteRef": "v2.0.4",
+      "Hash": "dbf9bada0b6075e28d61087b8140120f"
+    },
 		"Andromeda" : {
 			"Package" : "Andromeda",
 			"Version" : "0.4.1",

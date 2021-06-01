@@ -34,6 +34,7 @@
 #' @references
 #' DerSimonian R, Laird N. Meta-analysis in clinical trials.
 #' Control Clin Trials. 1986 Sep;7(3):177-88. doi: 10.1016/0197-2456(86)90046-2
+#' 
 #' Schuemie M, Chen Y, Madigan D, Suchard M, Combining Cox Regressions Across a
 #' Heterogeneous Distributed Research Network Facing Small and Zero Counts. arXiv: 2101.01551, 2021
 #' 
@@ -44,7 +45,7 @@
 #' @export
 synthesizeResults <- function(allDbsFolder,
                               maExportFolder = allDbsFolder,
-                              maxCores,
+                              maxCores = 1,
                               method = "BayesianNonNormal",
                               resultsZipPattern = "^Results_.*\\.zip",
                               addTraditional = TRUE) {
@@ -66,9 +67,9 @@ synthesizeResults <- function(allDbsFolder,
   
   resultSets <- list.files(path = allDbsFolder, pattern = resultsZipPattern)
   ParallelLogger::logInfo(sprintf("Found %d zip files matching pattern %s for synthesizing", length(resultSets), resultsZipPattern))
-  if(length(resultSets) == 0) {
+  if (length(resultSets) == 0) {
     stop(sprintf("No results found matching pattern %s in directory %s", resultsZipPattern, allDbsFolder))
-  } else if(length(resultSets) == 1) {
+  } else if (length(resultSets) == 1) {
     stop(sprintf("Only single result set found matching pattern %s in directory %s", resultsZipPattern, allDbsFolder))
   }
   
@@ -76,7 +77,7 @@ synthesizeResults <- function(allDbsFolder,
   mainResults <- do.call(rbind, mainResults)
   mainResults <- split(mainResults, paste(mainResults$targetId, mainResults$comparatorId, mainResults$analysisId))
   
-  if(method == "BayesianNonNormal") {
+  if (method == "BayesianNonNormal") {
     profiles <- lapply(resultSets, loadLikelihoodProfiles, allDbsFolder = allDbsFolder)
     profiles <- do.call(rbind, profiles)
     profiles <- split(profiles, paste(profiles$targetId, profiles$comparatorId, profiles$analysisId))
@@ -164,7 +165,7 @@ loadDatabaseResults <- function(zipFile, allDbsFolder) {
   }
   
   positiveControlsFile <- file.path(tempFolder, "positive_control_outcome.csv")
-  if(file.exists(positiveControlsFile)) {
+  if (file.exists(positiveControlsFile)) {
     pcs <- readr::read_csv(positiveControlsFile, col_types = readr::cols(), guess_max = 1e5)
     colnames(pcs) <- SqlRender::snakeCaseToCamelCase(colnames(pcs))
     idx <- results$outcomeId %in% pcs$outcomeId
@@ -240,7 +241,7 @@ computeGroupMetaAnalysis <- function(group, method, addTraditional) {
   validPcs <- pcs[!is.na(pcs$seLogRr), ]
   
   
-  if (nrow(validPcs) >=5) {
+  if (nrow(validPcs) >= 5) {
     model <- EmpiricalCalibration::fitSystematicErrorModel(logRr = c(validNcs$logRr, validPcs$logRr),
                                                            seLogRr = c(validNcs$seLogRr,
                                                                        validPcs$seLogRr),
@@ -271,7 +272,7 @@ computeGroupMetaAnalysis <- function(group, method, addTraditional) {
                                                     seLogRr = groupResults$seLogRr)
     groupResults$calibratedP <- calibratedP$p
     
-    if(nrow(validPcs) < 5) {
+    if (nrow(validPcs) < 5) {
       model <- EmpiricalCalibration::convertNullToErrorModel(null)
       calibratedCi <- EmpiricalCalibration::calibrateConfidenceInterval(logRr = groupResults$logRr,
                                                                         seLogRr = groupResults$seLogRr,
@@ -321,7 +322,7 @@ computeSingleMetaAnalysis <- function(outcomeId, group, method, addTraditional) 
       maRow$seLogRr <- NA
       maRow$i2 <- NA
       return(maRow)
-    } else if(nrow(rows) == 1) {
+    } else if (nrow(rows) == 1) {
       maRow <- rows[1, ]
       maRow$i2 <- 0
       return(maRow)
@@ -356,7 +357,7 @@ computeSingleMetaAnalysis <- function(outcomeId, group, method, addTraditional) 
     maRow$comparatorDays <- sum(rows$comparatorDays)
     maRow$targetOutcomes <- sumMinCellCount(rows$targetOutcomes)
     maRow$comparatorOutcomes <- sumMinCellCount(rows$comparatorOutcomes)
-    maRow$i2 <- NULL
+    maRow$i2 <- NA
     
     if (length(profileDbs) <= 1) {
       if (length(profileDbs) == 1) {
@@ -406,7 +407,7 @@ computeSingleMetaAnalysis <- function(outcomeId, group, method, addTraditional) 
         
       }
       
-      if(addTraditional) {
+      if (addTraditional) {
         meta <- meta::metagen(TE = rows$logRr,
                               seTE = rows$seLogRr,
                               sm = "RR",
@@ -421,7 +422,6 @@ computeSingleMetaAnalysis <- function(outcomeId, group, method, addTraditional) 
   
   return(maRow)
 }
-
 
 getDescriptionFromMethod <- function(method) {
   return(

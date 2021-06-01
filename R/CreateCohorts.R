@@ -19,14 +19,18 @@
                            vocabularyDatabaseSchema = cdmDatabaseSchema,
                            cohortDatabaseSchema,
                            cohortTable,
-                           oracleTempSchema,
+                           oracleTempSchema = NULL,
+                           tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                            outputFolder) {
-  
+  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+    warning("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.")
+    tempEmulationSchema <- oracleTempSchema
+  }
   # Create study cohort table structure:
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "CreateCohortTable.sql",
                                            packageName = "SkeletonComparativeEffectStudy",
                                            dbms = attr(connection, "dbms"),
-                                           oracleTempSchema = oracleTempSchema,
+                                           tempEmulationSchema = tempEmulationSchema,
                                            cohort_database_schema = cohortDatabaseSchema,
                                            cohort_table = cohortTable)
   DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
@@ -41,10 +45,9 @@
     sql <- SqlRender::loadRenderTranslateSql(sqlFilename = paste0(cohortsToCreate$name[i], ".sql"),
                                              packageName = "SkeletonComparativeEffectStudy",
                                              dbms = attr(connection, "dbms"),
-                                             oracleTempSchema = oracleTempSchema,
+                                             tempEmulationSchema = tempEmulationSchema,
                                              cdm_database_schema = cdmDatabaseSchema,
                                              vocabulary_database_schema = vocabularyDatabaseSchema,
-                                                
                                              target_database_schema = cohortDatabaseSchema,
                                              target_cohort_table = cohortTable,
                                              target_cohort_id = cohortsToCreate$cohortId[i])
@@ -62,7 +65,5 @@
   counts <- merge(counts, data.frame(cohortDefinitionId = cohortsToCreate$cohortId,
                                      cohortName  = cohortsToCreate$name))
   write.csv(counts, file.path(outputFolder, "CohortCounts.csv"))
-  
-  
 }
 

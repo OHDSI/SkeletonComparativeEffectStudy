@@ -34,8 +34,10 @@
 #' @param cohortTable          The name of the table that will be created in the work database schema.
 #'                             This table will hold the exposure and outcome cohorts used in this
 #'                             study.
-#' @param oracleTempSchema     Should be used in Oracle to specify a schema where the user has write
-#'                             priviliges for storing temporary tables.
+#' @param oracleTempSchema    DEPRECATED: use `tempEmulationSchema` instead.
+#' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
+#'                            emulate temp tables, provide a schema with write privileges where temp tables
+#'                            can be created.
 #' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
 #'                             (/). Do not use a folder on a network drive since this greatly impacts
 #'                             performance.
@@ -74,7 +76,8 @@ execute <- function(connectionDetails,
                     cdmDatabaseSchema,
                     cohortDatabaseSchema = cdmDatabaseSchema,
                     cohortTable = "cohort",
-                    oracleTempSchema = cohortDatabaseSchema,
+                    oracleTempSchema = NULL,
+                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                     outputFolder,
                     databaseId = "Unknown",
                     databaseName = "Unknown",
@@ -85,6 +88,10 @@ execute <- function(connectionDetails,
                     packageResults = TRUE,
                     maxCores = 4,
                     minCellCount= 5) {
+  if (!is.null(oracleTempSchema) && oracleTempSchema != "") {
+    warning("The 'oracleTempSchema' argument is deprecated. Use 'tempEmulationSchema' instead.")
+    tempEmulationSchema <- oracleTempSchema
+  }
   if (!file.exists(outputFolder))
     dir.create(outputFolder, recursive = TRUE)
 
@@ -99,7 +106,7 @@ execute <- function(connectionDetails,
                   cdmDatabaseSchema = cdmDatabaseSchema,
                   cohortDatabaseSchema = cohortDatabaseSchema,
                   cohortTable = cohortTable,
-                  oracleTempSchema = oracleTempSchema,
+                  tempEmulationSchema = tempEmulationSchema,
                   outputFolder = outputFolder)
   }
   
@@ -114,7 +121,7 @@ execute <- function(connectionDetails,
                                  cdmDatabaseSchema = cdmDatabaseSchema,
                                  cohortDatabaseSchema = cohortDatabaseSchema,
                                  cohortTable = cohortTable,
-                                 oracleTempSchema = oracleTempSchema,
+                                 tempEmulationSchema = tempEmulationSchema,
                                  outputFolder = outputFolder,
                                  maxCores = maxCores)
     }
@@ -126,7 +133,7 @@ execute <- function(connectionDetails,
                     cdmDatabaseSchema = cdmDatabaseSchema,
                     cohortDatabaseSchema = cohortDatabaseSchema,
                     cohortTable = cohortTable,
-                    oracleTempSchema = oracleTempSchema,
+                    tempEmulationSchema = tempEmulationSchema,
                     outputFolder = outputFolder,
                     maxCores = maxCores)
   }
