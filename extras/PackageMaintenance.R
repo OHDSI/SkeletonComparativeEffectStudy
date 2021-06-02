@@ -43,6 +43,7 @@ rmarkdown::render("vignettes/DataModel.Rmd",
 unlink("inst/doc/DataModel.tex")
 
 # Insert cohort definitions from ATLAS into package -----------------------
+remotes::install_github("ohdsi/ROhdsiWebApi")
 ROhdsiWebApi::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv",
                                                  baseUrl = Sys.getenv("baseUrl"),
                                                  insertTableSql = TRUE,
