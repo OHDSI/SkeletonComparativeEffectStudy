@@ -7,7 +7,7 @@ options(andromedaTempFolder = "s:/andromedaTemp")
 maxCores <- parallel::detectCores()
 
 # The folder where the study intermediate and result files will be written:
-outputFolder <- "s:/SkeletonComparativeEffectStudy2"
+outputFolder <- "s:/SkeletonComparativeEffectStudy"
 
 # Details for connecting to the server:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "pdw",
@@ -39,6 +39,7 @@ execute(connectionDetails = connectionDetails,
         databaseId = databaseId,
         databaseName = databaseName,
         databaseDescription = databaseDescription,
+        verifyDependencies = TRUE,
         createCohorts = TRUE,
         synthesizePositiveControls = TRUE,
         runAnalyses = TRUE,

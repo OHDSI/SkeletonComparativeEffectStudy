@@ -11,6 +11,7 @@ execute(
   cohortTable = "cohort",
   oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+  verifyDependencies = TRUE,
   outputFolder,
   databaseId = "Unknown",
   databaseName = "Unknown",
@@ -45,6 +46,8 @@ study.}
 \item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support temp tables. To
 emulate temp tables, provide a schema with write privileges where temp tables
 can be created.}
+
+\item{verifyDependencies}{Check whether correct package versions are installed?}
 
 \item{outputFolder}{Name of local folder to place results; make sure to use forward slashes
 (/). Do not use a folder on a network drive since this greatly impacts

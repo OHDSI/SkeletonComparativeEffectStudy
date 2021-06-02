@@ -1,4 +1,4 @@
-# Copyright 2020 Observational Health Data Sciences and Informatics
+# Copyright 2021 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 #
@@ -38,6 +38,7 @@
 #' @param tempEmulationSchema Some database platforms like Oracle and Impala do not truly support temp tables. To
 #'                            emulate temp tables, provide a schema with write privileges where temp tables
 #'                            can be created.
+#' @param verifyDependencies   Check whether correct package versions are installed?
 #' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
 #'                             (/). Do not use a folder on a network drive since this greatly impacts
 #'                             performance.
@@ -78,6 +79,7 @@ execute <- function(connectionDetails,
                     cohortTable = "cohort",
                     oracleTempSchema = NULL,
                     tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
+                    verifyDependencies = TRUE,
                     outputFolder,
                     databaseId = "Unknown",
                     databaseName = "Unknown",
@@ -99,6 +101,11 @@ execute <- function(connectionDetails,
   ParallelLogger::addDefaultErrorReportLogger(file.path(outputFolder, "errorReportR.txt"))
   on.exit(ParallelLogger::unregisterLogger("DEFAULT_FILE_LOGGER", silent = TRUE))
   on.exit(ParallelLogger::unregisterLogger("DEFAULT_ERRORREPORT_LOGGER", silent = TRUE), add = TRUE)
+  
+  if (verifyDependencies) {
+    ParallelLogger::logInfo("Checking whether correct package versions are installed")
+    verifyDependencies()
+  }
   
   if (createCohorts) {
     ParallelLogger::logInfo("Creating exposure and outcome cohorts")
