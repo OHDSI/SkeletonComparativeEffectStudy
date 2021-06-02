@@ -28,6 +28,9 @@ How to run
 	```r
 	library(SkeletonComparativeEffectStudy)
 	
+  # Use renv to create a project-specific library containing the exact package versions specified in renv.lock:
+  renv::restore()
+	
 	# Optional: specify where the temporary files (used by the Andromeda package) will be created:
 	options(andromedaTempFolder = "s:/andromedaTemp")
 	

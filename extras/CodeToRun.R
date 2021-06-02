@@ -1,5 +1,8 @@
 library(SkeletonComparativeEffectStudy)
 
+# Use renv to create a project-specific library containing the exact package versions specified in renv.lock:
+renv::restore()
+
 # Optional: specify where the temporary files (used by the Andromeda package) will be created:
 options(andromedaTempFolder = "s:/andromedaTemp")
 
@@ -28,18 +31,18 @@ databaseId <- "Synpuf"
 databaseName <- "Medicare Claims Synthetic Public Use Files (SynPUFs)"
 databaseDescription <- "Medicare Claims Synthetic Public Use Files (SynPUFs) were created to allow interested parties to gain familiarity using Medicare claims data while protecting beneficiary privacy. These files are intended to promote development of software and applications that utilize files in this format, train researchers on the use and complexities of Centers for Medicare and Medicaid Services (CMS) claims, and support safe data mining innovations. The SynPUFs were created by combining randomized information from multiple unique beneficiaries and changing variable values. This randomization and combining of beneficiary information ensures privacy of health information."
 
-# For some database platforms (e.g. Oracle): define a schema that can be used to emulate temp tables:
-options(sqlRenderTempEmulationSchema = NULL)
+# For Oracle: define a schema that can be used to emulate temp tables:
+oracleTempSchema <- NULL
 
 execute(connectionDetails = connectionDetails,
         cdmDatabaseSchema = cdmDatabaseSchema,
         cohortDatabaseSchema = cohortDatabaseSchema,
         cohortTable = cohortTable,
+        oracleTempSchema = oracleTempSchema,
         outputFolder = outputFolder,
         databaseId = databaseId,
         databaseName = databaseName,
         databaseDescription = databaseDescription,
-        verifyDependencies = TRUE,
         createCohorts = TRUE,
         synthesizePositiveControls = TRUE,
         runAnalyses = TRUE,
