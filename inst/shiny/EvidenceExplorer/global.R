@@ -1,7 +1,7 @@
 source("DataPulls.R")
 source("PlotsAndTables.R")
 
-# shinySettings <- list(dataFolder = "s:/SkeletonComparativeEffectStudy/AllResults/shinyData", blind = F)
+# shinySettings <- list(dataFolder = "s:/SkeletonComparativeEffectStudy/AllResults/shinyData", blind = T)
 dataFolder <- shinySettings$dataFolder
 blind <- shinySettings$blind
 connection <- NULL

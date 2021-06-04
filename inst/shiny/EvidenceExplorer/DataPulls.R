@@ -263,13 +263,15 @@ getCmFollowUpDist <- function(connection,
                               targetId,
                               comparatorId,
                               outcomeId,
-                              databaseId,
+                              databaseId = NULL,
                               analysisId) {
   followUpDist <- cmFollowUpDist[cmFollowUpDist$targetId == targetId &
                                  cmFollowUpDist$comparatorId == comparatorId &
                                  cmFollowUpDist$outcomeId == outcomeId &
-                                 cmFollowUpDist$analysisId == analysisId &
-                                 cmFollowUpDist$databaseId == databaseId, ]
+                                 cmFollowUpDist$analysisId == analysisId, ]
+  if (!is.null(databaseId)) {
+    followUpDist <- followUpDist[followUpDist$databaseId == databaseId, ]
+  }
   return(followUpDist)
 }
 

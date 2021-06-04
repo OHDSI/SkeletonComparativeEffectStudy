@@ -36,10 +36,10 @@ shinyUI(
                                                   tabPanel("Power",
                                                            uiOutput("powerTableCaption"),
                                                            tableOutput("powerTable"),
-                                                           conditionalPanel("output.isMetaAnalysis == false",
+                                                           # conditionalPanel("output.isMetaAnalysis == false",
                                                              uiOutput("timeAtRiskTableCaption"),
                                                              tableOutput("timeAtRiskTable")
-                                                           )
+                                                           # )
                                                   ),
                                                   tabPanel("Attrition",
                                                            plotOutput("attritionPlot", width = 600, height = 600),

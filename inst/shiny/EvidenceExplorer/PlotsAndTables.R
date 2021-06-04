@@ -79,7 +79,8 @@ writeAbstract <- function(outcomeName,
 }
 
 prepareFollowUpDistTable <- function(followUpDist) {
-  targetRow <- data.frame(Cohort = "Target",
+  targetRow <- data.frame(Database = followUpDist$databaseId,
+                          Cohort = "Target",
                           Min = followUpDist$targetMinDays,
                           P10 = followUpDist$targetP10Days,
                           P25 = followUpDist$targetP25Days,
@@ -87,7 +88,8 @@ prepareFollowUpDistTable <- function(followUpDist) {
                           P75 = followUpDist$targetP75Days,
                           P90 = followUpDist$targetP90Days,
                           Max = followUpDist$targetMaxDays)
-  comparatorRow <- data.frame(Cohort = "Comparator",
+  comparatorRow <- data.frame(Database = followUpDist$databaseId,
+                              Cohort = "Comparator",
                               Min = followUpDist$comparatorMinDays,
                               P10 = followUpDist$comparatorP10Days,
                               P25 = followUpDist$comparatorP25Days,
@@ -103,6 +105,8 @@ prepareFollowUpDistTable <- function(followUpDist) {
   table$P75 <- formatC(table$P75, big.mark = ",", format = "d")
   table$P90 <- formatC(table$P90, big.mark = ",", format = "d")
   table$Max <- formatC(table$Max, big.mark = ",", format = "d")
+  if (length(unique(followUpDist$databaseId)) == 1)
+    table$Database <- NULL
   return(table)
 }
 

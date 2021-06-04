@@ -194,6 +194,12 @@ shinyServer(function(input, output, session) {
                                   analysisIds = row$analysisId)
         table <- preparePowerTable(results, cohortMethodAnalysis, includeDatabaseId = TRUE)
         table$description <- NULL
+        if (blind) {
+          table$targetOutcomes  <- NA
+          table$comparatorOutcomes   <- NA
+          table$targetIr   <- NA
+          table$comparatorIr   <- NA
+        }
         table$databaseId[table$databaseId %in% metaAnalysisDbIds] <- "Summary"
         colnames(table) <- c("Source", 
                              "Target subjects",
@@ -208,6 +214,13 @@ shinyServer(function(input, output, session) {
       } else {
         table <- preparePowerTable(row, cohortMethodAnalysis)
         table$description <- NULL
+        table$databaseId <- NULL
+        if (blind) {
+          table$targetOutcomes  <- NA
+          table$comparatorOutcomes   <- NA
+          table$targetIr   <- NA
+          table$comparatorIr   <- NA
+        }
         colnames(table) <- c("Target subjects",
                              "Comparator subjects",
                              "Target years",
@@ -242,12 +255,20 @@ shinyServer(function(input, output, session) {
       targetId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$target]
       comparatorId <- exposureOfInterest$exposureId[exposureOfInterest$exposureName == input$comparator]
       outcomeId <- outcomeOfInterest$outcomeId[outcomeOfInterest$outcomeName == input$outcome]
-      followUpDist <- getCmFollowUpDist(connection = connection,
-                                        targetId = targetId,
-                                        comparatorId = comparatorId,
-                                        outcomeId = outcomeId,
-                                        databaseId = row$databaseId,
-                                        analysisId = row$analysisId)
+      if (row$databaseId %in% metaAnalysisDbIds) {
+        followUpDist <- getCmFollowUpDist(connection = connection,
+                                          targetId = targetId,
+                                          comparatorId = comparatorId,
+                                          outcomeId = outcomeId,
+                                          analysisId = row$analysisId)
+      } else {
+        followUpDist <- getCmFollowUpDist(connection = connection,
+                                          targetId = targetId,
+                                          comparatorId = comparatorId,
+                                          outcomeId = outcomeId,
+                                          databaseId = row$databaseId,
+                                          analysisId = row$analysisId)
+      }
       table <- prepareFollowUpDistTable(followUpDist)
       return(table)
     }
