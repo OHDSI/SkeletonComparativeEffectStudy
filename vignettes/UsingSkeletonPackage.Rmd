@@ -80,7 +80,44 @@ ROhdsiWebApi::insertCohortDefinitionSetInPackage(fileName = "inst/settings/Cohor
 
 This code will fetch the cohort definitions from the WebAPI instance, and will insert them as json files in the `inst/cohorts` folder. It will also create corresponding sql files in the `inst/sql` folder.
 
-# Defining negative control outcomes.
+# Selecting negative control outcomes
+We can use the CemConnector package to pull down a selection of negative control suggestions to use within our study.
+These are outcome pairs for target exposures that have no mapping to literature searches, drug product labels, clinical trials or statistically significant spontaneous adverse event reports.
+```{r eval=FALSE}
+remotes::install_github("ohdsi/CemConnector")
+# URL tbc
+cemUrl <- "https://cem.ohdsi.org"
+cemConnection <- CemConnector::createCemConnection(apiUrl = cemUrl)
+# Celecoxib/Diclofenac cohort concept set
+conceptSet <- data.frame(conceptId = c(1118084, 1124300), includeDescendants = TRUE, isExcluded = FALSE)
+```
+
+Here we selected a concept set that defines the ingredients in our target and comparator exposures.
+The concept set search will automatically exclude any outcomes for which evidence exists.
+Therefore, it is vital to select this concept set with care.
+For more details on how to explore evidence, see the [CemConnector package](https://github.com/CemConnector).
+
+```{r eval=FALSE}
+suggestedControls <- cemConnection$getSuggestedControlCondtions(conceptSet, nControls = 100)
+```
+As evidence mapping is imperfect, it is highly advisable to view the suggested negative controls and refine them before adding them to the study package.
+The `nControls` parameter allows the selection of many controls that can be filtered, by default this is set to 50, the order returned is ranked according to how often the condition/drug pairing appears in OHDSI network studies.
+The selected controls can be appended to the study package, making sure to specify the target and comparator correctly:
+
+```{r eval=FALSE}
+CemConnector::addControlsToStudyPackage(controlConcepts = filteredControls,
+                                        cohortId = cohortId,
+                                        comparatorId = comparatorId,
+                                        fileName = "inst/settings/NegativeControls.csv",
+                                        type = "outcome")
+```
+We also need logic to convert the concept IDs into cohorts.
+This logic is defined in the file `inst/sql/NegativeControlOutcomes.sql`.
+The default logic simply creates a cohort for every occurrence of the concept ID or any of its descendants in the condition era table.
+If other logic is required the SQL file can be modified.
+Be sure to use template SQL as expected by the `SqlRender` package.
+
+# Defining negative control outcomes manually
 
 We will assume that a set of negative control outcomes have been defined as a set of concept IDs, with one concept ID per negative control. These negative controls need to be specified in a file called `inst/settings/NegativeControls.csv`. This is a comma-separated file with the following columns:  
 
@@ -93,9 +130,6 @@ We will assume that a set of negative control outcomes have been defined as a se
 - *type*: Can be `outcome` for negative control outcomes, and `exposure` for negative control exposures. Currently, only negative control outcomes are supported.
 
 The reason why for each negative control the target and comparator need to be specified is twofold: First, if multiple target-comparator pairs are investigated in a single study, it may be that not all negative control outcomes are applicable to all target-comparators. Second, in the future we will support negative control exposures, which can then be specified in the same file.
-
-We also need logic to convert the concept IDs into cohorts. This logic is defined in the file `inst/sql/NegativeControlOutcomes.sql`. The default logic simply creates a cohort for every occurrence of the concept ID or any of its descendants in the condition era table. If other logic is required the SQL file can be modified. Be sure to use template SQL as expected by the `SqlRender` package.
-
 
 # Define the target-comparator-outcomes of interest
 
