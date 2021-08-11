@@ -106,7 +106,7 @@ The selected controls can be appended to the study package, making sure to speci
 
 ```{r eval=FALSE}
 CemConnector::addControlsToStudyPackage(controlConcepts = filteredControls,
-                                        cohortId = cohortId,
+                                        targetId = targetId,
                                         comparatorId = comparatorId,
                                         fileName = "inst/settings/NegativeControls.csv",
                                         type = "outcome")
