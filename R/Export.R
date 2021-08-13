@@ -561,37 +561,56 @@ exportMainResults <- function(outputFolder,
 calibrate <- function(subset, allControls) {
   ncs <- subset[subset$outcomeId %in% allControls$outcomeId[allControls$targetEffectSize == 1], ]
   ncs <- ncs[!is.na(ncs$seLogRr), ]
-  if (nrow(ncs) > 5) {
-    null <- EmpiricalCalibration::fitMcmcNull(ncs$logRr, ncs$seLogRr)
-    calibratedP <- EmpiricalCalibration::calibrateP(null = null,
-                                                    logRr = subset$logRr,
-                                                    seLogRr = subset$seLogRr)
-    subset$calibratedP <- calibratedP$p
-  } else {
+  if (nrow(ncs) <= 5) {
     subset$calibratedP <- rep(NA, nrow(subset))
-  }
-  pcs <- subset[subset$outcomeId %in% allControls$outcomeId[allControls$targetEffectSize != 1], ]
-  pcs <- pcs[!is.na(pcs$seLogRr), ]
-  if (nrow(pcs) > 5) {
-    controls <- merge(subset, allControls[, c("targetId", "comparatorId", "outcomeId", "targetEffectSize")])
-    model <- EmpiricalCalibration::fitSystematicErrorModel(logRr = controls$logRr,
-                                                           seLogRr = controls$seLogRr,
-                                                           trueLogRr = log(controls$targetEffectSize),
-                                                           estimateCovarianceMatrix = FALSE)
-    calibratedCi <- EmpiricalCalibration::calibrateConfidenceInterval(logRr = subset$logRr,
-                                                                      seLogRr = subset$seLogRr,
-                                                                      model = model)
-    subset$calibratedRr <- exp(calibratedCi$logRr)
-    subset$calibratedCi95Lb <- exp(calibratedCi$logLb95Rr)
-    subset$calibratedCi95Ub <- exp(calibratedCi$logUb95Rr)
-    subset$calibratedLogRr <- calibratedCi$logRr
-    subset$calibratedSeLogRr <- calibratedCi$seLogRr
-  } else {
     subset$calibratedRr <- rep(NA, nrow(subset))
     subset$calibratedCi95Lb <- rep(NA, nrow(subset))
     subset$calibratedCi95Ub <- rep(NA, nrow(subset))
     subset$calibratedLogRr <- rep(NA, nrow(subset))
     subset$calibratedSeLogRr <- rep(NA, nrow(subset))
+  } else {
+    null <- EmpiricalCalibration::fitMcmcNull(ncs$logRr, ncs$seLogRr)
+    calibratedP <- EmpiricalCalibration::calibrateP(null = null,
+                                                    logRr = subset$logRr,
+                                                    seLogRr = subset$seLogRr)
+    subset$calibratedP <- calibratedP$p
+    if (any(allControls$targetEffectSize != 1)) {
+      # Positive controls were synthesized
+      pcs <- subset[subset$outcomeId %in% allControls$outcomeId[allControls$targetEffectSize != 1], ]
+      pcs <- pcs[!is.na(pcs$seLogRr), ]
+      if (nrow(pcs) > 5) {
+        controls <- merge(subset, allControls[, c("targetId", "comparatorId", "outcomeId", "targetEffectSize")])
+        model <- EmpiricalCalibration::fitSystematicErrorModel(logRr = controls$logRr,
+                                                               seLogRr = controls$seLogRr,
+                                                               trueLogRr = log(controls$targetEffectSize),
+                                                               estimateCovarianceMatrix = FALSE)
+        calibratedCi <- EmpiricalCalibration::calibrateConfidenceInterval(logRr = subset$logRr,
+                                                                          seLogRr = subset$seLogRr,
+                                                                          model = model)
+        subset$calibratedRr <- exp(calibratedCi$logRr)
+        subset$calibratedCi95Lb <- exp(calibratedCi$logLb95Rr)
+        subset$calibratedCi95Ub <- exp(calibratedCi$logUb95Rr)
+        subset$calibratedLogRr <- calibratedCi$logRr
+        subset$calibratedSeLogRr <- calibratedCi$seLogRr
+      } else {
+        subset$calibratedRr <- rep(NA, nrow(subset))
+        subset$calibratedCi95Lb <- rep(NA, nrow(subset))
+        subset$calibratedCi95Ub <- rep(NA, nrow(subset))
+        subset$calibratedLogRr <- rep(NA, nrow(subset))
+        subset$calibratedSeLogRr <- rep(NA, nrow(subset))
+      }
+    } else {
+      # No positive controls were synthesized
+      model <- EmpiricalCalibration::convertNullToErrorModel(null)
+      calibratedCi <- EmpiricalCalibration::calibrateConfidenceInterval(logRr = subset$logRr,
+                                                                        seLogRr = subset$seLogRr,
+                                                                        model = model)
+      subset$calibratedRr <- exp(calibratedCi$logRr)
+      subset$calibratedCi95Lb <- exp(calibratedCi$logLb95Rr)
+      subset$calibratedCi95Ub <- exp(calibratedCi$logUb95Rr)
+      subset$calibratedLogRr <- calibratedCi$logRr
+      subset$calibratedSeLogRr <- calibratedCi$seLogRr
+    }
   }
   subset$i2 <- rep(NA, nrow(subset))
   subset <- subset[, c("targetId",
