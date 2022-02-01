@@ -9,6 +9,11 @@ execute(
   cdmDatabaseSchema,
   cohortDatabaseSchema = cdmDatabaseSchema,
   cohortTable = "cohort",
+  cohortInclusionTable = paste0(cohortTable, "_inclusion"),
+  cohortInclusionResultTable = paste0(cohortTable, "_inclusion_result"),
+  cohortInclusionStatsTable = paste0(cohortTable, "_inclusion_stats"),
+  cohortSummaryStatsTable = paste0(cohortTable, "_summary_stats"),
+  cohortCensorStatsTable = paste0(cohortTable, "_censor_stats"),
   oracleTempSchema = NULL,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
   verifyDependencies = TRUE,
@@ -37,9 +42,22 @@ schema name, for example 'cdm_data.dbo'.}
 write priviliges in this schema. Note that for SQL Server, this should
 include both the database and schema name, for example 'cdm_data.dbo'.}
 
-\item{cohortTable}{The name of the table that will be created in the work database schema.
-This table will hold the exposure and outcome cohorts used in this
-study.}
+\item{cohortTable}{Name of the cohort table.}
+
+\item{cohortInclusionTable}{Name of the inclusion table, one of the tables for storing
+inclusion rule statistics.}
+
+\item{cohortInclusionResultTable}{Name of the inclusion result table, one of the tables for
+storing inclusion rule statistics.}
+
+\item{cohortInclusionStatsTable}{Name of the inclusion stats table, one of the tables for storing
+inclusion rule statistics.}
+
+\item{cohortSummaryStatsTable}{Name of the summary stats table, one of the tables for storing
+inclusion rule statistics.}
+
+\item{cohortCensorStatsTable}{Name of the censor stats table, one of the tables for storing
+inclusion rule statistics.}
 
 \item{oracleTempSchema}{DEPRECATED: use `tempEmulationSchema` instead.}
 

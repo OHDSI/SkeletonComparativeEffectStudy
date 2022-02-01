@@ -1,4 +1,4 @@
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 #
@@ -51,7 +51,7 @@ runCohortMethod <- function(connectionDetails,
                                          refitPsForEveryOutcome = FALSE,
                                          outcomeIdsOfInterest = outcomesOfInterest)
   
-  ParallelLogger::logInfo("Summarizing results")
+  message("Summarizing results")
   analysisSummary <- CohortMethod::summarizeAnalyses(referenceTable = results, 
                                                      outputFolder = cmOutputFolder)
   analysisSummary <- addCohortNames(analysisSummary, "targetId", "targetName")
@@ -60,7 +60,7 @@ runCohortMethod <- function(connectionDetails,
   analysisSummary <- addAnalysisDescription(analysisSummary, "analysisId", "analysisDescription")
   write.csv(analysisSummary, file.path(outputFolder, "analysisSummary.csv"), row.names = FALSE)
   
-  ParallelLogger::logInfo("Computing covariate balance") 
+  message("Computing covariate balance") 
   balanceFolder <- file.path(outputFolder, "balance")
   if (!file.exists(balanceFolder)) {
     dir.create(balanceFolder)

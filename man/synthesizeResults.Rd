@@ -23,6 +23,8 @@ written to same directory with all other results.}
 
 \item{method}{The meta-analysis method to use.  Possible values are "BayesianNonNormal" (Schumie et al.) or "DL" (DerSimonian-Laird).}
 
+\item{resultsZipPattern}{The pattern of the names of the zip files containing the exported results of each database.}
+
 \item{addTraditional}{Boolean indicating if traditional meta-analysis (i.e., "DL") results should be added to result (if \code{method} is "BayesianNonNormal").}
 }
 \value{

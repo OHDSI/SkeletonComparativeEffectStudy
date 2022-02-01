@@ -10,23 +10,22 @@ maxCores <- parallel::detectCores()
 outputFolder <- "s:/SkeletonComparativeEffectStudy"
 
 # Details for connecting to the server:
-connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "pdw",
-                                                                server = Sys.getenv("PDW_SERVER"),
-                                                                user = NULL,
-                                                                password = NULL,
-                                                                port = Sys.getenv("PDW_PORT"))
+connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift",
+                                                                connectionString = keyring::key_get("redShiftConnectionStringOhdaMdcr"),
+                                                                user = keyring::key_get("redShiftUserName"),
+                                                                password = keyring::key_get("redShiftPassword"))
 
 # The name of the database schema where the CDM data can be found:
-cdmDatabaseSchema <- "CDM_IBM_MDCD_V1153.dbo"
+cdmDatabaseSchema <- "cdm_truven_mdcr_v1911"
 
 # The name of the database schema and table where the study-specific cohorts will be instantiated:
-cohortDatabaseSchema <- "scratch.dbo"
-cohortTable <- "mschuemi_skeleton"
+cohortDatabaseSchema <- "scratch_mschuemi"
+cohortTable <- "estimation_skeleton"
 
 # Some meta-information that will be used by the export function:
-databaseId <- "Synpuf"
-databaseName <- "Medicare Claims Synthetic Public Use Files (SynPUFs)"
-databaseDescription <- "Medicare Claims Synthetic Public Use Files (SynPUFs) were created to allow interested parties to gain familiarity using Medicare claims data while protecting beneficiary privacy. These files are intended to promote development of software and applications that utilize files in this format, train researchers on the use and complexities of Centers for Medicare and Medicaid Services (CMS) claims, and support safe data mining innovations. The SynPUFs were created by combining randomized information from multiple unique beneficiaries and changing variable values. This randomization and combining of beneficiary information ensures privacy of health information."
+databaseId <- "IBM_MDCR"
+databaseName <- "IBM MarketScan® Medicare Supplemental and Coordination of Benefits Database"
+databaseDescription <- "IBM MarketScan® Medicare Supplemental and Coordination of Benefits Database (MDCR) represents health services of retirees in the United States with primary or Medicare supplemental coverage through privately insured fee-for-service, point-of-service, or capitated health plans.  These data include adjudicated health insurance claims (e.g. inpatient, outpatient, and outpatient pharmacy). Additionally, it captures laboratory tests for a subset of the covered lives."
 
 # For some database platforms (e.g. Oracle): define a schema that can be used to emulate temp tables:
 options(sqlRenderTempEmulationSchema = NULL)

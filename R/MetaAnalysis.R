@@ -1,4 +1,4 @@
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 #
@@ -28,6 +28,7 @@
 #'                        written to same directory with all other results.
 #' @param maxCores        Maximum number of CPU cores to be used when computing the meta-analyses.
 #' @param method          The meta-analysis method to use.  Possible values are "BayesianNonNormal" (Schumie et al.) or "DL" (DerSimonian-Laird).
+#' @param resultsZipPattern  The pattern of the names of the zip files containing the exported results of each database.
 #' @param addTraditional  Boolean indicating if traditional meta-analysis (i.e., "DL") results should be added to result (if \code{method} is "BayesianNonNormal").
 #' 
 #' 
@@ -49,7 +50,8 @@ synthesizeResults <- function(allDbsFolder,
                               method = "BayesianNonNormal",
                               resultsZipPattern = "^Results_.*\\.zip",
                               addTraditional = TRUE) {
-  
+  allDbsFolder <- normalizePath(allDbsFolder)
+  maExportFolder <- normalizePath(maExportFolder)
   if (!file.exists(maExportFolder)) {
     dir.create(maExportFolder, recursive = TRUE)
   }
@@ -66,7 +68,7 @@ synthesizeResults <- function(allDbsFolder,
   }
   
   resultSets <- list.files(path = allDbsFolder, pattern = resultsZipPattern)
-  ParallelLogger::logInfo(sprintf("Found %d zip files matching pattern %s for synthesizing", length(resultSets), resultsZipPattern))
+  message(sprintf("Found %d zip files matching pattern %s for synthesizing", length(resultSets), resultsZipPattern))
   if (length(resultSets) == 0) {
     stop(sprintf("No results found matching pattern %s in directory %s", resultsZipPattern, allDbsFolder))
   } else if (length(resultSets) == 1) {
@@ -91,9 +93,9 @@ synthesizeResults <- function(allDbsFolder,
     groups <- lapply(names(mainResults), function(name) list(mainResults = mainResults[[name]]))
   }
   
-  ParallelLogger::logInfo("Performing cross-database evidence synthesis")
+  message("Performing cross-database evidence synthesis")
   cluster <- ParallelLogger::makeCluster(min(maxCores, 10))
-  results <- ParallelLogger::clusterApply(cluster, groups, SkeletonComparativeEffectStudy:::computeGroupMetaAnalysis, method, addTraditional)
+  results <- ParallelLogger::clusterApply(cluster, groups, computeGroupMetaAnalysis, method, addTraditional)
   ParallelLogger::stopCluster(cluster)
   
   results <- do.call(rbind, results)
@@ -107,7 +109,7 @@ synthesizeResults <- function(allDbsFolder,
   fileName <-  file.path(tempFolder, "cohort_method_result.csv")
   write.csv(results, fileName, row.names = FALSE)
   
-  ParallelLogger::logInfo("Creating database table")
+  message("Creating database table")
   database <- data.frame(databaseId = "Meta-analysis",
                          databaseName = "Random effects meta-analysis",
                          description = getDescriptionFromMethod(method),
@@ -119,17 +121,17 @@ synthesizeResults <- function(allDbsFolder,
   write.csv(database, fileName, row.names = FALSE)
 
   
-  ParallelLogger::logInfo("Adding results to zip file")
+  message("Adding results to zip file")
   zipName <- file.path(maExportFolder, sprintf("Results_%s.zip", "MetaAnalysis"))
   files <- list.files(tempFolder, pattern = ".*\\.csv$")
   pwd <- setwd(tempFolder)
   on.exit(setwd(pwd))
   DatabaseConnector::createZipFile(zipFile = zipName, files = files)
-  ParallelLogger::logInfo("Results are ready for sharing at:", zipName)
+  message("Results are ready for sharing at:", zipName)
 }
 
 loadDatabaseResults <- function(zipFile, allDbsFolder) {
-  ParallelLogger::logInfo("Loading results from ", zipFile, " for evidence synthesis")
+  message("Loading results from ", zipFile, " for evidence synthesis")
   
   tempFolder <- tempfile()
   dir.create(tempFolder)
@@ -177,7 +179,7 @@ loadDatabaseResults <- function(zipFile, allDbsFolder) {
 }
 
 loadLikelihoodProfiles <- function(zipFile, allDbsFolder) {
-  ParallelLogger::logInfo("Loading likelihood profiles from ", zipFile, " for evidence synthesis")
+  message("Loading likelihood profiles from ", zipFile, " for evidence synthesis")
   tempFolder <- tempfile()
   dir.create(tempFolder)
   on.exit(unlink(tempFolder, recursive = TRUE, force = TRUE))
@@ -195,7 +197,7 @@ loadLikelihoodProfiles <- function(zipFile, allDbsFolder) {
 }
 
 loadDatabase <- function(zipFile, allDbsFolder) {
-  ParallelLogger::logInfo("Loading database information from ", zipFile)
+  message("Loading database information from ", zipFile)
   tempFolder <- tempfile()
   dir.create(tempFolder)
   on.exit(unlink(tempFolder, recursive = TRUE, force = TRUE))
@@ -226,10 +228,10 @@ computeGroupMetaAnalysis <- function(group, method, addTraditional) {
   targetId <- mainResults$targetId[1]
   comparatorId <- mainResults$comparatorId[1]
   
-  ParallelLogger::logInfo("Performing meta-analysis for target ", targetId, ", comparator ", comparatorId, ", analysis ", analysisId)
+  message("Performing meta-analysis for target ", targetId, ", comparator ", comparatorId, ", analysis ", analysisId)
   
   outcomeIds <- unique(mainResults$outcomeId)
-  outcomeGroupResults <- lapply(outcomeIds, SkeletonComparativeEffectStudy:::computeSingleMetaAnalysis, group, method, addTraditional)
+  outcomeGroupResults <- lapply(outcomeIds, computeSingleMetaAnalysis, group, method, addTraditional)
   groupResults <- do.call(rbind, outcomeGroupResults)
   
   

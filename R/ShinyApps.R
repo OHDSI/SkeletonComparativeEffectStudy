@@ -1,4 +1,4 @@
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 # 
@@ -33,6 +33,8 @@
 #'
 #' @export
 prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder) {
+  resultsZipFile <- normalizePath(resultsZipFile)
+  dataFolder <- normalizePath(dataFolder)
   # resultsZipFile <- "c:/temp/ResultsMDCD.zip"
   # dataFolder <- "c:/temp/shinyData"
   if (!file.exists(dataFolder)) {
@@ -84,11 +86,12 @@ prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder) {
 #' 
 #' @export
 launchEvidenceExplorer <- function(dataFolder, blind = TRUE, launch.browser = TRUE) {
+  dataFolder <- normalizePath(dataFolder)
   ensure_installed("shiny")
   ensure_installed("DT")
   appDir <- system.file("shiny", "EvidenceExplorer", package = "SkeletonComparativeEffectStudy")
   .GlobalEnv$shinySettings <- list(dataFolder = dataFolder, blind = blind)
-  on.exit(rm(shinySettings, envir=.GlobalEnv))
+  on.exit(rm("shinySettings", envir = .GlobalEnv))
   shiny::runApp(appDir) 
 }
 

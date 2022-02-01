@@ -1,6 +1,6 @@
 # @file Package.R
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 #
@@ -20,7 +20,7 @@
 "_PACKAGE"
 
 #' @importFrom stats aggregate density pnorm qnorm quantile
-#' @importFrom utils read.csv write.csv install.packages menu setTxtProgressBar txtProgressBar write.table
+#' @importFrom utils read.csv write.csv install.packages menu setTxtProgressBar txtProgressBar write.table installed.packages packageVersion
 #' @importFrom rlang .data
 #' @import dplyr
 #' @import DatabaseConnector

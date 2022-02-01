@@ -1,4 +1,4 @@
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 #
@@ -15,10 +15,12 @@
 # limitations under the License.
 
 # Format and check code ---------------------------------------------------
+install.packages("styler")
+styler::style_pkg()
 remotes::install_github("ohdsi/OhdsiRTools")
-OhdsiRTools::formatRFolder()
 OhdsiRTools::checkUsagePackage("SkeletonComparativeEffectStudy")
 OhdsiRTools::updateCopyrightYearFolder()
+install.packages("devtools")
 devtools::spell_check()
 
 # Create manual -----------------------------------------------------------
@@ -57,4 +59,6 @@ createAnalysesDetails("inst/settings/")
 createPositiveControlSynthesisArgs("inst/settings/")
 
 # Store environment in which the study was executed -----------------------
-OhdsiRTools::createRenvLockFile("SkeletonComparativeEffectStudy")
+OhdsiRTools::createRenvLockFile(rootPackage = "SkeletonComparativeEffectStudy",
+                                mode = "description",
+                                additionalRequiredPackages = "keyring")

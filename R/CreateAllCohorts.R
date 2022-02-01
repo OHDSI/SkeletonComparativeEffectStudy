@@ -1,4 +1,4 @@
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of SkeletonComparativeEffectStudy
 #
@@ -17,26 +17,29 @@
 createCohorts <- function(connectionDetails,
                           cdmDatabaseSchema,
                           cohortDatabaseSchema,
-                          cohortTable = "cohort",
+                          cohortTableNames,
                           tempEmulationSchema,
                           outputFolder) {
   if (!file.exists(outputFolder))
     dir.create(outputFolder)
   
-  conn <- DatabaseConnector::connect(connectionDetails)
+  connection <- DatabaseConnector::connect(connectionDetails)
+  on.exit(DatabaseConnector::disconnect(connection))
   
-  # Using oracleTempSchema because ROhdsiWebApi-generated code will stil use that:
-  .createCohorts(connection = conn,
-                 cdmDatabaseSchema = cdmDatabaseSchema,
-                 cohortDatabaseSchema = cohortDatabaseSchema,
-                 cohortTable = cohortTable,
-                 oracleTempSchema = tempEmulationSchema,
-                 outputFolder = outputFolder)
+  CohortGenerator::createCohortTables(connection = connection,
+                                      cohortDatabaseSchema = cohortDatabaseSchema,
+                                      cohortTableNames = cohortTableNames)
+  cohortDefinitionSet <- CohortGenerator::getCohortDefinitionSet(packageName = "SkeletonComparativeEffectStudy")
+  CohortGenerator::generateCohortSet(connection = connection,
+                                     cohortDatabaseSchema = cohortDatabaseSchema,
+                                     cohortTableNames = cohortTableNames,
+                                     cdmDatabaseSchema = cdmDatabaseSchema,
+                                     tempEmulationSchema = tempEmulationSchema,
+                                     cohortDefinitionSet = cohortDefinitionSet)
   
+  message("Creating negative control outcome cohorts")
   pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
   negativeControls <- read.csv(pathToCsv)
-  
-  ParallelLogger::logInfo("Creating negative control outcome cohorts")
   # Currently assuming all negative controls are outcome controls
   negativeControlOutcomes <- negativeControls
   sql <- SqlRender::loadRenderTranslateSql("NegativeControlOutcomes.sql",
@@ -45,25 +48,18 @@ createCohorts <- function(connectionDetails,
                                            tempEmulationSchema = tempEmulationSchema,
                                            cdm_database_schema = cdmDatabaseSchema,
                                            target_database_schema = cohortDatabaseSchema,
-                                           target_cohort_table = cohortTable,
+                                           target_cohort_table = cohortTableNames$cohortTable,
                                            outcome_ids = unique(negativeControlOutcomes$outcomeId))
-  DatabaseConnector::executeSql(conn, sql)
+  DatabaseConnector::executeSql(connection, sql)
   
   # Check number of subjects per cohort:
-  ParallelLogger::logInfo("Counting cohorts")
-  sql <- SqlRender::loadRenderTranslateSql("GetCounts.sql",
-                                           "SkeletonComparativeEffectStudy",
-                                           dbms = connectionDetails$dbms,
-                                           tempEmulationSchema = tempEmulationSchema,
-                                           cdm_database_schema = cdmDatabaseSchema,
-                                           work_database_schema = cohortDatabaseSchema,
-                                           study_cohort_table = cohortTable)
-  counts <- DatabaseConnector::querySql(conn, sql)
-  colnames(counts) <- SqlRender::snakeCaseToCamelCase(colnames(counts))
+  message("Counting cohorts")
+  counts <- CohortGenerator::getCohortCounts(connection = connection,
+                                             cohortDatabaseSchema = cohortDatabaseSchema,
+                                             cohortTable = cohortTableNames$cohortTable)
+  
   counts <- addCohortNames(counts)
   write.csv(counts, file.path(outputFolder, "CohortCounts.csv"), row.names = FALSE)
-
-  DatabaseConnector::disconnect(conn)
 }
 
 addCohortNames <- function(data, IdColumnName = "cohortDefinitionId", nameColumnName = "cohortName") {
