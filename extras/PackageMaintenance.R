@@ -46,7 +46,7 @@ unlink("inst/doc/DataModel.tex")
 
 # Insert cohort definitions from ATLAS into package -----------------------
 remotes::install_github("ohdsi/ROhdsiWebApi")
-ROhdsiWebApi::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv",
+ROhdsiWebApi::insertCohortDefinitionSetInPackage(fileName = "Cohorts.csv",
                                                  baseUrl = Sys.getenv("baseUrl"),
                                                  insertTableSql = TRUE,
                                                  insertCohortCreationR = TRUE,
@@ -61,4 +61,5 @@ createPositiveControlSynthesisArgs("inst/settings/")
 # Store environment in which the study was executed -----------------------
 OhdsiRTools::createRenvLockFile(rootPackage = "SkeletonComparativeEffectStudy",
                                 mode = "description",
+                                includeRootPackage = FALSE,
                                 additionalRequiredPackages = "keyring")

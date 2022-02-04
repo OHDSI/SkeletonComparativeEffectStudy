@@ -29,56 +29,59 @@ synthesizePositiveControls <- function(connectionDetails,
   
   synthesisSummaryFile <- file.path(outputFolder, "SynthesisSummary.csv")
   if (!file.exists(synthesisSummaryFile)) {
-    pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
+    pathToCsv <- system.file("settings", "NegativeControls.csv", 
+                             package = "SkeletonComparativeEffectStudy")
     negativeControls <- read.csv(pathToCsv)
     exposureOutcomePairs <- data.frame(exposureId = negativeControls$targetId,
                                        outcomeId = negativeControls$outcomeId)
     exposureOutcomePairs <- unique(exposureOutcomePairs)
-    pathToJson <- system.file("settings", "positiveControlSynthArgs.json", package = "SkeletonComparativeEffectStudy")
+    pathToJson <- system.file("settings", "positiveControlSynthArgs.json", 
+                              package = "SkeletonComparativeEffectStudy")
     args <- ParallelLogger::loadSettingsFromJson(pathToJson)
     args$control$threads <- min(c(10, maxCores))
     
-    # Using oracleTempSchema until MethodEvaluation has been updated:
-    result <- MethodEvaluation::injectSignals(connectionDetails = connectionDetails,
-                                              cdmDatabaseSchema = cdmDatabaseSchema,
-                                              oracleTempSchema = tempEmulationSchema,
-                                              exposureDatabaseSchema = cohortDatabaseSchema,
-                                              exposureTable = cohortTable,
-                                              outcomeDatabaseSchema = cohortDatabaseSchema,
-                                              outcomeTable = cohortTable,
-                                              outputDatabaseSchema = cohortDatabaseSchema,
-                                              outputTable = cohortTable,
-                                              createOutputTable = FALSE,
-                                              exposureOutcomePairs = exposureOutcomePairs,
-                                              workFolder = synthesisFolder,
-                                              modelThreads = max(1, round(maxCores/8)),
-                                              generationThreads = min(6, maxCores),
-                                              # External args start here
-                                              outputIdOffset = args$outputIdOffset,
-                                              firstExposureOnly = args$firstExposureOnly,
-                                              firstOutcomeOnly = args$firstOutcomeOnly,
-                                              removePeopleWithPriorOutcomes = args$removePeopleWithPriorOutcomes,
-                                              modelType = args$modelType,
-                                              washoutPeriod = args$washoutPeriod,
-                                              riskWindowStart = args$riskWindowStart,
-                                              riskWindowEnd = args$riskWindowEnd,
-                                              addExposureDaysToEnd = args$addExposureDaysToEnd,
-                                              effectSizes = args$effectSizes,
-                                              precision = args$precision,
-                                              prior = args$prior,
-                                              control = args$control,
-                                              maxSubjectsForModel = args$maxSubjectsForModel,
-                                              minOutcomeCountForModel = args$minOutcomeCountForModel,
-                                              minOutcomeCountForInjection = args$minOutcomeCountForInjection,
-                                              covariateSettings = args$covariateSettings
-                                              # External args stop here
+    result <- MethodEvaluation::synthesizePositiveControls(
+      connectionDetails = connectionDetails,
+      cdmDatabaseSchema = cdmDatabaseSchema,
+      tempEmulationSchema = tempEmulationSchema,
+      exposureDatabaseSchema = cohortDatabaseSchema,
+      exposureTable = cohortTable,
+      outcomeDatabaseSchema = cohortDatabaseSchema,
+      outcomeTable = cohortTable,
+      outputDatabaseSchema = cohortDatabaseSchema,
+      outputTable = cohortTable,
+      createOutputTable = FALSE,
+      exposureOutcomePairs = exposureOutcomePairs,
+      workFolder = synthesisFolder,
+      modelThreads = max(1, round(maxCores/8)),
+      generationThreads = min(6, maxCores),
+      # External args start here
+      outputIdOffset = args$outputIdOffset,
+      firstExposureOnly = args$firstExposureOnly,
+      firstOutcomeOnly = args$firstOutcomeOnly,
+      removePeopleWithPriorOutcomes = args$removePeopleWithPriorOutcomes,
+      modelType = args$modelType,
+      washoutPeriod = args$washoutPeriod,
+      riskWindowStart = args$riskWindowStart,
+      riskWindowEnd = args$riskWindowEnd,
+      addExposureDaysToEnd = args$addExposureDaysToEnd,
+      effectSizes = args$effectSizes,
+      precision = args$precision,
+      prior = args$prior,
+      control = args$control,
+      maxSubjectsForModel = args$maxSubjectsForModel,
+      minOutcomeCountForModel = args$minOutcomeCountForModel,
+      minOutcomeCountForInjection = args$minOutcomeCountForInjection,
+      covariateSettings = args$covariateSettings
+      # External args stop here
     )
     write.csv(result, synthesisSummaryFile, row.names = FALSE)
   } else {
     result <- read.csv(synthesisSummaryFile)
   }
   ParallelLogger::logTrace("Merging positive with negative controls ")
-  pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
+  pathToCsv <- system.file("settings", "NegativeControls.csv", 
+                           package = "SkeletonComparativeEffectStudy")
   negativeControls <- read.csv(pathToCsv)
   
   synthesisSummary <- read.csv(synthesisSummaryFile)
@@ -89,7 +92,8 @@ synthesizePositiveControls <- function(connectionDetails,
   synthesisSummary$oldOutcomeId <- synthesisSummary$outcomeId
   synthesisSummary$outcomeId <- synthesisSummary$newOutcomeId
   
-  pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
+  pathToCsv <- system.file("settings", "NegativeControls.csv", 
+                           package = "SkeletonComparativeEffectStudy")
   negativeControls <- read.csv(pathToCsv)
   negativeControls$targetEffectSize <- 1
   negativeControls$trueEffectSize <- 1

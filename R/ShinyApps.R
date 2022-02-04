@@ -34,7 +34,7 @@
 #' @export
 prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder) {
   resultsZipFile <- normalizePath(resultsZipFile)
-  dataFolder <- normalizePath(dataFolder)
+  dataFolder <- normalizePath(dataFolder, mustWork = FALSE)
   # resultsZipFile <- "c:/temp/ResultsMDCD.zip"
   # dataFolder <- "c:/temp/shinyData"
   if (!file.exists(dataFolder)) {

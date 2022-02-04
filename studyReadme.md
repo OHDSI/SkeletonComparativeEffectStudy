@@ -22,7 +22,8 @@ How to run
     download.file("https://raw.githubusercontent.com/ohdsi-studies/SkeletonComparativeEffectStudy/main/renv.lock", "renv.lock")
     renv::init()
     ```  
-
+    
+    If renv mentions that the project already has a lockfile select "*1: Restore the project from the lockfile.*".
 
 3. Once installed, you can execute the study by modifying and using the code below. For your convenience, this code is also provided under `extras/CodeToRun.R`:
 

@@ -17,7 +17,7 @@
 					{"source": "name", "target": "atlasName"},
 					{"source": "id", "target": "cohortId"},
 					{"source": "name", "target": "name", "modifiers": ["convertToFileName"]}],
-		"output": "inst/settings/CohortsToCreate.csv"
+		"output": "inst/Cohorts.csv"
 	},{
 		"type": "jsonArrayToCsv",
 		"input": "estimationAnalysisSettings.analysisSpecification.targetComparatorOutcomes",
@@ -39,13 +39,13 @@
 	},{
 		"type": "jsonArrayToJson",
 		"input": "cohortDefinitions",
-		"fileName": "name",
+		"fileName": "id",
 		"payload": "expression",
 		"output": "inst/cohorts"
 	},{
 		"type": "jsonArrayToSql",
 		"input": "cohortDefinitions",
-		"fileName": "name",
+		"fileName": "id",
 		"payload": "expression",
 		"output": "inst/sql/sql_server"
 	},{

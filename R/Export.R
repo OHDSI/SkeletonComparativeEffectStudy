@@ -42,7 +42,8 @@ exportResults <- function(outputFolder,
                  databaseName = databaseName,
                  databaseDescription = databaseDescription,
                  minCellCount = minCellCount,
-                 connectionDetails = connectionDetails)
+                 connectionDetails = connectionDetails,
+                 cdmDatabaseSchema = cdmDatabaseSchema)
   
   exportMainResults(outputFolder = outputFolder,
                     exportFolder = exportFolder,
@@ -114,15 +115,14 @@ exportExposures <- function(outputFolder, exportFolder) {
   message("- exposure_of_interest table")
   pathToCsv <- system.file("settings", "TcosOfInterest.csv", package = "SkeletonComparativeEffectStudy")
   tcosOfInterest <- read.csv(pathToCsv, stringsAsFactors = FALSE)
-  pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "SkeletonComparativeEffectStudy")
+  pathToCsv <- system.file("Cohorts.csv", package = "SkeletonComparativeEffectStudy")
   cohortsToCreate <- read.csv(pathToCsv)
   createExposureRow <- function(exposureId) {
-    atlasName <- as.character(cohortsToCreate$atlasName[cohortsToCreate$cohortId == exposureId])
-    name <- as.character(cohortsToCreate$name[cohortsToCreate$cohortId == exposureId])
-    cohortFileName <- system.file("cohorts", paste0(name, ".json"), package = "SkeletonComparativeEffectStudy")
+    cohortName <- as.character(cohortsToCreate$cohortName[cohortsToCreate$cohortId == exposureId])
+    cohortFileName <- system.file("cohorts", paste0(exposureId, ".json"), package = "SkeletonComparativeEffectStudy")
     definition <- readChar(cohortFileName, file.info(cohortFileName)$size)
     return(tibble::tibble(exposureId = exposureId,
-                          exposureName = atlasName,
+                          exposureName = cohortName,
                           definition = definition))
   }
   exposuresOfInterest <- unique(c(tcosOfInterest$targetId, tcosOfInterest$comparatorId))
@@ -136,15 +136,14 @@ exportExposures <- function(outputFolder, exportFolder) {
 exportOutcomes <- function(outputFolder, exportFolder) {
   message("Exporting outcomes")
   message("- outcome_of_interest table")
-  pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "SkeletonComparativeEffectStudy")
+  pathToCsv <- system.file("Cohorts.csv", package = "SkeletonComparativeEffectStudy")
   cohortsToCreate <- read.csv(pathToCsv)
   createOutcomeRow <- function(outcomeId) {
-    atlasName <- as.character(cohortsToCreate$atlasName[cohortsToCreate$cohortId == outcomeId])
-    name <- as.character(cohortsToCreate$name[cohortsToCreate$cohortId == outcomeId])
-    cohortFileName <- system.file("cohorts", paste0(name, ".json"), package = "SkeletonComparativeEffectStudy")
+    cohortName <- as.character(cohortsToCreate$cohortName[cohortsToCreate$cohortId == outcomeId])
+    cohortFileName <- system.file("cohorts", paste0(outcomeId, ".json"), package = "SkeletonComparativeEffectStudy")
     definition <- readChar(cohortFileName, file.info(cohortFileName)$size)
     return(tibble::tibble(outcomeId = outcomeId,
-                          outcomeName = atlasName,
+                          outcomeName = cohortName,
                           definition = definition))
   }
   outcomesOfInterest <- getOutcomesOfInterest()

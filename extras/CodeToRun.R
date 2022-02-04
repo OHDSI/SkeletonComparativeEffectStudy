@@ -1,13 +1,13 @@
 library(SkeletonComparativeEffectStudy)
 
 # Optional: specify where the temporary files (used by the Andromeda package) will be created:
-options(andromedaTempFolder = "s:/andromedaTemp")
+options(andromedaTempFolder = "d:/andromedaTemp")
 
 # Maximum number of cores to be used:
-maxCores <- parallel::detectCores()
+maxCores <- parallel::detectCores() - 1
 
 # The folder where the study intermediate and result files will be written:
-outputFolder <- "s:/SkeletonComparativeEffectStudy"
+outputFolder <- "d:/SkeletonComparativeEffectStudy"
 
 # Details for connecting to the server:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift",
@@ -34,7 +34,6 @@ execute(connectionDetails = connectionDetails,
         cdmDatabaseSchema = cdmDatabaseSchema,
         cohortDatabaseSchema = cohortDatabaseSchema,
         cohortTable = cohortTable,
-        oracleTempSchema = oracleTempSchema,
         outputFolder = outputFolder,
         databaseId = databaseId,
         databaseName = databaseName,
@@ -51,7 +50,7 @@ dataFolder <- file.path(outputFolder, "shinyData")
 
 # You can inspect the results if you want:
 prepareForEvidenceExplorer(resultsZipFile = resultsZipFile, dataFolder = dataFolder)
-launchEvidenceExplorer(dataFolder = dataFolder, blind = TRUE, launch.browser = FALSE)
+launchEvidenceExplorer(dataFolder = dataFolder, blind = F, launch.browser = FALSE)
 
 # Upload the results to the OHDSI SFTP server:
 privateKeyFileName <- ""

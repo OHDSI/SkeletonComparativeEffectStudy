@@ -29,7 +29,9 @@ createCohorts <- function(connectionDetails,
   CohortGenerator::createCohortTables(connection = connection,
                                       cohortDatabaseSchema = cohortDatabaseSchema,
                                       cohortTableNames = cohortTableNames)
-  cohortDefinitionSet <- CohortGenerator::getCohortDefinitionSet(packageName = "SkeletonComparativeEffectStudy")
+  cohortDefinitionSet <- CohortGenerator::getCohortDefinitionSet(packageName = "SkeletonComparativeEffectStudy",
+                                                                 settingsFileName = "Cohorts.csv",
+                                                                 cohortFileNameValue = "cohortId")
   CohortGenerator::generateCohortSet(connection = connection,
                                      cohortDatabaseSchema = cohortDatabaseSchema,
                                      cohortTableNames = cohortTableNames,
@@ -62,15 +64,15 @@ createCohorts <- function(connectionDetails,
   write.csv(counts, file.path(outputFolder, "CohortCounts.csv"), row.names = FALSE)
 }
 
-addCohortNames <- function(data, IdColumnName = "cohortDefinitionId", nameColumnName = "cohortName") {
-  pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "SkeletonComparativeEffectStudy")
+addCohortNames <- function(data, IdColumnName = "cohortId", nameColumnName = "cohortName") {
+  pathToCsv <- system.file("Cohorts.csv", package = "SkeletonComparativeEffectStudy")
   cohortsToCreate <- read.csv(pathToCsv)
   pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
   negativeControls <- read.csv(pathToCsv)
   
   idToName <- data.frame(cohortId = c(cohortsToCreate$cohortId,
                                       negativeControls$outcomeId),
-                         cohortName = c(as.character(cohortsToCreate$atlasName),
+                         cohortName = c(as.character(cohortsToCreate$cohortName),
                                         as.character(negativeControls$outcomeName)))
   idToName <- idToName[order(idToName$cohortId), ]
   idToName <- idToName[!duplicated(idToName$cohortId), ]

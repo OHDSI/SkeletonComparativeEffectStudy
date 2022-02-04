@@ -21,5 +21,7 @@ Changes:
 
 8. Updating `renv.lock` to latest versions of all dependencies.
 
+9. Storing cohort definitions according to new standard: JSON and SQL file names derived from cohort IDs. List of cohorts in `Cohorts.csv`, with columns `webApiCohortId`, `cohortId` and `cohortName`.
+
 
 
