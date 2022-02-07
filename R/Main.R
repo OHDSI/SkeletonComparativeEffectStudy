@@ -103,7 +103,7 @@ execute <- function(connectionDetails,
                     packageResults = TRUE,
                     maxCores = 4,
                     minCellCount = 5) {
-  outputFolder <- normalizePath(outputFolder)
+  outputFolder <- normalizePath(outputFolder, mustWork = FALSE)
   if (!file.exists(outputFolder)) {
     dir.create(outputFolder, recursive = TRUE)
   }

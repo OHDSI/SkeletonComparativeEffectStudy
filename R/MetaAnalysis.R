@@ -51,7 +51,7 @@ synthesizeResults <- function(allDbsFolder,
                               resultsZipPattern = "^Results_.*\\.zip",
                               addTraditional = TRUE) {
   allDbsFolder <- normalizePath(allDbsFolder)
-  maExportFolder <- normalizePath(maExportFolder)
+  maExportFolder <- normalizePath(maExportFolder, mustWork = FALSE)
   if (!file.exists(maExportFolder)) {
     dir.create(maExportFolder, recursive = TRUE)
   }

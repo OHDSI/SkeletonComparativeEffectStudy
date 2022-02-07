@@ -1,7 +1,7 @@
 source("DataPulls.R")
 source("PlotsAndTables.R")
 
-# shinySettings <- list(dataFolder = "s:/SkeletonComparativeEffectStudy/AllResults/shinyData", blind = T)
+# shinySettings <- list(dataFolder = "D:\\SkeletonComparativeEffectStudy\\export\\shinyData", blind = F)
 dataFolder <- shinySettings$dataFolder
 blind <- shinySettings$blind
 connection <- NULL
@@ -45,14 +45,14 @@ loadFile <- function(file, removePart) {
                       paste(colnames(existingData), collapse = ", ")))
                       
       }
-      newData <- rbind(existingData, newData)
+      newData <- dplyr::bind_rows(existingData, newData)
       newData <- unique(newData)
     }
     assign(camelCaseName, newData, envir = .GlobalEnv)
   }
   invisible(NULL)
 }
-# removePart <- removeParts[2]
+# removePart <- removeParts[3]
 file <- files[grepl(removePart, files)][1]
 for (removePart in removeParts) {
   invisible(lapply(files[grepl(removePart, files)], loadFile, removePart))
