@@ -33,10 +33,11 @@
 #'
 #' @export
 prepareForEvidenceExplorer <- function(resultsZipFile, dataFolder) {
-  resultsZipFile <- normalizePath(resultsZipFile)
+  resultsZipFile <- normalizePath(resultsZipFile, mustWork = FALSE)
   dataFolder <- normalizePath(dataFolder, mustWork = FALSE)
-  # resultsZipFile <- "c:/temp/ResultsMDCD.zip"
-  # dataFolder <- "c:/temp/shinyData"
+  if (!file.exists(resultsZipFile)) {
+    stop(sprintf("Cannot find file '%s'", resultsZipFile))
+  }
   if (!file.exists(dataFolder)) {
     dir.create(dataFolder, recursive = TRUE)
   }
