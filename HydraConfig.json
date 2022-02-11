@@ -13,10 +13,9 @@
 	},{
 		"type": "jsonArrayToCsv",
 		"input": "cohortDefinitions",
-		"mapping": [{"source": "id", "target": "atlasId"},
-					{"source": "name", "target": "atlasName"},
+		"mapping": [{"source": "id", "target": "webApiCohortId"},
 					{"source": "id", "target": "cohortId"},
-					{"source": "name", "target": "name", "modifiers": ["convertToFileName"]}],
+					{"source": "name", "target": "cohortName"}],
 		"output": "inst/Cohorts.csv"
 	},{
 		"type": "jsonArrayToCsv",

@@ -40,10 +40,11 @@ synthesizePositiveControls <- function(connectionDetails,
     args <- ParallelLogger::loadSettingsFromJson(pathToJson)
     args$control$threads <- min(c(10, maxCores))
     
-    result <- MethodEvaluation::synthesizePositiveControls(
+    # Using deprecated function to conform to current JSON specs:
+    result <- MethodEvaluation::injectSignals(
       connectionDetails = connectionDetails,
       cdmDatabaseSchema = cdmDatabaseSchema,
-      tempEmulationSchema = tempEmulationSchema,
+      oracleTempSchema = tempEmulationSchema,
       exposureDatabaseSchema = cohortDatabaseSchema,
       exposureTable = cohortTable,
       outcomeDatabaseSchema = cohortDatabaseSchema,

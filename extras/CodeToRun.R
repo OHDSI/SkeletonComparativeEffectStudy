@@ -50,7 +50,7 @@ dataFolder <- file.path(outputFolder, "shinyData")
 
 # You can inspect the results if you want:
 prepareForEvidenceExplorer(resultsZipFile = resultsZipFile, dataFolder = dataFolder)
-launchEvidenceExplorer(dataFolder = dataFolder, blind = F, launch.browser = FALSE)
+launchEvidenceExplorer(dataFolder = dataFolder, blind = TRUE, launch.browser = FALSE)
 
 # Upload the results to the OHDSI SFTP server:
 privateKeyFileName <- ""
