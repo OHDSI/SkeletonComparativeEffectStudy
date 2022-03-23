@@ -539,7 +539,7 @@
 		},
 		"renv" : {
 			"Package" : "renv",
-			"Version" : "0.15.2",
+			"Version" : "0.15.4",
 			"Source" : "Repository",
 			"Repository" : "CRAN"
 		},
@@ -555,13 +555,13 @@
 		},
 		"CohortGenerator" : {
 			"Package" : "CohortGenerator",
-			"Version" : "0.3.0",
+			"Version" : "0.4.0",
 			"Source" : "GitHub",
 			"RemoteType" : "github",
 			"RemoteHost" : "api.github.com",
 			"RemoteRepo" : "CohortGenerator",
 			"RemoteUsername" : "ohdsi",
-			"RemoteRef" : "v0.3.0"
+			"RemoteRef" : "v0.4.0"
 		},
 		"CohortMethod" : {
 			"Package" : "CohortMethod",

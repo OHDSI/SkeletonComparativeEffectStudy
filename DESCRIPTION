@@ -2,7 +2,7 @@ Package: SkeletonComparativeEffectStudy
 Type: Package
 Title: A Package Skeleton for Comparative Effectiveness Studies
 Version: 0.0.1
-Date: 2022-02-01
+Date: 2022-03-23
 Author: Martijn Schuemie [aut, cre]
 Maintainer: Martijn J. Schuemie <schuemie@ohdsi.org>
 Description: A skeleton package, to be used as a starting point when implementing comparative effect studies.
@@ -17,7 +17,7 @@ Imports:
   CohortMethod (>= 4.2.2),
   ggplot2,
   Andromeda (>= 0.6.0),
-  CohortGenerator (>= 0.3.0),
+  CohortGenerator (>= 0.4.0),
   dplyr,
   tibble,
   readr,
@@ -41,9 +41,9 @@ Remotes:
   ohdsi/MethodEvaluation,
   ohdsi/OhdsiSharing,
   ohdsi/CohortGenerator,
-  ohdsi/ParallelLogger@develop,
-  ohdsi/DatabaseConnector@develop,
-  ohdsi/CohortGenerator@from_package
+  ohdsi/ParallelLogger,
+  ohdsi/DatabaseConnector,
+  ohdsi/CohortGenerator
 License: Apache License 2.0
 VignetteBuilder: knitr
 LazyData: TRUE
