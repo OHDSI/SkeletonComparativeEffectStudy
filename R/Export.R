@@ -757,6 +757,12 @@ exportDiagnostics <- function(outputFolder,
     balance$targetMeanAfter[is.na(balance$targetMeanAfter)] <- 0
     balance$comparatorMeanAfter[is.na(balance$comparatorMeanAfter)] <- 0
     balance$stdDiffAfter <- round(balance$stdDiffAfter, 3)
+    balance <- balance[!(round(balance$targetMeanBefore, 3) == 0 &
+                           round(balance$comparatorMeanBefore, 3) == 0 &
+                           round(balance$targetMeanAfter, 3) == 0 &
+                           round(balance$comparatorMeanAfter, 3) == 0 &
+                           round(balance$stdDiffBefore, 3) == 0 &
+                           round(balance$stdDiffAfter, 3) == 0), ]
     balance <- enforceMinCellValue(balance,
                                    "targetMeanBefore",
                                    minCellCount/inferredTargetBeforeSize,
@@ -777,9 +783,6 @@ exportDiagnostics <- function(outputFolder,
     balance$comparatorMeanBefore <- round(balance$comparatorMeanBefore, 3)
     balance$targetMeanAfter <- round(balance$targetMeanAfter, 3)
     balance$comparatorMeanAfter <- round(balance$comparatorMeanAfter, 3)
-    balance <- balance[balance$targetMeanBefore != 0 & balance$comparatorMeanBefore != 0 & balance$targetMeanAfter !=
-                         0 & balance$comparatorMeanAfter != 0 & balance$stdDiffBefore != 0 & balance$stdDiffAfter !=
-                         0, ]
     balance <- balance[!is.na(balance$targetId), ]
     colnames(balance) <- SqlRender::camelCaseToSnakeCase(colnames(balance))
     write.table(x = balance,
