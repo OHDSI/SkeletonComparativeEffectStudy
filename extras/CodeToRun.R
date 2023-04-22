@@ -16,7 +16,7 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift
                                                                 password = keyring::key_get("redShiftPassword"))
 
 # The name of the database schema where the CDM data can be found:
-cdmDatabaseSchema <- "cdm_truven_mdcr_v1911"
+cdmDatabaseSchema <- "cdm_truven_mdcr_v2322"
 
 # The name of the database schema and table where the study-specific cohorts will be instantiated:
 cohortDatabaseSchema <- "scratch_mschuemi"
@@ -39,7 +39,7 @@ execute(connectionDetails = connectionDetails,
         databaseName = databaseName,
         databaseDescription = databaseDescription,
         verifyDependencies = TRUE,
-        createCohorts = TRUE,
+        createCohorts = F,
         synthesizePositiveControls = TRUE,
         runAnalyses = TRUE,
         packageResults = TRUE,

@@ -1,5 +1,13 @@
 (Note: currently not using version numbers, so referencing release time instead)
 
+SkeletonComparativeEffectStudy Q2 2022
+======================================
+
+Changes:
+
+1. Using HADES March 30 2023 renv lock file (https://github.com/OHDSI/Hades/tree/main/hadesWideReleases/2023Mar30).
+
+
 SkeletonComparativeEffectStudy Q1 2022
 ======================================
 
